@@ -28,5 +28,3 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ received: true });
 }
 
-// Stripe envoie du raw body — pas de parsing JSON automatique
-export const config = { api: { bodyParser: false } };
