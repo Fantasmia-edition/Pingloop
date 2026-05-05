@@ -86,6 +86,7 @@ export default function VendrePage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!user) return;
     setSubmitting(true);
     setError("");
     const supabase = createClient();
