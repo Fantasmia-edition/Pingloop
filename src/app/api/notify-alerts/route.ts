@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM_EMAIL = "PingLoop <alertes@pingloop.fr>";
 
 export async function POST(req: NextRequest) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   const { listingId } = await req.json();
   if (!listingId) return NextResponse.json({ error: "Missing listingId" }, { status: 400 });
 
