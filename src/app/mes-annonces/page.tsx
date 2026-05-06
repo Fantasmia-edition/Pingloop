@@ -112,6 +112,7 @@ function ListingRow({ listing: l, onMarkSold, onDelete }: {
   onDelete: () => void;
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmSold, setConfirmSold] = useState(false);
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-4">
@@ -145,9 +146,17 @@ function ListingRow({ listing: l, onMarkSold, onDelete }: {
           Voir →
         </Link>
         {!l.sold_at && onMarkSold && (
-          <button onClick={onMarkSold} className="text-xs text-green-600 hover:text-green-700 font-medium">
-            ✓ Vendu
-          </button>
+          confirmSold ? (
+            <div className="flex gap-1">
+              <button onClick={() => { onMarkSold(); setConfirmSold(false); }} className="text-xs text-green-600 font-bold">Oui</button>
+              <span className="text-gray-300">|</span>
+              <button onClick={() => setConfirmSold(false)} className="text-xs text-gray-400">Non</button>
+            </div>
+          ) : (
+            <button onClick={() => setConfirmSold(true)} className="text-xs text-green-600 hover:text-green-700 font-medium">
+              ✓ Vendu
+            </button>
+          )
         )}
         {confirmDelete ? (
           <div className="flex gap-1">
