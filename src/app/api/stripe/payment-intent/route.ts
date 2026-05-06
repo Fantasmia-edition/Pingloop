@@ -1,38 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
-import { COMMISSION_RATE } from "@/lib/config";
+import { SHIPPING_PRICES } from "@/types";
 
 export async function POST(req: NextRequest) {
-  const { listingId } = await req.json();
+  const { listingId, shippingMethod } = await req.json();
 
   const supabase = await createClient();
+  // Auth optionnel — les acheteurs peuvent payer sans compte PingLoop
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Non connecté" }, { status: 401 });
 
   const { data: listing } = await supabase
     .from("listings")
-    .select("*, profiles!listings_seller_id_fkey(stripe_account_id, stripe_onboarded)")
+    .select("price, sold_at, brand, name, seller_id")
     .eq("id", listingId)
     .single();
 
   if (!listing) return NextResponse.json({ error: "Annonce introuvable" }, { status: 404 });
-  if (listing.sold_at) return NextResponse.json({ error: "Déjà vendu" }, { status: 400 });
+  if (listing.sold_at) return NextResponse.json({ error: "Cet article a déjà été vendu." }, { status: 400 });
 
-  const sellerProfile = (listing as { profiles?: { stripe_account_id?: string; stripe_onboarded?: boolean } }).profiles;
-  if (!sellerProfile?.stripe_onboarded || !sellerProfile?.stripe_account_id) {
-    return NextResponse.json({ error: "Vendeur non configuré sur Stripe" }, { status: 400 });
-  }
+  const shippingCost =
+    shippingMethod === "relay" ? SHIPPING_PRICES.relay :
+    shippingMethod === "home"  ? SHIPPING_PRICES.home  : 0;
 
-  const amountCents = Math.round(listing.price * 100);
-  const feeCents = Math.round(amountCents * COMMISSION_RATE);
+  const totalCents = Math.round((listing.price + shippingCost) * 100);
 
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: amountCents,
+    amount: totalCents,
     currency: "eur",
-    application_fee_amount: feeCents,
-    transfer_data: { destination: sellerProfile.stripe_account_id },
-    metadata: { listing_id: listingId, buyer_id: user.id },
+    metadata: {
+      listing_id:      listingId,
+      buyer_id:        user?.id ?? "guest",
+      shipping_method: shippingMethod ?? "none",
+      item_price:      String(listing.price),
+      shipping_cost:   String(shippingCost),
+    },
+    // Stripe collecte l'email de l'acheteur via PaymentElement (pour le reçu)
+    automatic_payment_methods: { enabled: true },
   });
 
   return NextResponse.json({ clientSecret: paymentIntent.client_secret });

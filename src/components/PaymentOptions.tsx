@@ -1,81 +1,67 @@
 "use client";
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { SHIPPING_PRICES } from "@/types";
 
 const StripePaymentModal = dynamic(() => import("./StripePaymentModal"), { ssr: false });
-const PayPalPaymentButton = dynamic(() => import("./PayPalPaymentButton"), { ssr: false });
 
-interface SellerProfile {
-  stripe_onboarded: boolean;
-  paypal_onboarded: boolean;
-}
+type ShippingMethod = "relay" | "home" | "pickup" | null;
 
 interface Props {
   listingId: string;
-  price: number;
-  sellerProfile: SellerProfile;
+  itemPrice: number;
+  shippingMethod: ShippingMethod;
   onPurchased: () => void;
 }
 
-export default function PaymentOptions({ listingId, price, sellerProfile, onPurchased }: Props) {
+export default function PaymentOptions({ listingId, itemPrice, shippingMethod, onPurchased }: Props) {
   const [showStripe, setShowStripe] = useState(false);
-  const [paypalError, setPaypalError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const hasStripe = sellerProfile.stripe_onboarded;
-  const hasPaypal = sellerProfile.paypal_onboarded;
+  const shippingCost =
+    shippingMethod === "relay" ? SHIPPING_PRICES.relay :
+    shippingMethod === "home"  ? SHIPPING_PRICES.home  : 0;
 
-  if (!hasStripe && !hasPaypal) return null;
+  const total = itemPrice + shippingCost;
 
   if (success) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-2xl p-5 text-center">
-        <p className="text-green-700 font-bold text-lg">✅ Paiement confirmé !</p>
-        <p className="text-sm text-green-600 mt-1">Le vendeur a été notifié. L&apos;annonce est maintenant marquée comme vendue.</p>
+      <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-2xl p-5 text-center">
+        <p className="text-2xl mb-2">🎉</p>
+        <p className="text-green-700 dark:text-green-400 font-black text-base">Paiement confirmé !</p>
+        <p className="text-sm text-green-600 dark:text-green-500 mt-1">
+          Tu recevras un email de confirmation. Le vendeur a été notifié.
+        </p>
       </div>
     );
   }
 
   return (
     <>
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col gap-4">
-        <div>
-          <h2 className="font-black text-gray-900">Acheter cet article</h2>
-          <p className="text-sm text-gray-400 mt-0.5">
-            Paiement sécurisé — <span className="font-semibold text-gray-700">{price} €</span>
-          </p>
-        </div>
-
-        {hasStripe && (
-          <button
-            onClick={() => setShowStripe(true)}
-            className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm transition-colors"
-          >
-            <span className="bg-white text-indigo-600 font-black text-xs w-5 h-5 rounded flex items-center justify-center">S</span>
-            Payer par carte (Stripe)
-          </button>
-        )}
-
-        {hasPaypal && (
-          <div className="flex flex-col gap-1">
-            {paypalError && <p className="text-red-600 text-xs">{paypalError}</p>}
-            <PayPalPaymentButton
-              listingId={listingId}
-              onSuccess={() => { setSuccess(true); onPurchased(); }}
-              onError={setPaypalError}
-            />
-          </div>
-        )}
-
-        <p className="text-xs text-gray-400 text-center">7% de commission PingLoop incluse</p>
-      </div>
+      <button
+        onClick={() => setShowStripe(true)}
+        className="w-full bg-lime hover:bg-lime-dark text-navy font-black py-3.5 rounded-xl text-base transition-colors flex items-center justify-center gap-2"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+          <line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+        Payer par carte — {total} €
+      </button>
 
       {showStripe && (
         <StripePaymentModal
           listingId={listingId}
-          price={price}
+          price={total}
+          itemPrice={itemPrice}
+          shippingCost={shippingCost}
+          shippingMethod={shippingMethod}
           onClose={() => setShowStripe(false)}
-          onSuccess={() => { setShowStripe(false); setSuccess(true); onPurchased(); }}
+          onSuccess={() => {
+            setShowStripe(false);
+            setSuccess(true);
+            onPurchased();
+          }}
         />
       )}
     </>

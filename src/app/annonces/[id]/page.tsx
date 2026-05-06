@@ -35,9 +35,8 @@ export default async function ListingDetailPage({ params, searchParams }: {
 
   const l = listing as Listing & { photos: string[]; seller_name: string; sold_at: string | null; seller_id: string };
 
-  const [{ data: { user } }, { data: sellerProfile }, { data: similarRaw }] = await Promise.all([
+  const [{ data: { user } }, { data: similarRaw }] = await Promise.all([
     supabase.auth.getUser(),
-    supabase.from("profiles").select("stripe_onboarded, paypal_onboarded").eq("id", l.seller_id).single(),
     supabase
       .from("listings")
       .select("*")
@@ -149,7 +148,7 @@ export default async function ListingDetailPage({ params, searchParams }: {
             </div>
           </div>
 
-          {/* Buyer actions */}
+          {/* Buyer actions — visible même sans compte */}
           {user?.id !== l.seller_id && !l.sold_at && (
             <BuyerActions
               listingId={l.id}
@@ -160,7 +159,6 @@ export default async function ListingDetailPage({ params, searchParams }: {
               shippingRelay={!!l.shipping_relay}
               shippingHome={!!l.shipping_home}
               pickupAvailable={!!l.pickup_available}
-              sellerProfile={sellerProfile}
               currentUserId={user?.id ?? null}
             />
           )}
