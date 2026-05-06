@@ -79,6 +79,22 @@ export default function ListingCard({ listing }: Props) {
           )}
         </div>
 
+        {/* Shipping */}
+        {(listing.pickup_available || listing.shipping_cost != null) && (
+          <div className="flex flex-wrap gap-1.5 text-[10px] font-semibold text-gray-500 dark:text-navy-100/50">
+            {listing.shipping_cost != null && (
+              <span className="flex items-center gap-0.5 bg-gray-50 dark:bg-navy-700 px-2 py-0.5 rounded-full border border-gray-200 dark:border-navy-600">
+                📦 {listing.shipping_cost === 0 ? "Port offert" : `+${listing.shipping_cost} € port`}
+              </span>
+            )}
+            {listing.pickup_available && (
+              <span className="flex items-center gap-0.5 bg-gray-50 dark:bg-navy-700 px-2 py-0.5 rounded-full border border-gray-200 dark:border-navy-600">
+                🤝 Main propre
+              </span>
+            )}
+          </div>
+        )}
+
         <div className="flex items-center justify-between text-xs text-gray-400 dark:text-navy-100/50 mt-auto pt-2 border-t border-gray-100 dark:border-navy-700">
           <span className="font-medium text-gray-500 dark:text-navy-100/70">{sellerDisplay}</span>
           <span>{new Date(listing.created_at).toLocaleDateString("fr-FR")}</span>

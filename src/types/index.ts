@@ -25,6 +25,9 @@ export interface Listing {
   location: string;
   created_at: string;
   approval_code?: string | null;
+  /** null = aucun envoi postal proposé · 0 = port offert · >0 = frais en € */
+  shipping_cost?: number | null;
+  pickup_available?: boolean;
 }
 
 export interface SearchAlert {

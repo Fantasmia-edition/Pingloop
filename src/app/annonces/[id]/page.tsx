@@ -86,7 +86,34 @@ export default async function ListingDetailPage({ params, searchParams }: {
             </h1>
           </div>
 
-          <p className="text-4xl font-black text-gray-900 dark:text-lime">{l.price} €</p>
+          {/* Prix + livraison */}
+          <div className="flex flex-wrap items-end gap-3">
+            <p className="text-4xl font-black text-gray-900 dark:text-lime">{l.price} €</p>
+            {l.shipping_cost != null && l.shipping_cost > 0 && (
+              <p className="text-sm text-gray-400 dark:text-navy-100/50 pb-1.5 font-medium">
+                + {l.shipping_cost} € de port → <span className="text-gray-700 dark:text-white font-bold">{l.price + l.shipping_cost} € total</span>
+              </p>
+            )}
+            {l.shipping_cost === 0 && (
+              <span className="pb-1.5 text-sm font-semibold text-green-600 dark:text-green-400">Port offert 🎁</span>
+            )}
+          </div>
+
+          {/* Modes de livraison */}
+          {(l.pickup_available || l.shipping_cost != null) && (
+            <div className="flex flex-wrap gap-2">
+              {l.pickup_available && (
+                <span className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 border border-navy-100 dark:border-navy-600">
+                  🤝 Remise en main propre
+                </span>
+              )}
+              {l.shipping_cost != null && (
+                <span className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 border border-navy-100 dark:border-navy-600">
+                  📦 {l.shipping_cost === 0 ? "Livraison offerte" : `Livraison ${l.shipping_cost} €`}
+                </span>
+              )}
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-2">
             <span className={`text-sm font-semibold px-3 py-1 rounded-full ${CONDITION_COLORS[l.condition]}`}>
