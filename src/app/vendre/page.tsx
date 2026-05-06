@@ -41,14 +41,26 @@ export default function VendrePage() {
   const [condition, setCondition] = useState<Condition>("good");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
-  const [location, setLocation] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    createClient().auth.getUser().then(({ data }) => setUser(data.user));
+    async function load() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("display_name")
+          .eq("id", user.id)
+          .single();
+        if (profile?.display_name) setDisplayName(profile.display_name);
+      }
+    }
+    load();
   }, []);
 
   const filteredRubbers = useMemo(() => {
@@ -341,18 +353,6 @@ export default function VendrePage() {
             placeholder="Durée d'utilisation, épaisseur d'éponge, raisons de la vente…"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className={inputClass}
-          />
-        </div>
-
-        {/* Display name */}
-        <div>
-          <label className={labelClass}>Pseudo <span className="font-normal text-gray-400">(affiché sur l&apos;annonce)</span></label>
-          <input
-            type="text"
-            placeholder={user.email?.split("@")[0] ?? "Pseudo"}
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
             className={inputClass}
           />
         </div>

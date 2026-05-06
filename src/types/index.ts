@@ -54,7 +54,7 @@ export const CATEGORY_CONFIG: Record<ItemCategory, { label: string; emoji: strin
 };
 
 export const PIMPLE_LABELS: Record<PimpleType, string> = {
-  In: "Lisse (inverted)",
+  In: "Backside",
   Out: "Picots courts",
   Long: "Picots longs",
 };

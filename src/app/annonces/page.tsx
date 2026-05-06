@@ -69,7 +69,7 @@ export default function AnnoncesPage() {
         </select>
         <select value={pimpleType} onChange={(e) => setPimpleType(e.target.value as PimpleType | "")} className={selectClass}>
           <option value="">Picots : tous</option>
-          <option value="In">Lisse (inverted)</option>
+          <option value="In">Backside</option>
           <option value="Out">Picots courts</option>
           <option value="Long">Picots longs</option>
         </select>

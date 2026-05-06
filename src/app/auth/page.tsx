@@ -29,13 +29,22 @@ function AuthForm() {
     const supabase = createClient();
 
     if (mode === "login") {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         setError(error.message === "Invalid login credentials"
           ? "Email ou mot de passe incorrect."
           : error.message);
-      } else {
-        router.push(redirectTo);
+      } else if (data.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("display_name")
+          .eq("id", data.user.id)
+          .single();
+        if (!profile?.display_name) {
+          router.push("/onboarding");
+        } else {
+          router.push("/annonces");
+        }
         router.refresh();
       }
     }
@@ -46,18 +55,13 @@ function AuthForm() {
         setLoading(false);
         return;
       }
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectTo)}`,
-        },
-      });
+      const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) {
         setError(error.message);
-      } else {
-        setSuccess("Compte créé ! Vérifie ta boîte mail pour confirmer ton adresse, puis connecte-toi.");
-        setMode("login");
+      } else if (data.user) {
+        // Nouveau compte → onboarding direct
+        router.push("/onboarding");
+        router.refresh();
       }
     }
 

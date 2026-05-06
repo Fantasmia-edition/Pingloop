@@ -214,7 +214,7 @@ export default function AlertesPage() {
               <label className={labelClass}>Type de picots <span className="font-normal text-gray-400">(optionnel)</span></label>
               <select value={pimpleType} onChange={(e) => setPimpleType(e.target.value as PimpleType | "")} className={inputClass}>
                 <option value="">Tous</option>
-                <option value="In">Lisse (inverted)</option>
+                <option value="In">Backside</option>
                 <option value="Out">Picots courts</option>
                 <option value="Long">Picots longs</option>
               </select>
