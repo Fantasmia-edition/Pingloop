@@ -48,7 +48,7 @@ export default function OnboardingPage() {
       .upsert({ id: user.id, display_name: trimmed });
 
     if (upsertError) {
-      setError("Erreur lors de la sauvegarde. Réessaie.");
+      setError(upsertError.message);
       setLoading(false);
       return;
     }
