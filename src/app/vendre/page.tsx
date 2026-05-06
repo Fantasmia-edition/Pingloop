@@ -345,19 +345,6 @@ export default function VendrePage() {
           />
         </div>
 
-        {/* Location */}
-        <div>
-          <label className={labelClass}>Ville</label>
-          <input
-            type="text"
-            placeholder="ex : Lyon"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className={inputClass}
-            required
-          />
-        </div>
-
         {/* Display name */}
         <div>
           <label className={labelClass}>Pseudo <span className="font-normal text-gray-400">(affiché sur l&apos;annonce)</span></label>
