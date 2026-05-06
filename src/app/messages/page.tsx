@@ -79,7 +79,7 @@ export default function MessagesPage() {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-black text-gray-900 mb-6">Messages</h1>
+        <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-6">Messages</h1>
         <div className="flex flex-col gap-2">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-20 bg-white border border-gray-200 rounded-xl animate-pulse" />
@@ -91,7 +91,7 @@ export default function MessagesPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-black text-gray-900 mb-6">Messages</h1>
+      <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-6">Messages</h1>
 
       {convs.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
@@ -103,7 +103,7 @@ export default function MessagesPage() {
           </Link>
         </div>
       ) : (
-        <div className="flex flex-col divide-y divide-gray-100 bg-white border border-gray-200 rounded-2xl overflow-hidden">
+        <div className="flex flex-col divide-y divide-gray-100 dark:divide-navy-700 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 rounded-2xl overflow-hidden">
           {convs.map((conv) => {
             const isbuyer = conv.buyer_id === userId;
             const otherName = isbuyer ? conv.seller_name : conv.buyer_name;
@@ -111,7 +111,7 @@ export default function MessagesPage() {
               <Link
                 key={conv.id}
                 href={`/messages/${conv.id}`}
-                className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 dark:hover:bg-navy-700 transition-colors"
               >
                 <div className="relative shrink-0">
                   <div className="w-11 h-11 rounded-full bg-lime-100 flex items-center justify-center text-navy font-black text-sm">

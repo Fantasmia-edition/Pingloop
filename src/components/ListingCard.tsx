@@ -19,14 +19,14 @@ export default function ListingCard({ listing }: Props) {
   return (
     <Link
       href={`/annonces/${listing.id}`}
-      className={`bg-white rounded-2xl border transition-all flex flex-col overflow-hidden group ${
+      className={`bg-white dark:bg-navy-800 rounded-2xl border transition-all flex flex-col overflow-hidden group ${
         isSold
-          ? "opacity-60 border-gray-200"
-          : "border-gray-200 hover:border-lime hover:shadow-lg hover:-translate-y-0.5"
+          ? "opacity-60 border-gray-200 dark:border-navy-700"
+          : "border-gray-200 dark:border-navy-700 hover:border-lime dark:hover:border-lime hover:shadow-lg hover:-translate-y-0.5"
       }`}
     >
       {/* Photo */}
-      <div className="aspect-video w-full bg-gray-100 flex items-center justify-center relative overflow-hidden">
+      <div className="aspect-video w-full bg-gray-100 dark:bg-navy-700 flex items-center justify-center relative overflow-hidden">
         {mainPhoto ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -56,10 +56,10 @@ export default function ListingCard({ listing }: Props) {
 
       <div className="p-4 flex flex-col gap-2 flex-1">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-black text-navy text-base leading-tight">
+          <h3 className="font-black text-navy dark:text-white text-base leading-tight">
             {listing.brand} {listing.name}
           </h3>
-          <p className="text-xl font-black text-navy whitespace-nowrap">{listing.price} €</p>
+          <p className="text-xl font-black text-navy dark:text-lime whitespace-nowrap">{listing.price} €</p>
         </div>
 
         <div className="flex flex-wrap gap-1.5">
@@ -67,20 +67,20 @@ export default function ListingCard({ listing }: Props) {
             {CONDITION_LABELS[listing.condition]}
           </span>
           {listing.pimple_type && (
-            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-navy-700 text-gray-700 dark:text-navy-100">
               {PIMPLE_LABELS[listing.pimple_type]}
             </span>
           )}
           {listing.color && (
-            <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
+            <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-navy-700 text-gray-700 dark:text-navy-100">
               <span className={`w-2.5 h-2.5 rounded-full ${colorDot[listing.color] ?? "bg-gray-400"}`} />
               {listing.color === "Red" ? "Rouge" : listing.color === "Black" ? "Noir" : listing.color}
             </span>
           )}
         </div>
 
-        <div className="flex items-center justify-between text-xs text-gray-400 mt-auto pt-2 border-t border-gray-100">
-          <span className="font-medium text-gray-500">{sellerDisplay}</span>
+        <div className="flex items-center justify-between text-xs text-gray-400 dark:text-navy-100/50 mt-auto pt-2 border-t border-gray-100 dark:border-navy-700">
+          <span className="font-medium text-gray-500 dark:text-navy-100/70">{sellerDisplay}</span>
           <span>{new Date(listing.created_at).toLocaleDateString("fr-FR")}</span>
         </div>
       </div>

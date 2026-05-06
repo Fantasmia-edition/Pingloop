@@ -7,6 +7,8 @@ import MarkSoldButton from "@/components/MarkSoldButton";
 import PaymentOptions from "@/components/PaymentOptions";
 import OffersSection from "@/components/OffersSection";
 import FavoriteButton from "@/components/FavoriteButton";
+import PhotoGallery from "@/components/PhotoGallery";
+import ListingCard from "@/components/ListingCard";
 
 const COLOR_FR: Record<string, string> = {
   Red: "Rouge", Black: "Noir", Blue: "Bleu", Green: "Vert",
@@ -35,10 +37,20 @@ export default async function ListingDetailPage({ params, searchParams }: {
 
   const l = listing as Listing & { photos: string[]; seller_name: string; sold_at: string | null; seller_id: string };
 
-  const [{ data: { user } }, { data: sellerProfile }] = await Promise.all([
+  const [{ data: { user } }, { data: sellerProfile }, { data: similarRaw }] = await Promise.all([
     supabase.auth.getUser(),
     supabase.from("profiles").select("stripe_onboarded, paypal_onboarded").eq("id", l.seller_id).single(),
+    supabase
+      .from("listings")
+      .select("*")
+      .eq("category", l.category)
+      .neq("id", id)
+      .is("sold_at", null)
+      .order("created_at", { ascending: false })
+      .limit(3),
   ]);
+
+  const similar = (similarRaw as Listing[]) ?? [];
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -48,97 +60,76 @@ export default async function ListingDetailPage({ params, searchParams }: {
         </div>
       )}
 
-      <Link href="/annonces" className="text-sm text-gray-400 hover:text-gray-600 mb-6 inline-flex items-center gap-1">
+      <Link
+        href="/annonces"
+        className="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-navy-100 mb-6 inline-flex items-center gap-1 transition-colors"
+      >
         ← Retour aux annonces
       </Link>
 
       <div className="grid lg:grid-cols-2 gap-8 mt-4">
-        {/* Photos */}
-        <div className="flex flex-col gap-3">
-          {l.photos && l.photos.length > 0 ? (
-            <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={l.photos[0]}
-                alt={`${l.brand} ${l.name}`}
-                className="aspect-square w-full object-cover rounded-2xl border border-gray-200"
-              />
-              {l.photos.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto">
-                  {l.photos.map((url, i) => (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      key={i}
-                      src={url}
-                      alt={`Photo ${i + 1}`}
-                      className={`w-16 h-16 shrink-0 object-cover rounded-lg border-2 ${i === 0 ? "border-lime" : "border-transparent"}`}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="aspect-square rounded-2xl bg-gray-100 flex items-center justify-center border border-gray-200">
-              <span className="text-7xl">{CATEGORY_CONFIG[l.category]?.emoji ?? "📦"}</span>
-            </div>
-          )}
-        </div>
+        {/* Photos — swipeable gallery */}
+        <PhotoGallery
+          photos={l.photos ?? []}
+          alt={`${l.brand} ${l.name}`}
+          emoji={CATEGORY_CONFIG[l.category]?.emoji ?? "📦"}
+        />
 
         {/* Info */}
         <div className="flex flex-col gap-4">
           <div>
-            <span className="text-xs font-semibold text-navy uppercase tracking-wide">
+            <span className="text-xs font-semibold text-navy dark:text-lime uppercase tracking-wide">
               {CATEGORY_CONFIG[l.category]?.label ?? l.category}
             </span>
-            <h1 className="text-3xl font-black text-gray-900 leading-tight">
+            <h1 className="text-3xl font-black text-gray-900 dark:text-white leading-tight">
               {l.brand} {l.name}
             </h1>
           </div>
 
-          <p className="text-4xl font-black text-gray-900">{l.price} €</p>
+          <p className="text-4xl font-black text-gray-900 dark:text-lime">{l.price} €</p>
 
           <div className="flex flex-wrap gap-2">
             <span className={`text-sm font-semibold px-3 py-1 rounded-full ${CONDITION_COLORS[l.condition]}`}>
               {CONDITION_LABELS[l.condition]}
             </span>
             {l.pimple_type && (
-              <span className="text-sm font-medium px-3 py-1 rounded-full bg-gray-100 text-gray-700">
+              <span className="text-sm font-medium px-3 py-1 rounded-full bg-gray-100 dark:bg-navy-700 text-gray-700 dark:text-navy-100">
                 {PIMPLE_LABELS[l.pimple_type]}
               </span>
             )}
             {l.color && (
-              <span className="flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-full bg-gray-100 text-gray-700">
+              <span className="flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-full bg-gray-100 dark:bg-navy-700 text-gray-700 dark:text-navy-100">
                 <span className={`w-3 h-3 rounded-full ${COLOR_DOT[l.color] ?? "bg-gray-400"}`} />
                 {COLOR_FR[l.color] ?? l.color}
               </span>
             )}
             {l.approval_code && (
-              <span className="text-sm font-medium px-3 py-1 rounded-full bg-gray-100 text-gray-500">
+              <span className="text-sm font-medium px-3 py-1 rounded-full bg-gray-100 dark:bg-navy-700 text-gray-500 dark:text-navy-100/60">
                 ITTF {l.approval_code}
               </span>
             )}
           </div>
 
           {l.description && (
-            <div className="bg-gray-50 rounded-xl p-4">
-              <p className="text-sm font-semibold text-gray-700 mb-1">Description</p>
-              <p className="text-sm text-gray-600 leading-relaxed">{l.description}</p>
+            <div className="bg-gray-50 dark:bg-navy-800 rounded-xl p-4 border border-gray-100 dark:border-navy-700">
+              <p className="text-sm font-semibold text-gray-700 dark:text-navy-100 mb-1">Description</p>
+              <p className="text-sm text-gray-600 dark:text-navy-100/70 leading-relaxed">{l.description}</p>
             </div>
           )}
 
-          <div className="border border-gray-200 rounded-xl p-4 flex items-center justify-between bg-white">
+          <div className="border border-gray-200 dark:border-navy-700 rounded-xl p-4 flex items-center justify-between bg-white dark:bg-navy-800">
             <div>
-              <p className="text-sm font-semibold text-gray-900">{l.seller_name}</p>
-              <p className="text-xs text-gray-400">
-                {l.location} · {new Date(l.created_at).toLocaleDateString("fr-FR")}
+              <p className="text-sm font-semibold text-gray-900 dark:text-white">{l.seller_name}</p>
+              <p className="text-xs text-gray-400 dark:text-navy-100/50">
+                {new Date(l.created_at).toLocaleDateString("fr-FR")}
               </p>
             </div>
-            <div className="w-10 h-10 rounded-full bg-lime-100 flex items-center justify-center text-navy font-black text-sm">
+            <div className="w-10 h-10 rounded-full bg-lime-100 dark:bg-navy-700 flex items-center justify-center text-navy font-black text-sm">
               {l.seller_name.charAt(0).toUpperCase()}
             </div>
           </div>
 
-          {/* Acheteur */}
+          {/* Buyer actions */}
           {user?.id !== l.seller_id && !l.sold_at && (
             <div className="flex flex-col gap-3">
               {sellerProfile && (sellerProfile.stripe_onboarded || sellerProfile.paypal_onboarded) ? (
@@ -153,19 +144,19 @@ export default async function ListingDetailPage({ params, searchParams }: {
             </div>
           )}
 
-          {/* Vendeur */}
+          {/* Seller actions */}
           {user?.id === l.seller_id && (
             <div className="flex flex-col gap-3">
               {!l.sold_at ? (
                 <>
-                  <div className="bg-lime-50 border border-lime/30 rounded-xl px-4 py-3 text-sm text-navy-800 font-semibold text-center">
+                  <div className="bg-lime-50 dark:bg-lime/10 border border-lime/30 rounded-xl px-4 py-3 text-sm text-navy dark:text-lime font-semibold text-center">
                     C&apos;est ton annonce
                   </div>
                   <OffersSection listingId={l.id} sellerId={l.seller_id} listingPrice={l.price} currentUserId={user.id} />
                   <MarkSoldButton listingId={l.id} />
                 </>
               ) : (
-                <div className="bg-gray-100 rounded-xl px-4 py-3 text-sm text-gray-500 font-semibold text-center">
+                <div className="bg-gray-100 dark:bg-navy-700 rounded-xl px-4 py-3 text-sm text-gray-500 dark:text-navy-100/60 font-semibold text-center">
                   ✓ Vendu le {new Date(l.sold_at).toLocaleDateString("fr-FR")}
                 </div>
               )}
@@ -173,6 +164,28 @@ export default async function ListingDetailPage({ params, searchParams }: {
           )}
         </div>
       </div>
+
+      {/* Similar listings */}
+      {similar.length > 0 && (
+        <section className="mt-14">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-black text-gray-900 dark:text-white">
+              Annonces similaires
+            </h2>
+            <Link
+              href={`/annonces?cat=${l.category}`}
+              className="text-sm font-bold text-navy dark:text-lime hover:underline underline-offset-2"
+            >
+              Tout voir →
+            </Link>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {similar.map((s) => (
+              <ListingCard key={s.id} listing={s as Listing & { photos: string[]; seller_name: string }} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

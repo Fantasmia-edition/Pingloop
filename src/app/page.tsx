@@ -59,7 +59,7 @@ export default async function Home() {
       </section>
 
       {/* Recent listings */}
-      <section className="py-14 bg-white">
+      <section className="py-14 bg-white dark:bg-navy-900">
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -90,7 +90,7 @@ export default async function Home() {
       </section>
 
       {/* Why PingLoop */}
-      <section className="py-14 bg-navy-50">
+      <section className="py-14 bg-navy-50 dark:bg-navy">
         <div className="max-w-5xl mx-auto px-4">
           <h2 className="text-2xl font-black text-navy text-center mb-10">Pourquoi PingLoop ?</h2>
           <div className="grid sm:grid-cols-3 gap-6">
@@ -99,7 +99,7 @@ export default async function Home() {
               { emoji: "♻️", title: "Revends ce qui prend la poussière.", desc: "Ce bois qui dort dans ton sac depuis 6 mois ? Quelqu'un en rêve. Mets-le en vente en 60 secondes." },
               { emoji: "🔔", title: "Alerte sur ce que tu cherches.", desc: "Tu veux un MX-P rouge, bon état, sous 25€ ? On te prévient dès que quelqu'un le met en vente." },
             ].map((item) => (
-              <div key={item.title} className="bg-white rounded-2xl p-6 border border-navy-100">
+              <div key={item.title} className="bg-white dark:bg-navy-800 rounded-2xl p-6 border border-navy-100 dark:border-navy-700">
                 <div className="w-12 h-12 bg-lime-50 rounded-xl flex items-center justify-center text-2xl mb-4">{item.emoji}</div>
                 <h3 className="font-black text-navy mb-2">{item.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>

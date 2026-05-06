@@ -1,8 +1,16 @@
 @import "tailwindcss";
 
+/* Class-based dark mode: adds `dark:` prefix support when <html class="dark"> */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
+  --background: #f9fafb;   /* gray-50 */
   --foreground: #0d1b3e;
+}
+
+.dark {
+  --background: #060c1a;
+  --foreground: #e8edf7;
 }
 
 @theme inline {
@@ -11,6 +19,7 @@
 
   /* Brand palette */
   --color-navy:       #0d1b3e;
+  --color-navy-900:   #060c1a;
   --color-navy-800:   #162447;
   --color-navy-700:   #1e3263;
   --color-navy-100:   #e8edf7;

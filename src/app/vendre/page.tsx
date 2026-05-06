@@ -77,8 +77,8 @@ export default function VendrePage() {
   }, [brand, productSearch]);
 
   const inputClass =
-    "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime bg-white";
-  const labelClass = "block text-sm font-semibold text-gray-700 mb-1.5";
+    "w-full border border-gray-200 dark:border-navy-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime bg-white dark:bg-navy-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-navy-100/40";
+  const labelClass = "block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5";
 
   if (!user) {
     return (
@@ -155,12 +155,12 @@ export default function VendrePage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-black text-gray-900 mb-1">Mettre en vente</h1>
-        <p className="text-sm text-gray-500">Remplis le formulaire — ça prend moins d&apos;une minute.</p>
+        <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-1">Mettre en vente</h1>
+        <p className="text-sm text-gray-500 dark:text-navy-100/60">Remplis le formulaire — ça prend moins d&apos;une minute.</p>
       </div>
 
       <form
-        className="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col gap-5"
+        className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 rounded-2xl p-6 flex flex-col gap-5"
         onSubmit={handleSubmit}
       >
         {/* Category */}

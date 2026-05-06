@@ -18,8 +18,8 @@ function AuthForm() {
   const [success, setSuccess] = useState("");
 
   const inputClass =
-    "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime";
-  const labelClass = "block text-sm font-semibold text-gray-700 mb-1.5";
+    "w-full border border-gray-200 dark:border-navy-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-navy-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-navy-100/40 focus:outline-none focus:ring-2 focus:ring-lime";
+  const labelClass = "block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -154,7 +154,7 @@ export default function AuthPage() {
           Connecte-toi pour vendre, acheter ou créer des alertes.
         </p>
       </div>
-      <div className="bg-white border border-gray-200 rounded-2xl p-6">
+      <div className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 rounded-2xl p-6">
         <Suspense>
           <AuthForm />
         </Suspense>

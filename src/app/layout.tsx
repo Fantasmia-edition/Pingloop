@@ -13,10 +13,18 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`${syne.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-gray-50 font-sans antialiased">
+      <head>
+        {/* Anti-FOUC: apply saved theme before first paint */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()`,
+          }}
+        />
+      </head>
+      <body className="min-h-full flex flex-col bg-background text-foreground font-sans antialiased transition-colors duration-200">
         <Navbar />
         <main className="flex-1">{children}</main>
-        <footer className="border-t border-gray-200 py-6 text-center text-sm text-gray-400">
+        <footer className="border-t border-gray-200 dark:border-navy-700 py-6 text-center text-sm text-gray-400 dark:text-navy-100/50 dark:bg-navy-900">
           © {new Date().getFullYear()} PingLoop — Fait avec ❤️ par des pongistes, pour des pongistes
         </footer>
       </body>

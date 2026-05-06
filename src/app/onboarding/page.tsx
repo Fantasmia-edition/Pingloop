@@ -67,13 +67,13 @@ export default function OnboardingPage() {
     <div className="max-w-sm mx-auto px-4 py-16">
       <div className="text-center mb-8">
         <span className="text-4xl">🏓</span>
-        <h1 className="text-2xl font-black text-gray-900 mt-3 mb-1">Bienvenue sur PingLoop !</h1>
+        <h1 className="text-2xl font-black text-gray-900 dark:text-white mt-3 mb-1">Bienvenue sur PingLoop !</h1>
         <p className="text-sm text-gray-500">Choisis un pseudo — il sera affiché sur tes annonces.</p>
       </div>
-      <div className="bg-white border border-gray-200 rounded-2xl p-6">
+      <div className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 rounded-2xl p-6">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Ton pseudo</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Ton pseudo</label>
             <input
               type="text"
               required
@@ -81,7 +81,7 @@ export default function OnboardingPage() {
               placeholder="ex : PingMaster42"
               value={pseudo}
               onChange={(e) => setPseudo(e.target.value)}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime"
+              className="w-full border border-gray-200 dark:border-navy-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-navy-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-navy-100/40 focus:outline-none focus:ring-2 focus:ring-lime"
             />
           </div>
           {error && <p className="text-sm text-red-500">{error}</p>}

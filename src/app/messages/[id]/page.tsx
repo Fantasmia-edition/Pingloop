@@ -127,13 +127,13 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
   return (
     <div className="max-w-2xl mx-auto flex flex-col" style={{ height: "calc(100vh - 56px)" }}>
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 shrink-0">
+      <div className="bg-white dark:bg-navy-900 border-b border-gray-200 dark:border-navy-700 px-4 py-3 flex items-center gap-3 shrink-0">
         <Link href="/messages" className="text-gray-400 hover:text-gray-600 text-lg leading-none">←</Link>
         <div className="w-9 h-9 rounded-full bg-lime-100 flex items-center justify-center text-navy font-black text-sm shrink-0">
           {otherName.charAt(0).toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-gray-900 text-sm leading-tight">{otherName}</p>
+          <p className="font-bold text-gray-900 dark:text-white text-sm leading-tight">{otherName}</p>
           {conv?.listings && (
             <p className="text-xs text-gray-400 truncate">
               {conv.listings.brand} {conv.listings.name}
@@ -151,7 +151,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-2 bg-gray-50">
+      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-2 bg-gray-50 dark:bg-navy-900">
         {messages.map((msg, idx) => {
           const isMe = msg.from_id === userId;
           const showTime =
@@ -164,7 +164,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
                 className={`max-w-[78%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
                   isMe
                     ? "bg-lime text-navy rounded-br-sm"
-                    : "bg-white border border-gray-200 text-gray-900 rounded-bl-sm"
+                    : "bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 text-gray-900 dark:text-white rounded-bl-sm"
                 }`}
               >
                 {msg.text}
@@ -179,7 +179,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
       </div>
 
       {/* Input */}
-      <div className="bg-white border-t border-gray-200 px-4 py-3 flex items-end gap-3 shrink-0">
+      <div className="bg-white dark:bg-navy-900 border-t border-gray-200 dark:border-navy-700 px-4 py-3 flex items-end gap-3 shrink-0">
         <textarea
           ref={textareaRef}
           rows={1}
@@ -187,7 +187,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKey}
           placeholder="Écris ton message…"
-          className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-lime resize-none bg-gray-50"
+          className="flex-1 border border-gray-200 dark:border-navy-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-lime resize-none bg-gray-50 dark:bg-navy-800 text-gray-900 dark:text-white"
           style={{ maxHeight: "120px" }}
         />
         <button

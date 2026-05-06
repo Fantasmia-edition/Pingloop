@@ -59,7 +59,7 @@ export default function MesAnnoncesPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 flex flex-col gap-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-black text-gray-900">Mes annonces</h1>
+        <h1 className="text-2xl font-black text-gray-900 dark:text-white">Mes annonces</h1>
         <Link href="/vendre" className="bg-lime hover:bg-lime-dark text-navy text-sm font-bold px-4 py-2 rounded-lg transition-colors">
           + Nouvelle annonce
         </Link>
@@ -115,7 +115,7 @@ function ListingRow({ listing: l, onMarkSold, onDelete }: {
   const [confirmSold, setConfirmSold] = useState(false);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-4">
+    <div className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 rounded-xl p-4 flex items-center gap-4">
       {/* Thumbnail */}
       <div className="w-16 h-16 shrink-0 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">
         {l.photos?.[0]
@@ -128,7 +128,7 @@ function ListingRow({ listing: l, onMarkSold, onDelete }: {
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <p className="font-bold text-gray-900 text-sm truncate">{l.brand} {l.name}</p>
+          <p className="font-bold text-gray-900 dark:text-white text-sm truncate">{l.brand} {l.name}</p>
           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${CONDITION_COLORS[l.condition]}`}>
             {CONDITION_LABELS[l.condition]}
           </span>
@@ -136,7 +136,7 @@ function ListingRow({ listing: l, onMarkSold, onDelete }: {
             <span className="text-xs bg-gray-100 text-gray-500 font-semibold px-2 py-0.5 rounded-full">Vendu</span>
           )}
         </div>
-        <p className="text-sm font-black text-gray-900 mt-0.5">{l.price} €</p>
+        <p className="text-sm font-black text-gray-900 dark:text-lime mt-0.5">{l.price} €</p>
         <p className="text-xs text-gray-400">{l.location} · {new Date(l.created_at).toLocaleDateString("fr-FR")}</p>
       </div>
 

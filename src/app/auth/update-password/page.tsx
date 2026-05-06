@@ -11,7 +11,7 @@ export default function UpdatePasswordPage() {
   const [error, setError] = useState("");
 
   const inputClass =
-    "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime";
+    "w-full border border-gray-200 dark:border-navy-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-navy-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-navy-100/40 focus:outline-none focus:ring-2 focus:ring-lime";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,13 +40,13 @@ export default function UpdatePasswordPage() {
     <div className="max-w-sm mx-auto px-4 py-16">
       <div className="text-center mb-8">
         <span className="text-4xl">🔑</span>
-        <h1 className="text-2xl font-black text-gray-900 mt-3 mb-1">Nouveau mot de passe</h1>
+        <h1 className="text-2xl font-black text-gray-900 dark:text-white mt-3 mb-1">Nouveau mot de passe</h1>
         <p className="text-sm text-gray-500">Choisis un nouveau mot de passe pour ton compte.</p>
       </div>
-      <div className="bg-white border border-gray-200 rounded-2xl p-6">
+      <div className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 rounded-2xl p-6">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Nouveau mot de passe</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Nouveau mot de passe</label>
             <input
               type="password"
               required
@@ -57,7 +57,7 @@ export default function UpdatePasswordPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Confirmer le mot de passe</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Confirmer le mot de passe</label>
             <input
               type="password"
               required
