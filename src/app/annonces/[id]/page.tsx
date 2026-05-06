@@ -5,6 +5,8 @@ import { CONDITION_LABELS, CONDITION_COLORS, PIMPLE_LABELS, CATEGORY_CONFIG, Lis
 import ContactButton from "@/components/ContactButton";
 import MarkSoldButton from "@/components/MarkSoldButton";
 import PaymentOptions from "@/components/PaymentOptions";
+import OffersSection from "@/components/OffersSection";
+import FavoriteButton from "@/components/FavoriteButton";
 
 const COLOR_FR: Record<string, string> = {
   Red: "Rouge", Black: "Noir", Blue: "Bleu", Green: "Vert",
@@ -136,29 +138,30 @@ export default async function ListingDetailPage({ params, searchParams }: {
             </div>
           </div>
 
-          {/* Only show contact/payment options if not the seller and not already sold */}
+          {/* Acheteur */}
           {user?.id !== l.seller_id && !l.sold_at && (
             <div className="flex flex-col gap-3">
               {sellerProfile && (sellerProfile.stripe_onboarded || sellerProfile.paypal_onboarded) ? (
-                <PaymentOptions
-                  listingId={l.id}
-                  price={l.price}
-                  sellerProfile={sellerProfile}
-                  onPurchased={() => {}}
-                />
+                <PaymentOptions listingId={l.id} price={l.price} sellerProfile={sellerProfile} onPurchased={() => {}} />
               ) : (
                 <ContactButton listingId={l.id} sellerId={l.seller_id} sellerName={l.seller_name} listingTitle={`${l.brand} ${l.name}`} listingPrice={l.price} />
               )}
+              {user && (
+                <OffersSection listingId={l.id} sellerId={l.seller_id} listingPrice={l.price} currentUserId={user.id} />
+              )}
+              <FavoriteButton listingId={l.id} currentUserId={user?.id ?? null} />
             </div>
           )}
 
+          {/* Vendeur */}
           {user?.id === l.seller_id && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               {!l.sold_at ? (
                 <>
                   <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 text-sm text-orange-700 font-semibold text-center">
                     C&apos;est ton annonce
                   </div>
+                  <OffersSection listingId={l.id} sellerId={l.seller_id} listingPrice={l.price} currentUserId={user.id} />
                   <MarkSoldButton listingId={l.id} />
                 </>
               ) : (

@@ -42,6 +42,7 @@ export default function Navbar() {
             { href: "/alertes", label: "Mes alertes" },
             ...(user ? [
               { href: "/mes-annonces", label: "Mes annonces" },
+              { href: "/mes-favoris", label: "Favoris" },
               { href: "/profil", label: "Mon profil" },
             ] : []),
           ].map((l) => (
