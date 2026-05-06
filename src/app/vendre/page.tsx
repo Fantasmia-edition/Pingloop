@@ -356,10 +356,10 @@ export default function VendrePage() {
 
         {/* Display name */}
         <div>
-          <label className={labelClass}>Ton prénom <span className="font-normal text-gray-400">(affiché sur l&apos;annonce)</span></label>
+          <label className={labelClass}>Pseudo <span className="font-normal text-gray-400">(affiché sur l&apos;annonce)</span></label>
           <input
             type="text"
-            placeholder={user.email?.split("@")[0] ?? "Prénom"}
+            placeholder={user.email?.split("@")[0] ?? "Pseudo"}
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             className={inputClass}
