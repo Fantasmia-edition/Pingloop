@@ -1,74 +1,141 @@
 "use client";
 import { useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+
+type Mode = "login" | "signup" | "forgot";
 
 function AuthForm() {
   const params = useSearchParams();
+  const router = useRouter();
   const redirectTo = params.get("redirect") ?? "/";
+
+  const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const inputClass =
+    "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400";
+  const labelClass = "block text-sm font-semibold text-gray-700 mb-1.5";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSuccess("");
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectTo)}`,
-      },
-    });
-    if (error) {
-      setError(error.message);
-    } else {
-      setSent(true);
-    }
-    setLoading(false);
-  }
 
-  if (sent) {
-    return (
-      <div className="text-center">
-        <div className="text-4xl mb-4">📬</div>
-        <h2 className="text-xl font-black text-gray-900 mb-2">Vérifie ta boîte mail !</h2>
-        <p className="text-gray-500 text-sm">
-          On t&apos;a envoyé un lien magique à <strong>{email}</strong>.
-          Clique dessus pour te connecter — aucun mot de passe nécessaire.
-        </p>
-      </div>
-    );
+    if (mode === "login") {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setError(error.message === "Invalid login credentials"
+          ? "Email ou mot de passe incorrect."
+          : error.message);
+      } else {
+        router.push(redirectTo);
+        router.refresh();
+      }
+    }
+
+    if (mode === "signup") {
+      if (password.length < 8) {
+        setError("Le mot de passe doit faire au moins 8 caractères.");
+        setLoading(false);
+        return;
+      }
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectTo)}`,
+        },
+      });
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccess("Compte créé ! Vérifie ta boîte mail pour confirmer ton adresse, puis connecte-toi.");
+        setMode("login");
+      }
+    }
+
+    if (mode === "forgot") {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/update-password`,
+      });
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccess("Email envoyé ! Clique sur le lien pour réinitialiser ton mot de passe.");
+      }
+    }
+
+    setLoading(false);
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-          Ton adresse email
-        </label>
+        <label className={labelClass}>Adresse email</label>
         <input
           type="email"
           required
           placeholder="thomas@exemple.fr"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+          className={inputClass}
         />
       </div>
+
+      {mode !== "forgot" && (
+        <div>
+          <label className={labelClass}>Mot de passe</label>
+          <input
+            type="password"
+            required
+            placeholder={mode === "signup" ? "8 caractères minimum" : "••••••••"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={inputClass}
+          />
+        </div>
+      )}
+
       {error && <p className="text-sm text-red-500">{error}</p>}
+      {success && <p className="text-sm text-green-600">{success}</p>}
+
       <button
         type="submit"
         disabled={loading}
         className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-black py-3.5 rounded-xl transition-colors"
       >
-        {loading ? "Envoi…" : "Recevoir mon lien de connexion →"}
+        {loading ? "…" : mode === "login" ? "Se connecter →" : mode === "signup" ? "Créer mon compte →" : "Envoyer le lien →"}
       </button>
-      <p className="text-xs text-gray-400 text-center">
-        Pas de mot de passe. Un lien unique dans ta boîte, c&apos;est tout.
-      </p>
+
+      <div className="flex flex-col gap-1.5 text-center text-xs text-gray-400">
+        {mode === "login" && (
+          <>
+            <button type="button" onClick={() => { setMode("signup"); setError(""); setSuccess(""); }} className="hover:text-orange-500 transition-colors">
+              Pas encore de compte ? Créer un compte
+            </button>
+            <button type="button" onClick={() => { setMode("forgot"); setError(""); setSuccess(""); }} className="hover:text-orange-500 transition-colors">
+              Mot de passe oublié ?
+            </button>
+          </>
+        )}
+        {mode === "signup" && (
+          <button type="button" onClick={() => { setMode("login"); setError(""); setSuccess(""); }} className="hover:text-orange-500 transition-colors">
+            Déjà un compte ? Se connecter
+          </button>
+        )}
+        {mode === "forgot" && (
+          <button type="button" onClick={() => { setMode("login"); setError(""); setSuccess(""); }} className="hover:text-orange-500 transition-colors">
+            ← Retour à la connexion
+          </button>
+        )}
+      </div>
     </form>
   );
 }
