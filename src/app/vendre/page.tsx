@@ -87,6 +87,10 @@ export default function VendrePage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
+    if (photos.length === 0) {
+      setError("Ajoute au moins une photo.");
+      return;
+    }
     setSubmitting(true);
     setError("");
     const supabase = createClient();
@@ -369,7 +373,7 @@ export default function VendrePage() {
         {/* Photos */}
         <div>
           <label className={labelClass}>
-            Photos <span className="font-normal text-gray-400">(optionnel · max 5)</span>
+            Photos <span className="font-normal text-gray-400">(min 1 · max 5)</span>
           </label>
           <PhotoUpload photos={photos} onChange={setPhotos} max={5} />
         </div>
