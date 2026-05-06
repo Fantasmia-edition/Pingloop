@@ -2,7 +2,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import rubbersData from "@/data/rubbers_ittf.json";
-import { Rubber, ItemCategory, Condition, CONDITION_LABELS, PIMPLE_LABELS, CATEGORY_CONFIG } from "@/types";
+import { Rubber, ItemCategory, Condition, CONDITION_LABELS, PIMPLE_LABELS, CATEGORY_CONFIG, SHIPPING_PRICES } from "@/types";
 import PhotoUpload from "@/components/PhotoUpload";
 import PriceSuggestion from "@/components/PriceSuggestion";
 import { createClient } from "@/lib/supabase/client";
@@ -43,9 +43,9 @@ export default function VendrePage() {
   const [description, setDescription] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
-  const [pickupAvailable, setPickupAvailable] = useState(true);
-  const [shippingEnabled, setShippingEnabled] = useState(false);
-  const [shippingCost, setShippingCost] = useState("");
+  const [pickupAvailable, setPickupAvailable] = useState(false);
+  const [shippingRelay, setShippingRelay] = useState(true);  // point relais par défaut
+  const [shippingHome, setShippingHome] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -106,12 +106,8 @@ export default function VendrePage() {
       setError("Ajoute au moins une photo.");
       return;
     }
-    if (!pickupAvailable && !shippingEnabled) {
-      setError("Sélectionne au moins un mode de livraison.");
-      return;
-    }
-    if (shippingEnabled && shippingCost !== "0" && shippingCost === "") {
-      setError("Indique les frais de port ou choisis 'Port offert'.");
+    if (!pickupAvailable && !shippingRelay && !shippingHome) {
+      setError("Sélectionne au moins un mode d'envoi.");
       return;
     }
     setSubmitting(true);
@@ -132,7 +128,8 @@ export default function VendrePage() {
       seller_name: displayName || (user.email?.split("@")[0] ?? "Anonyme"),
       approval_code: selectedRubber?.approval_code ?? null,
       pickup_available: pickupAvailable,
-      shipping_cost: shippingEnabled ? Number(shippingCost) : null,
+      shipping_relay: shippingRelay,
+      shipping_home: shippingHome,
       photos: [],
     };
 
@@ -370,86 +367,54 @@ export default function VendrePage() {
         </div>
 
         {/* Livraison */}
+        {/* Envoi */}
         <div>
-          <label className={labelClass}>Mode de livraison</label>
-          <p className="text-xs text-gray-400 dark:text-navy-100/50 mb-2 -mt-1">Sélectionne au moins une option</p>
+          <label className={labelClass}>Modes d&apos;envoi proposés</label>
+          <p className="text-xs text-gray-400 dark:text-navy-100/50 -mt-1 mb-3">
+            Sélectionne au moins une option — les tarifs sont fixés par PingLoop
+          </p>
+
+          {/* Info tarifs */}
+          <div className="flex flex-wrap gap-2 mb-3 text-xs font-semibold">
+            <span className="bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 px-2.5 py-1 rounded-full border border-navy-100 dark:border-navy-600">
+              📍 Point relais — {SHIPPING_PRICES.relay} €
+            </span>
+            <span className="bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 px-2.5 py-1 rounded-full border border-navy-100 dark:border-navy-600">
+              🏠 Domicile — {SHIPPING_PRICES.home} €
+            </span>
+            <span className="bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 px-2.5 py-1 rounded-full border border-navy-100 dark:border-navy-600">
+              🤝 Main propre — offert
+            </span>
+          </div>
+
           <div className="flex flex-col gap-2">
-
-            {/* Remise en main propre */}
-            <button
-              type="button"
-              onClick={() => setPickupAvailable(!pickupAvailable)}
-              className={`flex items-center gap-3 p-3.5 border-2 rounded-xl text-left transition-colors w-full ${
-                pickupAvailable
-                  ? "border-lime bg-lime-50 dark:bg-lime/10"
-                  : "border-gray-200 dark:border-navy-700 hover:border-gray-300"
-              }`}
-            >
-              <span className="text-xl">🤝</span>
-              <div className="flex-1">
-                <p className="font-semibold text-sm text-gray-900 dark:text-white">Remise en main propre</p>
-                <p className="text-xs text-gray-400 dark:text-navy-100/50">Rencontre à convenir avec l&apos;acheteur</p>
-              </div>
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                pickupAvailable ? "border-lime bg-lime" : "border-gray-300 dark:border-navy-600"
-              }`}>
-                {pickupAvailable && <span className="text-navy text-[10px] font-black leading-none">✓</span>}
-              </div>
-            </button>
-
-            {/* Envoi postal */}
-            <button
-              type="button"
-              onClick={() => { setShippingEnabled(!shippingEnabled); if (shippingEnabled) setShippingCost(""); }}
-              className={`flex items-center gap-3 p-3.5 border-2 rounded-xl text-left transition-colors w-full ${
-                shippingEnabled
-                  ? "border-lime bg-lime-50 dark:bg-lime/10"
-                  : "border-gray-200 dark:border-navy-700 hover:border-gray-300"
-              }`}
-            >
-              <span className="text-xl">📦</span>
-              <div className="flex-1">
-                <p className="font-semibold text-sm text-gray-900 dark:text-white">Envoi postal</p>
-                <p className="text-xs text-gray-400 dark:text-navy-100/50">Colissimo, Mondial Relay, Chronopost…</p>
-              </div>
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                shippingEnabled ? "border-lime bg-lime" : "border-gray-300 dark:border-navy-600"
-              }`}>
-                {shippingEnabled && <span className="text-navy text-[10px] font-black leading-none">✓</span>}
-              </div>
-            </button>
-
-            {/* Frais de port */}
-            {shippingEnabled && (
-              <div className="ml-8 flex flex-col gap-2 mt-1">
-                <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">Frais de port</p>
-                <div className="flex gap-2 items-center">
-                  <button
-                    type="button"
-                    onClick={() => setShippingCost(shippingCost === "0" ? "" : "0")}
-                    className={`shrink-0 px-3 py-2 rounded-lg text-xs font-semibold border-2 transition-colors ${
-                      shippingCost === "0"
-                        ? "border-lime bg-lime-50 dark:bg-lime/10 text-navy dark:text-lime"
-                        : "border-gray-200 dark:border-navy-700 text-gray-600 dark:text-gray-300 hover:border-gray-300"
-                    }`}
-                  >
-                    🎁 Port offert
-                  </button>
-                  <div className="relative flex-1">
-                    <input
-                      type="number"
-                      min="1"
-                      placeholder="ex : 6"
-                      value={shippingCost === "0" ? "" : shippingCost}
-                      disabled={shippingCost === "0"}
-                      onChange={(e) => setShippingCost(e.target.value)}
-                      className={`${inputClass} pr-8 disabled:opacity-40`}
-                    />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-navy-100/50 text-sm font-medium">€</span>
-                  </div>
+            {[
+              { key: "relay" as const, icon: "📍", label: "Point relais", sub: `Mondial Relay, Relay Colis… · ${SHIPPING_PRICES.relay} €`, value: shippingRelay, set: setShippingRelay },
+              { key: "home"  as const, icon: "🏠", label: "Livraison à domicile", sub: `Colissimo, Chronopost… · ${SHIPPING_PRICES.home} €`, value: shippingHome, set: setShippingHome },
+              { key: "pickup" as const, icon: "🤝", label: "Remise en main propre", sub: "Rencontre convenue avec l'acheteur · gratuit", value: pickupAvailable, set: setPickupAvailable },
+            ].map(({ icon, label, sub, value, set }) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => set(!value)}
+                className={`flex items-center gap-3 p-3.5 border-2 rounded-xl text-left transition-colors w-full ${
+                  value
+                    ? "border-lime bg-lime-50 dark:bg-lime/10"
+                    : "border-gray-200 dark:border-navy-700 hover:border-gray-300"
+                }`}
+              >
+                <span className="text-xl">{icon}</span>
+                <div className="flex-1">
+                  <p className="font-semibold text-sm text-gray-900 dark:text-white">{label}</p>
+                  <p className="text-xs text-gray-400 dark:text-navy-100/50">{sub}</p>
                 </div>
-              </div>
-            )}
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                  value ? "border-lime bg-lime" : "border-gray-300 dark:border-navy-600"
+                }`}>
+                  {value && <span className="text-navy text-[10px] font-black leading-none">✓</span>}
+                </div>
+              </button>
+            ))}
           </div>
         </div>
 

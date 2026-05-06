@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Listing, CONDITION_LABELS, CONDITION_COLORS, PIMPLE_LABELS, CATEGORY_CONFIG } from "@/types";
+import { Listing, CONDITION_LABELS, CONDITION_COLORS, PIMPLE_LABELS, CATEGORY_CONFIG, SHIPPING_PRICES } from "@/types";
 
 interface Props {
   listing: Listing & { photos?: string[]; seller_name?: string; sold_at?: string | null };
@@ -79,16 +79,21 @@ export default function ListingCard({ listing }: Props) {
           )}
         </div>
 
-        {/* Shipping */}
-        {(listing.pickup_available || listing.shipping_cost != null) && (
+        {/* Shipping pills */}
+        {(listing.shipping_relay || listing.shipping_home || listing.pickup_available) && (
           <div className="flex flex-wrap gap-1.5 text-[10px] font-semibold text-gray-500 dark:text-navy-100/50">
-            {listing.shipping_cost != null && (
-              <span className="flex items-center gap-0.5 bg-gray-50 dark:bg-navy-700 px-2 py-0.5 rounded-full border border-gray-200 dark:border-navy-600">
-                📦 {listing.shipping_cost === 0 ? "Port offert" : `+${listing.shipping_cost} € port`}
+            {listing.shipping_relay && (
+              <span className="bg-gray-50 dark:bg-navy-700 px-2 py-0.5 rounded-full border border-gray-200 dark:border-navy-600">
+                📍 Relais {SHIPPING_PRICES.relay} €
+              </span>
+            )}
+            {listing.shipping_home && (
+              <span className="bg-gray-50 dark:bg-navy-700 px-2 py-0.5 rounded-full border border-gray-200 dark:border-navy-600">
+                🏠 Domicile {SHIPPING_PRICES.home} €
               </span>
             )}
             {listing.pickup_available && (
-              <span className="flex items-center gap-0.5 bg-gray-50 dark:bg-navy-700 px-2 py-0.5 rounded-full border border-gray-200 dark:border-navy-600">
+              <span className="bg-gray-50 dark:bg-navy-700 px-2 py-0.5 rounded-full border border-gray-200 dark:border-navy-600">
                 🤝 Main propre
               </span>
             )}

@@ -25,8 +25,11 @@ export interface Listing {
   location: string;
   created_at: string;
   approval_code?: string | null;
-  /** null = aucun envoi postal proposé · 0 = port offert · >0 = frais en € */
-  shipping_cost?: number | null;
+  /** Propose l'envoi en point relais (tarif fixé par la plateforme) */
+  shipping_relay?: boolean;
+  /** Propose la livraison à domicile (tarif fixé par la plateforme) */
+  shipping_home?: boolean;
+  /** Propose la remise en main propre */
   pickup_available?: boolean;
 }
 
@@ -61,6 +64,12 @@ export const PIMPLE_LABELS: Record<PimpleType, string> = {
   Out: "Picots courts",
   Long: "Picots longs",
 };
+
+/** Tarifs de port fixés par PingLoop (en €) */
+export const SHIPPING_PRICES = {
+  relay: 5,
+  home: 8,
+} as const;
 
 export const CONDITION_COLORS: Record<Condition, string> = {
   new: "bg-green-100 text-green-800",

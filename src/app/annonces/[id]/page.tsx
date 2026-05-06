@@ -1,12 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { CONDITION_LABELS, CONDITION_COLORS, PIMPLE_LABELS, CATEGORY_CONFIG, Listing } from "@/types";
-import ContactButton from "@/components/ContactButton";
+import { CONDITION_LABELS, CONDITION_COLORS, PIMPLE_LABELS, CATEGORY_CONFIG, SHIPPING_PRICES, Listing } from "@/types";
 import MarkSoldButton from "@/components/MarkSoldButton";
-import PaymentOptions from "@/components/PaymentOptions";
 import OffersSection from "@/components/OffersSection";
-import FavoriteButton from "@/components/FavoriteButton";
+import BuyerActions from "@/components/BuyerActions";
 import PhotoGallery from "@/components/PhotoGallery";
 import ListingCard from "@/components/ListingCard";
 
@@ -86,30 +84,25 @@ export default async function ListingDetailPage({ params, searchParams }: {
             </h1>
           </div>
 
-          {/* Prix + livraison */}
-          <div className="flex flex-wrap items-end gap-3">
-            <p className="text-4xl font-black text-gray-900 dark:text-lime">{l.price} €</p>
-            {l.shipping_cost != null && l.shipping_cost > 0 && (
-              <p className="text-sm text-gray-400 dark:text-navy-100/50 pb-1.5 font-medium">
-                + {l.shipping_cost} € de port → <span className="text-gray-700 dark:text-white font-bold">{l.price + l.shipping_cost} € total</span>
-              </p>
-            )}
-            {l.shipping_cost === 0 && (
-              <span className="pb-1.5 text-sm font-semibold text-green-600 dark:text-green-400">Port offert 🎁</span>
-            )}
-          </div>
+          {/* Prix */}
+          <p className="text-4xl font-black text-gray-900 dark:text-lime">{l.price} €</p>
 
-          {/* Modes de livraison */}
-          {(l.pickup_available || l.shipping_cost != null) && (
+          {/* Badges modes d'envoi disponibles */}
+          {(l.shipping_relay || l.shipping_home || l.pickup_available) && (
             <div className="flex flex-wrap gap-2">
-              {l.pickup_available && (
-                <span className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 border border-navy-100 dark:border-navy-600">
-                  🤝 Remise en main propre
+              {l.shipping_relay && (
+                <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 border border-navy-100 dark:border-navy-600">
+                  📍 Point relais · {SHIPPING_PRICES.relay} €
                 </span>
               )}
-              {l.shipping_cost != null && (
-                <span className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 border border-navy-100 dark:border-navy-600">
-                  📦 {l.shipping_cost === 0 ? "Livraison offerte" : `Livraison ${l.shipping_cost} €`}
+              {l.shipping_home && (
+                <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 border border-navy-100 dark:border-navy-600">
+                  🏠 Domicile · {SHIPPING_PRICES.home} €
+                </span>
+              )}
+              {l.pickup_available && (
+                <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 border border-navy-100 dark:border-navy-600">
+                  🤝 Main propre
                 </span>
               )}
             </div>
@@ -158,17 +151,18 @@ export default async function ListingDetailPage({ params, searchParams }: {
 
           {/* Buyer actions */}
           {user?.id !== l.seller_id && !l.sold_at && (
-            <div className="flex flex-col gap-3">
-              {sellerProfile && (sellerProfile.stripe_onboarded || sellerProfile.paypal_onboarded) ? (
-                <PaymentOptions listingId={l.id} price={l.price} sellerProfile={sellerProfile} onPurchased={() => {}} />
-              ) : (
-                <ContactButton listingId={l.id} sellerId={l.seller_id} sellerName={l.seller_name} listingTitle={`${l.brand} ${l.name}`} listingPrice={l.price} />
-              )}
-              {user && (
-                <OffersSection listingId={l.id} sellerId={l.seller_id} listingPrice={l.price} currentUserId={user.id} />
-              )}
-              <FavoriteButton listingId={l.id} currentUserId={user?.id ?? null} />
-            </div>
+            <BuyerActions
+              listingId={l.id}
+              itemPrice={l.price}
+              sellerId={l.seller_id}
+              sellerName={l.seller_name}
+              listingTitle={`${l.brand} ${l.name}`}
+              shippingRelay={!!l.shipping_relay}
+              shippingHome={!!l.shipping_home}
+              pickupAvailable={!!l.pickup_available}
+              sellerProfile={sellerProfile}
+              currentUserId={user?.id ?? null}
+            />
           )}
 
           {/* Seller actions */}
