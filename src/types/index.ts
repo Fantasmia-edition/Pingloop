@@ -1,5 +1,5 @@
 export type PimpleType = "In" | "Out" | "Long";
-export type ItemCategory = "rubber" | "blade";
+export type ItemCategory = "rubber" | "blade" | "racket" | "tshirt" | "case";
 export type Condition = "new" | "like_new" | "good" | "fair";
 
 export interface Rubber {
@@ -43,6 +43,14 @@ export const CONDITION_LABELS: Record<Condition, string> = {
   like_new: "Comme neuf",
   good: "Bon état",
   fair: "État correct",
+};
+
+export const CATEGORY_CONFIG: Record<ItemCategory, { label: string; emoji: string }> = {
+  rubber:  { label: "Revêtement",       emoji: "🏓" },
+  blade:   { label: "Bois",             emoji: "🪵" },
+  racket:  { label: "Raquette complète",emoji: "🎯" },
+  tshirt:  { label: "T-Shirt",          emoji: "👕" },
+  case:    { label: "Housse",           emoji: "🎒" },
 };
 
 export const PIMPLE_LABELS: Record<PimpleType, string> = {

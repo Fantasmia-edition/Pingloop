@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { CONDITION_LABELS, CONDITION_COLORS, PIMPLE_LABELS, Listing } from "@/types";
+import { CONDITION_LABELS, CONDITION_COLORS, PIMPLE_LABELS, CATEGORY_CONFIG, Listing } from "@/types";
 import ContactButton from "@/components/ContactButton";
 import MarkSoldButton from "@/components/MarkSoldButton";
 import PaymentOptions from "@/components/PaymentOptions";
@@ -77,7 +77,7 @@ export default async function ListingDetailPage({ params, searchParams }: {
             </>
           ) : (
             <div className="aspect-square rounded-2xl bg-gray-100 flex items-center justify-center border border-gray-200">
-              <span className="text-7xl">{l.category === "rubber" ? "🏓" : "🪵"}</span>
+              <span className="text-7xl">{CATEGORY_CONFIG[l.category]?.emoji ?? "📦"}</span>
             </div>
           )}
         </div>
@@ -86,7 +86,7 @@ export default async function ListingDetailPage({ params, searchParams }: {
         <div className="flex flex-col gap-4">
           <div>
             <span className="text-xs font-semibold text-orange-500 uppercase tracking-wide">
-              {l.category === "rubber" ? "Revêtement" : "Bois"}
+              {CATEGORY_CONFIG[l.category]?.label ?? l.category}
             </span>
             <h1 className="text-3xl font-black text-gray-900 leading-tight">
               {l.brand} {l.name}

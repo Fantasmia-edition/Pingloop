@@ -61,8 +61,11 @@ export default function AnnoncesPage() {
         />
         <select value={category} onChange={(e) => setCategory(e.target.value as ItemCategory | "")} className={selectClass}>
           <option value="">Type : tous</option>
-          <option value="rubber">Revêtement</option>
-          <option value="blade">Bois</option>
+          <option value="rubber">🏓 Revêtement</option>
+          <option value="blade">🪵 Bois</option>
+          <option value="racket">🎯 Raquette complète</option>
+          <option value="tshirt">👕 T-Shirt</option>
+          <option value="case">🎒 Housse</option>
         </select>
         <select value={pimpleType} onChange={(e) => setPimpleType(e.target.value as PimpleType | "")} className={selectClass}>
           <option value="">Picots : tous</option>

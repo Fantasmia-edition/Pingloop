@@ -2,7 +2,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import rubbersData from "@/data/rubbers_ittf.json";
-import { Rubber, ItemCategory, PimpleType, PIMPLE_LABELS } from "@/types";
+import { Rubber, ItemCategory, PimpleType, PIMPLE_LABELS, CATEGORY_CONFIG } from "@/types";
 import { createClient } from "@/lib/supabase/client";
 
 const rubbers = rubbersData as Rubber[];
@@ -150,17 +150,18 @@ export default function AlertesPage() {
         <form onSubmit={handleSave} className="flex flex-col gap-4">
           <div>
             <label className={labelClass}>Type</label>
-            <div className="grid grid-cols-2 gap-3">
-              {(["rubber", "blade"] as ItemCategory[]).map((cat) => (
+            <div className="grid grid-cols-3 gap-2">
+              {(Object.entries(CATEGORY_CONFIG) as [ItemCategory, { label: string; emoji: string }][]).map(([cat, { label, emoji }]) => (
                 <button
                   key={cat}
                   type="button"
                   onClick={() => setCategory(cat)}
-                  className={`border-2 rounded-xl py-2.5 text-sm font-bold transition-colors ${
+                  className={`border-2 rounded-xl py-2.5 text-xs font-bold transition-colors flex flex-col items-center gap-1 ${
                     category === cat ? "border-orange-500 bg-orange-50 text-orange-600" : "border-gray-200 text-gray-600"
                   }`}
                 >
-                  {cat === "rubber" ? "🏓 Revêtement" : "🪵 Bois"}
+                  <span className="text-lg">{emoji}</span>
+                  <span>{label}</span>
                 </button>
               ))}
             </div>
@@ -180,7 +181,13 @@ export default function AlertesPage() {
             <label className={labelClass}>Modèle <span className="font-normal text-gray-400">(optionnel)</span></label>
             <input
               type="text"
-              placeholder={category === "rubber" ? "ex : Tenergy 05, Evolution MX-P…" : "ex : Timo Boll ALC…"}
+              placeholder={
+                category === "rubber" ? "ex : Tenergy 05, Evolution MX-P…" :
+                category === "blade"  ? "ex : Timo Boll ALC…" :
+                category === "racket" ? "ex : Butterfly Primorac…" :
+                category === "tshirt" ? "ex : Butterfly, Tibhar…" :
+                "ex : Butterfly, Donic…"
+              }
               value={productSearch}
               onChange={(e) => setProductSearch(e.target.value)}
               className={inputClass}

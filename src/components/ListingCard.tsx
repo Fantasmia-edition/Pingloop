@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Listing, CONDITION_LABELS, CONDITION_COLORS, PIMPLE_LABELS } from "@/types";
+import { Listing, CONDITION_LABELS, CONDITION_COLORS, PIMPLE_LABELS, CATEGORY_CONFIG } from "@/types";
 
 interface Props {
   listing: Listing & { photos?: string[]; seller_name?: string; sold_at?: string | null };
@@ -26,7 +26,7 @@ export default function ListingCard({ listing }: Props) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={mainPhoto} alt={`${listing.brand} ${listing.name}`} className="w-full h-full object-cover" />
         ) : (
-          <span className="text-4xl">{listing.category === "rubber" ? "🏓" : "🪵"}</span>
+          <span className="text-4xl">{CATEGORY_CONFIG[listing.category]?.emoji ?? "📦"}</span>
         )}
         {isSold && (
           <div className="absolute inset-0 bg-gray-900/50 flex items-center justify-center">
@@ -34,7 +34,7 @@ export default function ListingCard({ listing }: Props) {
           </div>
         )}
         <span className="absolute top-2 left-2 bg-white/90 text-orange-500 text-[10px] font-bold px-2 py-0.5 rounded-full">
-          {listing.category === "rubber" ? "Revêtement" : "Bois"}
+          {CATEGORY_CONFIG[listing.category]?.label ?? listing.category}
         </span>
       </div>
 

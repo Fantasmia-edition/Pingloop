@@ -2,7 +2,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import rubbersData from "@/data/rubbers_ittf.json";
-import { Rubber, ItemCategory, Condition, CONDITION_LABELS, PIMPLE_LABELS } from "@/types";
+import { Rubber, ItemCategory, Condition, CONDITION_LABELS, PIMPLE_LABELS, CATEGORY_CONFIG } from "@/types";
 import PhotoUpload from "@/components/PhotoUpload";
 import PriceSuggestion from "@/components/PriceSuggestion";
 import { createClient } from "@/lib/supabase/client";
@@ -150,19 +150,20 @@ export default function VendrePage() {
         {/* Category */}
         <div>
           <label className={labelClass}>Type d&apos;article</label>
-          <div className="grid grid-cols-2 gap-3">
-            {(["rubber", "blade"] as ItemCategory[]).map((cat) => (
+          <div className="grid grid-cols-3 gap-2">
+            {(Object.entries(CATEGORY_CONFIG) as [ItemCategory, { label: string; emoji: string }][]).map(([cat, { label, emoji }]) => (
               <button
                 key={cat}
                 type="button"
                 onClick={() => { setCategory(cat); setSelectedRubber(null); setBrand(""); setProductSearch(""); }}
-                className={`border-2 rounded-xl py-3 text-sm font-bold transition-colors ${
+                className={`border-2 rounded-xl py-2.5 text-xs font-bold transition-colors flex flex-col items-center gap-1 ${
                   category === cat
                     ? "border-orange-500 bg-orange-50 text-orange-600"
                     : "border-gray-200 text-gray-600 hover:border-gray-300"
                 }`}
               >
-                {cat === "rubber" ? "🏓 Revêtement" : "🪵 Bois"}
+                <span className="text-lg">{emoji}</span>
+                <span>{label}</span>
               </button>
             ))}
           </div>
@@ -188,7 +189,6 @@ export default function VendrePage() {
               value={brand}
               onChange={(e) => setBrand(e.target.value)}
               className={inputClass}
-              required
             />
           )}
         </div>
@@ -237,13 +237,23 @@ export default function VendrePage() {
           </div>
         )}
 
-        {/* Blade name */}
-        {category === "blade" && (
+        {/* Generic name (blade / racket / tshirt / case) */}
+        {category !== "rubber" && (
           <div>
-            <label className={labelClass}>Modèle de bois</label>
+            <label className={labelClass}>
+              {category === "blade" ? "Modèle de bois" :
+               category === "racket" ? "Modèle de raquette" :
+               category === "tshirt" ? "Modèle / taille" :
+               "Modèle de housse"}
+            </label>
             <input
               type="text"
-              placeholder="ex : Timo Boll ALC, Waldner Senso Carbon…"
+              placeholder={
+                category === "blade" ? "ex : Timo Boll ALC, Waldner Senso Carbon…" :
+                category === "racket" ? "ex : Butterfly Primorac, Donic Waldner…" :
+                category === "tshirt" ? "ex : Butterfly M, Tibhar L…" :
+                "ex : Butterfly, Donic, standard..."
+              }
               value={productSearch}
               onChange={(e) => setProductSearch(e.target.value)}
               className={inputClass}
