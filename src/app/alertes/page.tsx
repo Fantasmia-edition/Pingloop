@@ -104,7 +104,7 @@ export default function AlertesPage() {
     setAlerts((prev) => prev.filter((a) => a.id !== alertId));
   }
 
-  const inputClass = "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white";
+  const inputClass = "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime bg-white";
   const labelClass = "block text-sm font-semibold text-gray-700 mb-1.5";
 
   if (loading) {
@@ -157,7 +157,7 @@ export default function AlertesPage() {
                   type="button"
                   onClick={() => setCategory(cat)}
                   className={`border-2 rounded-xl py-2.5 text-xs font-bold transition-colors flex flex-col items-center gap-1 ${
-                    category === cat ? "border-orange-500 bg-orange-50 text-orange-600" : "border-gray-200 text-gray-600"
+                    category === cat ? "border-lime bg-lime-50 text-navy" : "border-gray-200 text-gray-600"
                   }`}
                 >
                   <span className="text-lg">{emoji}</span>
@@ -199,7 +199,7 @@ export default function AlertesPage() {
                     key={`${r.brand}-${r.name}`}
                     type="button"
                     onClick={() => { setProductSearch(r.name); setBrand(r.brand); }}
-                    className="w-full text-left px-4 py-2.5 text-sm hover:bg-orange-50 transition-colors flex items-center justify-between"
+                    className="w-full text-left px-4 py-2.5 text-sm hover:bg-lime-50 transition-colors flex items-center justify-between"
                   >
                     <span className="font-medium text-gray-900">{r.brand} {r.name}</span>
                     <span className="text-xs text-gray-400">{PIMPLE_LABELS[r.pimple_type]}</span>
@@ -239,7 +239,7 @@ export default function AlertesPage() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-black py-3.5 rounded-xl transition-colors"
+            className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-black py-3.5 rounded-xl transition-colors"
           >
             {saving ? "Enregistrement…" : "Créer l'alerte 🔔"}
           </button>

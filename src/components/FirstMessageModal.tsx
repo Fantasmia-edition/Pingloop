@@ -64,7 +64,7 @@ export default function FirstMessageModal({ listingId, sellerId, sellerName, lis
           rows={4}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
+          className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime resize-none"
           autoFocus
         />
         <div className="flex gap-3">
@@ -77,7 +77,7 @@ export default function FirstMessageModal({ listingId, sellerId, sellerName, lis
           <button
             onClick={send}
             disabled={!text.trim() || sending}
-            className="flex-1 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-black py-3 rounded-xl text-sm transition-colors"
+            className="flex-1 bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-black py-3 rounded-xl text-sm transition-colors"
           >
             {sending ? "Envoi…" : "Envoyer 💬"}
           </button>

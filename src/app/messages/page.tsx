@@ -98,7 +98,7 @@ export default function MessagesPage() {
           <p className="text-4xl mb-3">💬</p>
           <p className="font-semibold text-gray-600">Aucune conversation</p>
           <p className="text-sm mt-1">Trouve un article qui t&apos;intéresse et contacte le vendeur !</p>
-          <Link href="/annonces" className="mt-4 inline-block text-orange-500 font-semibold text-sm hover:underline">
+          <Link href="/annonces" className="mt-4 inline-block text-navy font-semibold text-sm hover:underline">
             Voir les annonces →
           </Link>
         </div>
@@ -114,11 +114,11 @@ export default function MessagesPage() {
                 className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors"
               >
                 <div className="relative shrink-0">
-                  <div className="w-11 h-11 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-black text-sm">
+                  <div className="w-11 h-11 rounded-full bg-lime-100 flex items-center justify-center text-navy font-black text-sm">
                     {otherName.charAt(0).toUpperCase()}
                   </div>
                   {conv.unread > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-lime text-navy text-[10px] font-bold rounded-full flex items-center justify-center">
                       {conv.unread}
                     </span>
                   )}
@@ -131,7 +131,7 @@ export default function MessagesPage() {
                     <span className="text-xs text-gray-400 shrink-0">{formatTime(conv.last_message_at)}</span>
                   </div>
                   {conv.listings && (
-                    <p className="text-xs text-orange-500 font-medium truncate">
+                    <p className="text-xs text-navy font-medium truncate">
                       {conv.listings.brand} {conv.listings.name} · {conv.listings.price}€
                     </p>
                   )}

@@ -44,8 +44,8 @@ export default function PhotoUpload({ photos, onChange, max = 5 }: Props) {
           onDrop={onDrop}
           className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
             dragging
-              ? "border-orange-400 bg-orange-50"
-              : "border-gray-200 hover:border-orange-300 hover:bg-gray-50"
+              ? "border-lime bg-lime-50"
+              : "border-gray-200 hover:border-lime/60 hover:bg-gray-50"
           }`}
         >
           <p className="text-2xl mb-1">📷</p>
@@ -85,7 +85,7 @@ export default function PhotoUpload({ photos, onChange, max = 5 }: Props) {
                 ×
               </button>
               {idx === 0 && (
-                <span className="absolute bottom-1 left-1 bg-orange-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                <span className="absolute bottom-1 left-1 bg-lime text-navy text-[10px] font-bold px-1.5 py-0.5 rounded">
                   Principale
                 </span>
               )}

@@ -39,7 +39,7 @@ export default function AnnoncesPage() {
   }, [fetchListings, search]);
 
   const selectClass =
-    "border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-400";
+    "border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-lime";
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -57,7 +57,7 @@ export default function AnnoncesPage() {
           placeholder="Recherche (marque, modèle…)"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 min-w-48 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+          className="flex-1 min-w-48 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime"
         />
         <select value={category} onChange={(e) => setCategory(e.target.value as ItemCategory | "")} className={selectClass}>
           <option value="">Type : tous</option>
@@ -85,7 +85,7 @@ export default function AnnoncesPage() {
           placeholder="Prix max (€)"
           value={maxPrice}
           onChange={(e) => setMaxPrice(e.target.value)}
-          className="w-32 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+          className="w-32 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime"
         />
       </div>
 

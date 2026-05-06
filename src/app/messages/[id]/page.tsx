@@ -129,7 +129,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 shrink-0">
         <Link href="/messages" className="text-gray-400 hover:text-gray-600 text-lg leading-none">←</Link>
-        <div className="w-9 h-9 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-black text-sm shrink-0">
+        <div className="w-9 h-9 rounded-full bg-lime-100 flex items-center justify-center text-navy font-black text-sm shrink-0">
           {otherName.charAt(0).toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
@@ -143,7 +143,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
         {conv?.listing_id && (
           <Link
             href={`/annonces/${conv.listing_id}`}
-            className="shrink-0 bg-orange-50 text-orange-600 text-xs font-bold px-2.5 py-1 rounded-lg hover:bg-orange-100 transition-colors"
+            className="shrink-0 bg-lime-50 text-navy text-xs font-bold px-2.5 py-1 rounded-lg hover:bg-lime-100 transition-colors"
           >
             {conv.listings?.price ?? "—"} €
           </Link>
@@ -163,7 +163,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
               <div
                 className={`max-w-[78%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
                   isMe
-                    ? "bg-orange-500 text-white rounded-br-sm"
+                    ? "bg-lime text-navy rounded-br-sm"
                     : "bg-white border border-gray-200 text-gray-900 rounded-bl-sm"
                 }`}
               >
@@ -187,13 +187,13 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKey}
           placeholder="Écris ton message…"
-          className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none bg-gray-50"
+          className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-lime resize-none bg-gray-50"
           style={{ maxHeight: "120px" }}
         />
         <button
           onClick={send}
           disabled={!input.trim() || sending}
-          className="bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-colors shrink-0"
+          className="bg-lime hover:bg-lime-dark disabled:opacity-40 disabled:cursor-not-allowed text-navy font-bold px-4 py-2.5 rounded-xl text-sm transition-colors shrink-0"
         >
           Envoyer
         </button>

@@ -14,17 +14,26 @@ export default function ListingCard({ listing }: Props) {
   const mainPhoto = listing.photos?.[0];
   const isSold = !!listing.sold_at;
   const sellerDisplay = listing.seller_name ?? listing.seller ?? "—";
+  const isNew = !isSold && (Date.now() - new Date(listing.created_at).getTime()) < 48 * 60 * 60 * 1000;
 
   return (
     <Link
       href={`/annonces/${listing.id}`}
-      className={`bg-white rounded-xl border hover:shadow-md transition-all flex flex-col overflow-hidden ${isSold ? "opacity-60 border-gray-200" : "border-gray-200 hover:border-orange-300"}`}
+      className={`bg-white rounded-2xl border transition-all flex flex-col overflow-hidden group ${
+        isSold
+          ? "opacity-60 border-gray-200"
+          : "border-gray-200 hover:border-lime hover:shadow-lg hover:-translate-y-0.5"
+      }`}
     >
-      {/* Photo ou placeholder */}
-      <div className="aspect-video w-full bg-gray-100 flex items-center justify-center relative">
+      {/* Photo */}
+      <div className="aspect-video w-full bg-gray-100 flex items-center justify-center relative overflow-hidden">
         {mainPhoto ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={mainPhoto} alt={`${listing.brand} ${listing.name}`} className="w-full h-full object-cover" />
+          <img
+            src={mainPhoto}
+            alt={`${listing.brand} ${listing.name}`}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
         ) : (
           <span className="text-4xl">{CATEGORY_CONFIG[listing.category]?.emoji ?? "📦"}</span>
         )}
@@ -33,17 +42,24 @@ export default function ListingCard({ listing }: Props) {
             <span className="bg-white text-gray-900 text-xs font-black px-3 py-1 rounded-full">VENDU</span>
           </div>
         )}
-        <span className="absolute top-2 left-2 bg-white/90 text-orange-500 text-[10px] font-bold px-2 py-0.5 rounded-full">
-          {CATEGORY_CONFIG[listing.category]?.label ?? listing.category}
-        </span>
+        <div className="absolute top-2 left-2 flex gap-1.5">
+          <span className="bg-navy text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+            {CATEGORY_CONFIG[listing.category]?.label ?? listing.category}
+          </span>
+          {isNew && (
+            <span className="bg-lime text-navy text-[10px] font-black px-2 py-0.5 rounded-full">
+              NOUVEAU
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="p-4 flex flex-col gap-2 flex-1">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-bold text-gray-900 text-base leading-tight">
+          <h3 className="font-black text-navy text-base leading-tight">
             {listing.brand} {listing.name}
           </h3>
-          <p className="text-xl font-black text-gray-900 whitespace-nowrap">{listing.price} €</p>
+          <p className="text-xl font-black text-navy whitespace-nowrap">{listing.price} €</p>
         </div>
 
         <div className="flex flex-wrap gap-1.5">
@@ -64,7 +80,7 @@ export default function ListingCard({ listing }: Props) {
         </div>
 
         <div className="flex items-center justify-between text-xs text-gray-400 mt-auto pt-2 border-t border-gray-100">
-          <span>{sellerDisplay} · {listing.location}</span>
+          <span className="font-medium text-gray-500">{sellerDisplay}</span>
           <span>{new Date(listing.created_at).toLocaleDateString("fr-FR")}</span>
         </div>
       </div>

@@ -11,7 +11,7 @@ export default function UpdatePasswordPage() {
   const [error, setError] = useState("");
 
   const inputClass =
-    "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400";
+    "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -71,7 +71,7 @@ export default function UpdatePasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-black py-3.5 rounded-xl transition-colors"
+            className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-black py-3.5 rounded-xl transition-colors"
           >
             {loading ? "…" : "Enregistrer →"}
           </button>

@@ -82,7 +82,7 @@ export default function OffersSection({ listingId, sellerId, listingPrice, curre
 
   if (loading) return null;
 
-  const inputClass = "flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400";
+  const inputClass = "flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime";
 
   // ── BUYER VIEW ──────────────────────────────────────────────
   if (!isSeller) {
@@ -107,7 +107,7 @@ export default function OffersSection({ listingId, sellerId, listingPrice, curre
                 <button
                   onClick={() => { const a = Number(offerAmount); if (a >= minBuyerAmount && a < listingPrice) submitOffer(sellerId, a); }}
                   disabled={submitting || Number(offerAmount) < minBuyerAmount || Number(offerAmount) >= listingPrice}
-                  className="flex-1 bg-orange-500 hover:bg-orange-600 disabled:opacity-40 text-white font-bold py-2.5 rounded-xl text-sm transition-colors"
+                  className="flex-1 bg-lime hover:bg-lime-dark disabled:opacity-40 text-navy font-bold py-2.5 rounded-xl text-sm transition-colors"
                 >
                   Envoyer l&apos;offre
                 </button>
@@ -119,7 +119,7 @@ export default function OffersSection({ listingId, sellerId, listingPrice, curre
           ) : (
             <button
               onClick={() => setShowBuyerForm(true)}
-              className="w-full border-2 border-dashed border-gray-300 hover:border-orange-400 text-gray-500 hover:text-orange-500 font-semibold py-3 rounded-xl text-sm transition-colors"
+              className="w-full border-2 border-dashed border-gray-300 hover:border-lime text-gray-500 hover:text-navy font-semibold py-3 rounded-xl text-sm transition-colors"
             >
               💬 Faire une offre
             </button>
@@ -139,18 +139,18 @@ export default function OffersSection({ listingId, sellerId, listingPrice, curre
 
     if (latest.status === "pending" && latest.from_id === currentUserId) {
       return (
-        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 text-center">
-          <p className="text-orange-700 font-semibold text-sm">Offre envoyée — <strong>{latest.amount}€</strong></p>
-          <p className="text-orange-500 text-xs mt-1">En attente de réponse du vendeur…</p>
+        <div className="bg-lime-50 border border-lime/30 rounded-xl p-4 text-center">
+          <p className="text-navy-800 font-semibold text-sm">Offre envoyée — <strong>{latest.amount}€</strong></p>
+          <p className="text-navy text-xs mt-1">En attente de réponse du vendeur…</p>
         </div>
       );
     }
 
     if (latest.status === "pending" && latest.to_id === currentUserId) {
       return (
-        <div className="border-2 border-orange-300 bg-orange-50 rounded-xl p-4 flex flex-col gap-3">
+        <div className="border-2 border-lime/60 bg-lime-50 rounded-xl p-4 flex flex-col gap-3">
           <div>
-            <p className="text-sm font-black text-orange-700">Contre-offre du vendeur — {latest.amount}€</p>
+            <p className="text-sm font-black text-navy-800">Contre-offre du vendeur — {latest.amount}€</p>
             <p className="text-xs text-gray-500 mt-0.5">Prix affiché : {listingPrice}€</p>
           </div>
           <div className="flex gap-2">
@@ -215,7 +215,7 @@ export default function OffersSection({ listingId, sellerId, listingPrice, curre
               {latest.status === "accepted" && <p className="text-green-600 font-semibold text-sm text-center bg-green-50 rounded-lg py-2">✓ Acceptée</p>}
               {latest.status === "declined" && <p className="text-gray-400 text-sm text-center">Offre refusée</p>}
               {latest.status === "pending" && latest.from_id === currentUserId && (
-                <p className="text-orange-500 font-semibold text-sm text-center bg-orange-50 rounded-lg py-2">Contre-offre envoyée ({latest.amount}€) — en attente</p>
+                <p className="text-navy font-semibold text-sm text-center bg-lime-50 rounded-lg py-2">Contre-offre envoyée ({latest.amount}€) — en attente</p>
               )}
               {latest.status === "pending" && latest.to_id === currentUserId && (
                 counterForm?.offerId === latest.id ? (
@@ -225,14 +225,14 @@ export default function OffersSection({ listingId, sellerId, listingPrice, curre
                       <span className="text-gray-500 font-bold">€</span>
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={() => { const a = Number(counterAmount); if (a > 0 && a <= listingPrice) submitOffer(buyerId, a, latest.id); }} disabled={submitting} className="flex-1 bg-orange-500 text-white font-bold py-2 rounded-lg text-sm">Envoyer</button>
+                      <button onClick={() => { const a = Number(counterAmount); if (a > 0 && a <= listingPrice) submitOffer(buyerId, a, latest.id); }} disabled={submitting} className="flex-1 bg-lime text-navy font-bold py-2 rounded-lg text-sm">Envoyer</button>
                       <button onClick={() => { setCounterForm(null); setCounterAmount(""); }} className="px-3 py-2 border rounded-lg text-sm text-gray-500">Annuler</button>
                     </div>
                   </div>
                 ) : (
                   <div className="flex gap-2">
                     <button onClick={() => respond(latest.id, "accepted")} disabled={submitting} className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-lg text-sm transition-colors">✓ Accepter</button>
-                    <button onClick={() => { setCounterForm({ offerId: latest.id, buyerId }); setCounterAmount(""); }} disabled={submitting} className="flex-1 bg-orange-100 hover:bg-orange-200 text-orange-700 font-bold py-2 rounded-lg text-sm transition-colors">↔ Contre-offre</button>
+                    <button onClick={() => { setCounterForm({ offerId: latest.id, buyerId }); setCounterAmount(""); }} disabled={submitting} className="flex-1 bg-lime-100 hover:bg-orange-200 text-navy-800 font-bold py-2 rounded-lg text-sm transition-colors">↔ Contre-offre</button>
                     <button onClick={() => respond(latest.id, "declined")} disabled={submitting} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 rounded-lg text-sm transition-colors">✗ Refuser</button>
                   </div>
                 )

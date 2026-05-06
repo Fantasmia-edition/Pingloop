@@ -71,7 +71,7 @@ export default async function ListingDetailPage({ params, searchParams }: {
                       key={i}
                       src={url}
                       alt={`Photo ${i + 1}`}
-                      className={`w-16 h-16 shrink-0 object-cover rounded-lg border-2 ${i === 0 ? "border-orange-400" : "border-transparent"}`}
+                      className={`w-16 h-16 shrink-0 object-cover rounded-lg border-2 ${i === 0 ? "border-lime" : "border-transparent"}`}
                     />
                   ))}
                 </div>
@@ -87,7 +87,7 @@ export default async function ListingDetailPage({ params, searchParams }: {
         {/* Info */}
         <div className="flex flex-col gap-4">
           <div>
-            <span className="text-xs font-semibold text-orange-500 uppercase tracking-wide">
+            <span className="text-xs font-semibold text-navy uppercase tracking-wide">
               {CATEGORY_CONFIG[l.category]?.label ?? l.category}
             </span>
             <h1 className="text-3xl font-black text-gray-900 leading-tight">
@@ -133,7 +133,7 @@ export default async function ListingDetailPage({ params, searchParams }: {
                 {l.location} · {new Date(l.created_at).toLocaleDateString("fr-FR")}
               </p>
             </div>
-            <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-black text-sm">
+            <div className="w-10 h-10 rounded-full bg-lime-100 flex items-center justify-center text-navy font-black text-sm">
               {l.seller_name.charAt(0).toUpperCase()}
             </div>
           </div>
@@ -158,7 +158,7 @@ export default async function ListingDetailPage({ params, searchParams }: {
             <div className="flex flex-col gap-3">
               {!l.sold_at ? (
                 <>
-                  <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 text-sm text-orange-700 font-semibold text-center">
+                  <div className="bg-lime-50 border border-lime/30 rounded-xl px-4 py-3 text-sm text-navy-800 font-semibold text-center">
                     C&apos;est ton annonce
                   </div>
                   <OffersSection listingId={l.id} sellerId={l.seller_id} listingPrice={l.price} currentUserId={user.id} />

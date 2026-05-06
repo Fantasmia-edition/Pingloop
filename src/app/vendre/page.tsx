@@ -77,7 +77,7 @@ export default function VendrePage() {
   }, [brand, productSearch]);
 
   const inputClass =
-    "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white";
+    "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime bg-white";
   const labelClass = "block text-sm font-semibold text-gray-700 mb-1.5";
 
   if (!user) {
@@ -88,7 +88,7 @@ export default function VendrePage() {
         <p className="text-gray-500 mb-6">Pour mettre en vente, connecte-toi en 30 secondes — sans mot de passe.</p>
         <button
           onClick={() => router.push("/auth?redirect=/vendre")}
-          className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-3 rounded-xl transition-colors"
+          className="bg-lime hover:bg-lime-dark text-navy font-bold px-8 py-3 rounded-xl transition-colors"
         >
           Se connecter →
         </button>
@@ -174,7 +174,7 @@ export default function VendrePage() {
                 onClick={() => { setCategory(cat); setSelectedRubber(null); setBrand(""); setProductSearch(""); }}
                 className={`border-2 rounded-xl py-2.5 text-xs font-bold transition-colors flex flex-col items-center gap-1 ${
                   category === cat
-                    ? "border-orange-500 bg-orange-50 text-orange-600"
+                    ? "border-lime bg-lime-50 text-navy"
                     : "border-gray-200 text-gray-600 hover:border-gray-300"
                 }`}
               >
@@ -214,7 +214,7 @@ export default function VendrePage() {
           <div>
             <label className={labelClass}>Revêtement</label>
             {selectedRubber ? (
-              <div className="flex items-center justify-between bg-orange-50 border-2 border-orange-300 rounded-xl px-4 py-3">
+              <div className="flex items-center justify-between bg-lime-50 border-2 border-lime/60 rounded-xl px-4 py-3">
                 <div>
                   <p className="font-bold text-gray-900 text-sm">{selectedRubber.brand} {selectedRubber.name}</p>
                   <p className="text-xs text-gray-500">{PIMPLE_LABELS[selectedRubber.pimple_type]} · Code ITTF : {selectedRubber.approval_code ?? "—"}</p>
@@ -240,7 +240,7 @@ export default function VendrePage() {
                         key={`${r.brand}-${r.name}`}
                         type="button"
                         onClick={() => { setSelectedRubber(r); setProductSearch(r.name); setColor(""); }}
-                        className="w-full text-left px-4 py-3 text-sm hover:bg-orange-50 transition-colors flex items-center justify-between"
+                        className="w-full text-left px-4 py-3 text-sm hover:bg-lime-50 transition-colors flex items-center justify-between"
                       >
                         <span className="font-medium text-gray-900">{r.name}</span>
                         <span className="text-xs text-gray-400">{PIMPLE_LABELS[r.pimple_type]}</span>
@@ -289,7 +289,7 @@ export default function VendrePage() {
                   type="button"
                   onClick={() => setColor(c)}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold border-2 transition-colors ${
-                    color === c ? "border-orange-500 bg-orange-50 text-orange-600" : "border-gray-200 text-gray-600 hover:border-gray-300"
+                    color === c ? "border-lime bg-lime-50 text-navy" : "border-gray-200 text-gray-600 hover:border-gray-300"
                   }`}
                 >
                   {c === "Red" ? "Rouge" : c === "Black" ? "Noir" : c === "Blue" ? "Bleu" : c === "Green" ? "Vert" : c === "Pink" ? "Rose" : c === "Violet" ? "Violet" : c}
@@ -310,7 +310,7 @@ export default function VendrePage() {
                 onClick={() => setCondition(key)}
                 className={`border-2 rounded-xl py-2.5 text-sm font-semibold transition-colors ${
                   condition === key
-                    ? "border-orange-500 bg-orange-50 text-orange-600"
+                    ? "border-lime bg-lime-50 text-navy"
                     : "border-gray-200 text-gray-600 hover:border-gray-300"
                 }`}
               >
@@ -370,7 +370,7 @@ export default function VendrePage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-black py-4 rounded-xl text-base transition-colors mt-1"
+          className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-black py-4 rounded-xl text-base transition-colors mt-1"
         >
           {submitting ? "Publication en cours…" : "Publier l'annonce →"}
         </button>

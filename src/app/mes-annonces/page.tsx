@@ -60,7 +60,7 @@ export default function MesAnnoncesPage() {
     <div className="max-w-3xl mx-auto px-4 py-8 flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-black text-gray-900">Mes annonces</h1>
-        <Link href="/vendre" className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors">
+        <Link href="/vendre" className="bg-lime hover:bg-lime-dark text-navy text-sm font-bold px-4 py-2 rounded-lg transition-colors">
           + Nouvelle annonce
         </Link>
       </div>
@@ -69,7 +69,7 @@ export default function MesAnnoncesPage() {
         <div className="text-center py-20 border-2 border-dashed border-gray-200 rounded-2xl text-gray-400">
           <p className="text-3xl mb-2">📦</p>
           <p className="font-semibold text-gray-600">Tu n&apos;as pas encore d&apos;annonce</p>
-          <Link href="/vendre" className="mt-3 inline-block text-orange-500 font-semibold text-sm hover:underline">
+          <Link href="/vendre" className="mt-3 inline-block text-navy font-semibold text-sm hover:underline">
             Mettre en vente →
           </Link>
         </div>

@@ -79,7 +79,7 @@ function ProfilContent() {
     setToast("⏳ Complète l'activation dans la fenêtre PayPal, puis reviens ici.");
   }
 
-  const inputClass = "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white";
+  const inputClass = "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime bg-white";
   const labelClass = "block text-sm font-semibold text-gray-700 mb-1.5";
 
   return (
@@ -87,7 +87,7 @@ function ProfilContent() {
       <h1 className="text-2xl font-black text-gray-900">Mon profil</h1>
 
       {toast && (
-        <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 text-sm font-semibold text-orange-700">
+        <div className="bg-lime-50 border border-lime/30 rounded-xl px-4 py-3 text-sm font-semibold text-navy-800">
           {toast}
         </div>
       )}

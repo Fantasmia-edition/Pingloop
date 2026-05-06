@@ -76,7 +76,7 @@ export default function PriceSuggestion({ brand, name, condition, currentPrice }
   const isTooLow  = price > 0 && hasSuggest && price < suggestMin! * 0.7;
 
   return (
-    <div className={`rounded-xl px-4 py-3 text-sm border ${isTooHigh ? "bg-red-50 border-red-200" : isTooLow ? "bg-blue-50 border-blue-200" : "bg-orange-50 border-orange-100"}`}>
+    <div className={`rounded-xl px-4 py-3 text-sm border ${isTooHigh ? "bg-red-50 border-red-200" : isTooLow ? "bg-blue-50 border-blue-200" : "bg-lime-50 border-orange-100"}`}>
       <p className="font-semibold text-gray-800 mb-1">
         {isTooHigh ? "⚠️ Prix un peu élevé" : isTooLow ? "💡 Tu peux demander un peu plus" : "💡 Fourchette conseillée"}
       </p>

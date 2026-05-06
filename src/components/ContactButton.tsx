@@ -49,7 +49,7 @@ export default function ContactButton({ listingId, sellerId, sellerName, listing
       <button
         onClick={handleContact}
         disabled={loading}
-        className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-black py-4 rounded-xl text-base transition-colors flex items-center justify-center gap-2"
+        className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-black py-4 rounded-xl text-base transition-colors flex items-center justify-center gap-2"
       >
         {loading ? "Chargement…" : `💬 Contacter ${sellerName.split(" ")[0]}`}
       </button>

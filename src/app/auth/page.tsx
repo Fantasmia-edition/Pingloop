@@ -18,7 +18,7 @@ function AuthForm() {
   const [success, setSuccess] = useState("");
 
   const inputClass =
-    "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400";
+    "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lime";
   const labelClass = "block text-sm font-semibold text-gray-700 mb-1.5";
 
   async function handleSubmit(e: React.FormEvent) {
@@ -113,7 +113,7 @@ function AuthForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-black py-3.5 rounded-xl transition-colors"
+        className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-black py-3.5 rounded-xl transition-colors"
       >
         {loading ? "…" : mode === "login" ? "Se connecter →" : mode === "signup" ? "Créer mon compte →" : "Envoyer le lien →"}
       </button>
@@ -121,21 +121,21 @@ function AuthForm() {
       <div className="flex flex-col gap-1.5 text-center text-xs text-gray-400">
         {mode === "login" && (
           <>
-            <button type="button" onClick={() => { setMode("signup"); setError(""); setSuccess(""); }} className="hover:text-orange-500 transition-colors">
+            <button type="button" onClick={() => { setMode("signup"); setError(""); setSuccess(""); }} className="hover:text-navy transition-colors">
               Pas encore de compte ? Créer un compte
             </button>
-            <button type="button" onClick={() => { setMode("forgot"); setError(""); setSuccess(""); }} className="hover:text-orange-500 transition-colors">
+            <button type="button" onClick={() => { setMode("forgot"); setError(""); setSuccess(""); }} className="hover:text-navy transition-colors">
               Mot de passe oublié ?
             </button>
           </>
         )}
         {mode === "signup" && (
-          <button type="button" onClick={() => { setMode("login"); setError(""); setSuccess(""); }} className="hover:text-orange-500 transition-colors">
+          <button type="button" onClick={() => { setMode("login"); setError(""); setSuccess(""); }} className="hover:text-navy transition-colors">
             Déjà un compte ? Se connecter
           </button>
         )}
         {mode === "forgot" && (
-          <button type="button" onClick={() => { setMode("login"); setError(""); setSuccess(""); }} className="hover:text-orange-500 transition-colors">
+          <button type="button" onClick={() => { setMode("login"); setError(""); setSuccess(""); }} className="hover:text-navy transition-colors">
             ← Retour à la connexion
           </button>
         )}

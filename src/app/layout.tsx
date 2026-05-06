@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Syne } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
+const syne = Syne({ subsets: ["latin"], variable: "--font-syne", weight: ["400", "600", "700", "800"] });
 
 export const metadata: Metadata = {
   title: "PingLoop — Le marché des pongistes",
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`${geist.variable} h-full`}>
+    <html lang="fr" className={`${syne.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-gray-50 font-sans antialiased">
         <Navbar />
         <main className="flex-1">{children}</main>
