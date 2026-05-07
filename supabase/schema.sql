@@ -90,6 +90,26 @@ create policy "Participants envoient des messages" on public.messages
     )
   );
 
+create policy "Participants marquent les messages lus" on public.messages
+  for update
+  using (
+    exists (
+      select 1 from public.conversations c
+      where c.id = conversation_id
+        and (c.buyer_id = auth.uid() or c.seller_id = auth.uid())
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.conversations c
+      where c.id = conversation_id
+        and (c.buyer_id = auth.uid() or c.seller_id = auth.uid())
+    )
+  );
+
+-- Permet à Supabase Realtime de livrer les événements UPDATE (ex: read_at)
+alter table public.messages replica identity full;
+
 
 -- SEARCH ALERTS
 create table public.search_alerts (
