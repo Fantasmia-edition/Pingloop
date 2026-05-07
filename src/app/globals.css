@@ -4,13 +4,13 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #f9fafb;   /* gray-50 */
-  --foreground: #0d1b3e;
+  --background: #fafafa;
+  --foreground: #0f172a;
 }
 
 .dark {
-  --background: #060c1a;
-  --foreground: #e8edf7;
+  --background: #020617;
+  --foreground: #e2e8f0;
 }
 
 @theme inline {
@@ -18,18 +18,18 @@
   --color-foreground: var(--foreground);
 
   /* Brand palette */
-  --color-navy:       #0d1b3e;
-  --color-navy-900:   #060c1a;
-  --color-navy-800:   #162447;
-  --color-navy-700:   #1e3263;
-  --color-navy-100:   #e8edf7;
-  --color-navy-50:    #f2f5fc;
-  --color-lime:       #b8e831;
-  --color-lime-dark:  #9dd01e;
-  --color-lime-50:    #f3fdd8;
-  --color-lime-100:   #e4faad;
+  --color-navy:       #0f172a;
+  --color-navy-900:   #020617;
+  --color-navy-800:   #1e293b;
+  --color-navy-700:   #334155;
+  --color-navy-100:   #e2e8f0;
+  --color-navy-50:    #f1f5f9;
+  --color-lime:       #f43f5e;
+  --color-lime-dark:  #e11d48;
+  --color-lime-50:    #fff1f2;
+  --color-lime-100:   #ffe4e8;
 
-  --font-sans: var(--font-syne);
+  --font-sans: var(--font-space-grotesk);
 }
 
 body {

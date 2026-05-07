@@ -232,7 +232,7 @@ export default function StripePaymentModal({
                   locale: "fr",
                   appearance: {
                     theme: "stripe",
-                    variables: { colorPrimary: "#b8e831", colorBackground: "#ffffff" },
+                    variables: { colorPrimary: "#f43f5e", colorBackground: "#ffffff" },
                   },
                 }}
               >
