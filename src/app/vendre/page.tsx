@@ -44,8 +44,7 @@ export default function VendrePage() {
   const [displayName, setDisplayName] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [pickupAvailable, setPickupAvailable] = useState(false);
-  const [shippingRelay, setShippingRelay] = useState(true);  // point relais par défaut
-  const [shippingHome, setShippingHome] = useState(false);
+  const [shippingHome, setShippingHome] = useState(true); // La Poste par défaut
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -106,7 +105,7 @@ export default function VendrePage() {
       setError("Ajoute au moins une photo.");
       return;
     }
-    if (!pickupAvailable && !shippingRelay && !shippingHome) {
+    if (!pickupAvailable && !shippingHome) {
       setError("Sélectionne au moins un mode d'envoi.");
       return;
     }
@@ -128,7 +127,6 @@ export default function VendrePage() {
       seller_name: displayName || (user.email?.split("@")[0] ?? "Anonyme"),
       approval_code: selectedRubber?.approval_code ?? null,
       pickup_available: pickupAvailable,
-      shipping_relay: shippingRelay,
       shipping_home: shippingHome,
       photos: [],
     };
@@ -366,32 +364,16 @@ export default function VendrePage() {
           />
         </div>
 
-        {/* Livraison */}
         {/* Envoi */}
         <div>
           <label className={labelClass}>Modes d&apos;envoi proposés</label>
           <p className="text-xs text-gray-400 dark:text-navy-100/50 -mt-1 mb-3">
-            Sélectionne au moins une option — les tarifs sont fixés par PingLoop
+            Sélectionne au moins une option — le tarif d&apos;envoi est fixé par PingLoop
           </p>
-
-          {/* Info tarifs */}
-          <div className="flex flex-wrap gap-2 mb-3 text-xs font-semibold">
-            <span className="bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 px-2.5 py-1 rounded-full border border-navy-100 dark:border-navy-600">
-              📍 Point relais — {SHIPPING_PRICES.relay} €
-            </span>
-            <span className="bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 px-2.5 py-1 rounded-full border border-navy-100 dark:border-navy-600">
-              🏠 Domicile — {SHIPPING_PRICES.home} €
-            </span>
-            <span className="bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 px-2.5 py-1 rounded-full border border-navy-100 dark:border-navy-600">
-              🤝 Main propre — offert
-            </span>
-          </div>
-
           <div className="flex flex-col gap-2">
             {[
-              { key: "relay" as const, icon: "📍", label: "Point relais", sub: `Mondial Relay, Relay Colis… · ${SHIPPING_PRICES.relay} €`, value: shippingRelay, set: setShippingRelay },
-              { key: "home"  as const, icon: "🏠", label: "Livraison à domicile", sub: `Colissimo, Chronopost… · ${SHIPPING_PRICES.home} €`, value: shippingHome, set: setShippingHome },
-              { key: "pickup" as const, icon: "🤝", label: "Remise en main propre", sub: "Rencontre convenue avec l'acheteur · gratuit", value: pickupAvailable, set: setPickupAvailable },
+              { icon: "🏠", label: "Envoi par La Poste", sub: `Colissimo · ${SHIPPING_PRICES.home} €`, value: shippingHome, set: setShippingHome },
+              { icon: "🤝", label: "Remise en main propre", sub: "Rencontre convenue avec l'acheteur · gratuit", value: pickupAvailable, set: setPickupAvailable },
             ].map(({ icon, label, sub, value, set }) => (
               <button
                 key={label}

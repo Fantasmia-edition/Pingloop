@@ -25,9 +25,7 @@ export interface Listing {
   location: string;
   created_at: string;
   approval_code?: string | null;
-  /** Propose l'envoi en point relais (tarif fixé par la plateforme) */
-  shipping_relay?: boolean;
-  /** Propose la livraison à domicile (tarif fixé par la plateforme) */
+  /** Propose la livraison à domicile via La Poste (tarif fixé par la plateforme) */
   shipping_home?: boolean;
   /** Propose la remise en main propre */
   pickup_available?: boolean;
@@ -65,9 +63,8 @@ export const PIMPLE_LABELS: Record<PimpleType, string> = {
   Long: "Picots longs",
 };
 
-/** Tarifs de port fixés par PingLoop (en €) */
+/** Tarif de port fixé par PingLoop (en €) */
 export const SHIPPING_PRICES = {
-  relay: 5,
   home: 8,
 } as const;
 

@@ -5,22 +5,21 @@ import { SHIPPING_PRICES } from "@/types";
 
 const StripePaymentModal = dynamic(() => import("./StripePaymentModal"), { ssr: false });
 
-type ShippingMethod = "relay" | "home" | "pickup" | null;
+type ShippingMethod = "home" | "pickup" | null;
 
 interface Props {
   listingId: string;
   itemPrice: number;
   shippingMethod: ShippingMethod;
+  offerId?: string;
   onPurchased: () => void;
 }
 
-export default function PaymentOptions({ listingId, itemPrice, shippingMethod, onPurchased }: Props) {
+export default function PaymentOptions({ listingId, itemPrice, shippingMethod, offerId, onPurchased }: Props) {
   const [showStripe, setShowStripe] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const shippingCost =
-    shippingMethod === "relay" ? SHIPPING_PRICES.relay :
-    shippingMethod === "home"  ? SHIPPING_PRICES.home  : 0;
+  const shippingCost = shippingMethod === "home" ? SHIPPING_PRICES.home : 0;
 
   const total = itemPrice + shippingCost;
 
@@ -56,6 +55,7 @@ export default function PaymentOptions({ listingId, itemPrice, shippingMethod, o
           itemPrice={itemPrice}
           shippingCost={shippingCost}
           shippingMethod={shippingMethod}
+          offerId={offerId}
           onClose={() => setShowStripe(false)}
           onSuccess={() => {
             setShowStripe(false);

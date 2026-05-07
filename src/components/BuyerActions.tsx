@@ -8,7 +8,7 @@ import FavoriteButton from "@/components/FavoriteButton";
 
 const PaymentOptions = dynamic(() => import("./PaymentOptions"), { ssr: false });
 
-type ShippingMethod = "relay" | "home" | "pickup";
+type ShippingMethod = "home" | "pickup";
 
 interface Props {
   listingId: string;
@@ -16,39 +16,34 @@ interface Props {
   sellerId: string;
   sellerName: string;
   listingTitle: string;
-  shippingRelay: boolean;
   shippingHome: boolean;
   pickupAvailable: boolean;
   currentUserId: string | null;
 }
 
-function defaultMethod(relay: boolean, home: boolean, pickup: boolean): ShippingMethod {
-  if (relay)  return "relay";
-  if (home)   return "home";
+function defaultMethod(home: boolean): ShippingMethod {
+  if (home) return "home";
   return "pickup";
 }
 
 export default function BuyerActions({
   listingId, itemPrice, sellerId, sellerName, listingTitle,
-  shippingRelay, shippingHome, pickupAvailable,
+  shippingHome, pickupAvailable,
   currentUserId,
 }: Props) {
-  const hasOptions = shippingRelay || shippingHome || pickupAvailable;
+  const hasOptions = shippingHome || pickupAvailable;
 
   const [method, setMethod] = useState<ShippingMethod>(
-    defaultMethod(shippingRelay, shippingHome, pickupAvailable)
+    defaultMethod(shippingHome)
   );
 
-  const shippingCost =
-    method === "relay" ? SHIPPING_PRICES.relay :
-    method === "home"  ? SHIPPING_PRICES.home  : 0;
+  const shippingCost = method === "home" ? SHIPPING_PRICES.home : 0;
 
   const total = itemPrice + shippingCost;
 
   const options: { key: ShippingMethod; icon: string; label: string; sub: string; price: number }[] = [
-    ...(shippingRelay   ? [{ key: "relay"  as const, icon: "📍", label: "Point relais",          sub: "Mondial Relay, Relay Colis…",   price: SHIPPING_PRICES.relay }] : []),
-    ...(shippingHome    ? [{ key: "home"   as const, icon: "🏠", label: "Livraison à domicile",  sub: "Colissimo, Chronopost…",         price: SHIPPING_PRICES.home  }] : []),
-    ...(pickupAvailable ? [{ key: "pickup" as const, icon: "🤝", label: "Remise en main propre", sub: "À convenir avec le vendeur",     price: 0                     }] : []),
+    ...(shippingHome    ? [{ key: "home"   as const, icon: "🏠", label: "Envoi par La Poste",    sub: "Colissimo · livré chez vous",    price: SHIPPING_PRICES.home }] : []),
+    ...(pickupAvailable ? [{ key: "pickup" as const, icon: "🤝", label: "Remise en main propre", sub: "À convenir avec le vendeur",     price: 0                    }] : []),
   ];
 
   return (
@@ -125,8 +120,12 @@ export default function BuyerActions({
         <OffersSection
           listingId={listingId}
           sellerId={sellerId}
+          sellerName={sellerName}
+          listingTitle={listingTitle}
           listingPrice={itemPrice}
           currentUserId={currentUserId}
+          shippingHome={shippingHome}
+          pickupAvailable={pickupAvailable}
         />
       )}
 

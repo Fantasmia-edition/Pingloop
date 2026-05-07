@@ -33,6 +33,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
   const [conv, setConv] = useState<Conv | null>(null);
   const [messages, setMessages] = useState<DbMessage[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const userIdRef = useRef<string | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -49,6 +50,7 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/auth?redirect=/messages"); return; }
       setUserId(user.id);
+      userIdRef.current = user.id;
 
       const { data: convData } = await supabase
         .from("conversations")
@@ -85,10 +87,19 @@ export default function ConversationPage({ params }: { params: Promise<{ id: str
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${id}` },
         (payload) => {
+          const newMsg = payload.new as DbMessage;
           setMessages((prev) => {
-            if (prev.find((m) => m.id === payload.new.id)) return prev;
-            return [...prev, payload.new as DbMessage];
+            if (prev.find((m) => m.id === newMsg.id)) return prev;
+            return [...prev, newMsg];
           });
+          // Mark as read immediately if the message is from the other person
+          if (newMsg.from_id !== userIdRef.current && !newMsg.read_at) {
+            const supabase = createClient();
+            supabase.from("messages")
+              .update({ read_at: new Date().toISOString() })
+              .eq("id", newMsg.id)
+              .then(() => {});
+          }
         }
       )
       .subscribe();

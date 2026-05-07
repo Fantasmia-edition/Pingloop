@@ -80,16 +80,11 @@ export default function ListingCard({ listing }: Props) {
         </div>
 
         {/* Shipping pills */}
-        {(listing.shipping_relay || listing.shipping_home || listing.pickup_available) && (
+        {(listing.shipping_home || listing.pickup_available) && (
           <div className="flex flex-wrap gap-1.5 text-[10px] font-semibold text-gray-500 dark:text-navy-100/50">
-            {listing.shipping_relay && (
-              <span className="bg-gray-50 dark:bg-navy-700 px-2 py-0.5 rounded-full border border-gray-200 dark:border-navy-600">
-                📍 Relais {SHIPPING_PRICES.relay} €
-              </span>
-            )}
             {listing.shipping_home && (
               <span className="bg-gray-50 dark:bg-navy-700 px-2 py-0.5 rounded-full border border-gray-200 dark:border-navy-600">
-                🏠 Domicile {SHIPPING_PRICES.home} €
+                🏠 La Poste {SHIPPING_PRICES.home} €
               </span>
             )}
             {listing.pickup_available && (

@@ -87,16 +87,11 @@ export default async function ListingDetailPage({ params, searchParams }: {
           <p className="text-4xl font-black text-gray-900 dark:text-lime">{l.price} €</p>
 
           {/* Badges modes d'envoi disponibles */}
-          {(l.shipping_relay || l.shipping_home || l.pickup_available) && (
+          {(l.shipping_home || l.pickup_available) && (
             <div className="flex flex-wrap gap-2">
-              {l.shipping_relay && (
-                <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 border border-navy-100 dark:border-navy-600">
-                  📍 Point relais · {SHIPPING_PRICES.relay} €
-                </span>
-              )}
               {l.shipping_home && (
                 <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 border border-navy-100 dark:border-navy-600">
-                  🏠 Domicile · {SHIPPING_PRICES.home} €
+                  🏠 La Poste · {SHIPPING_PRICES.home} €
                 </span>
               )}
               {l.pickup_available && (
@@ -156,7 +151,6 @@ export default async function ListingDetailPage({ params, searchParams }: {
               sellerId={l.seller_id}
               sellerName={l.seller_name}
               listingTitle={`${l.brand} ${l.name}`}
-              shippingRelay={!!l.shipping_relay}
               shippingHome={!!l.shipping_home}
               pickupAvailable={!!l.pickup_available}
               currentUserId={user?.id ?? null}
@@ -171,7 +165,14 @@ export default async function ListingDetailPage({ params, searchParams }: {
                   <div className="bg-lime-50 dark:bg-lime/10 border border-lime/30 rounded-xl px-4 py-3 text-sm text-navy dark:text-lime font-semibold text-center">
                     C&apos;est ton annonce
                   </div>
-                  <OffersSection listingId={l.id} sellerId={l.seller_id} listingPrice={l.price} currentUserId={user.id} />
+                  <OffersSection
+                    listingId={l.id}
+                    sellerId={l.seller_id}
+                    sellerName={l.seller_name}
+                    listingTitle={`${l.brand} ${l.name}`}
+                    listingPrice={l.price}
+                    currentUserId={user.id}
+                  />
                   <MarkSoldButton listingId={l.id} />
                 </>
               ) : (
