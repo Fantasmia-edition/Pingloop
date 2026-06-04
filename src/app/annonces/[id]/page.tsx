@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { CONDITION_LABELS, CONDITION_COLORS, PIMPLE_LABELS, CATEGORY_CONFIG, SHIPPING_PRICES, Listing } from "@/types";
 import MarkSoldButton from "@/components/MarkSoldButton";
@@ -7,6 +8,44 @@ import OffersSection from "@/components/OffersSection";
 import BuyerActions from "@/components/BuyerActions";
 import PhotoGallery from "@/components/PhotoGallery";
 import ListingCard from "@/components/ListingCard";
+import TrackView from "@/components/TrackView";
+import ReviewForm from "@/components/ReviewForm";
+import EarlyAdopterBadge from "@/components/EarlyAdopterBadge";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pingloop.fr";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data } = await supabase.from("listings").select("brand, name, price, condition, photos, seller_name, description").eq("id", id).single();
+  if (!data) return {};
+
+  const conditionLabels: Record<string, string> = { new: "Neuf", like_new: "Comme neuf", good: "Bon état", fair: "État correct" };
+  const title = `${data.brand} ${data.name} — ${data.price} €`;
+  const description = data.description
+    ? `${conditionLabels[data.condition] ?? data.condition} · ${data.description.slice(0, 120)}`
+    : `${conditionLabels[data.condition] ?? data.condition} · Vendu par ${data.seller_name} sur PingLoop`;
+  const image = data.photos?.[0];
+
+  return {
+    title: `${title} | PingLoop`,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/annonces/${id}`,
+      siteName: "PingLoop",
+      ...(image ? { images: [{ url: image, width: 1200, height: 630, alt: title }] } : {}),
+      type: "website",
+    },
+    twitter: {
+      card: image ? "summary_large_image" : "summary",
+      title,
+      description,
+      ...(image ? { images: [image] } : {}),
+    },
+  };
+}
 
 const COLOR_FR: Record<string, string> = {
   Red: "Rouge", Black: "Noir", Blue: "Bleu", Green: "Vert",
@@ -35,7 +74,7 @@ export default async function ListingDetailPage({ params, searchParams }: {
 
   const l = listing as Listing & { photos: string[]; seller_name: string; sold_at: string | null; seller_id: string };
 
-  const [{ data: { user } }, { data: similarRaw }] = await Promise.all([
+  const [{ data: { user } }, { data: similarRaw }, { data: existingReview }, { data: sellerProfile }] = await Promise.all([
     supabase.auth.getUser(),
     supabase
       .from("listings")
@@ -45,12 +84,17 @@ export default async function ListingDetailPage({ params, searchParams }: {
       .is("sold_at", null)
       .order("created_at", { ascending: false })
       .limit(3),
+    supabase.from("reviews").select("id").eq("listing_id", id).maybeSingle(),
+    supabase.from("profiles").select("early_adopter").eq("id", l.seller_id).single(),
   ]);
 
   const similar = (similarRaw as Listing[]) ?? [];
+  // Acheteur éligible = annonce vendue, user connecté, pas le vendeur, pas encore d'avis
+  const canReview = !!l.sold_at && !!user && user.id !== l.seller_id && !existingReview;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
+      <TrackView id={id} />
       {published && (
         <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-3 mb-6 text-sm font-semibold">
           🎉 Annonce publiée avec succès ! Elle est maintenant visible par tous les pongistes.
@@ -131,17 +175,25 @@ export default async function ListingDetailPage({ params, searchParams }: {
             </div>
           )}
 
-          <div className="border border-gray-200 dark:border-navy-700 rounded-xl p-4 flex items-center justify-between bg-white dark:bg-navy-800">
-            <div>
-              <p className="text-sm font-semibold text-gray-900 dark:text-white">{l.seller_name}</p>
+          <Link href={`/vendeurs/${l.seller_id}`} className="border border-gray-200 dark:border-navy-700 rounded-xl p-4 flex items-center justify-between bg-white dark:bg-navy-800 hover:border-lime dark:hover:border-lime transition-colors group">
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-lime transition-colors">{l.seller_name}</p>
+                {sellerProfile?.early_adopter && <EarlyAdopterBadge />}
+              </div>
               <p className="text-xs text-gray-400 dark:text-navy-100/50">
-                {new Date(l.created_at).toLocaleDateString("fr-FR")}
+                Voir toutes ses annonces →
               </p>
             </div>
             <div className="w-10 h-10 rounded-full bg-lime-100 dark:bg-navy-700 flex items-center justify-center text-navy font-black text-sm">
               {l.seller_name.charAt(0).toUpperCase()}
             </div>
-          </div>
+          </Link>
+
+          {/* Formulaire d'avis post-vente */}
+          {canReview && (
+            <ReviewForm listingId={l.id} sellerName={l.seller_name} />
+          )}
 
           {/* Buyer actions — visible même sans compte */}
           {user?.id !== l.seller_id && !l.sold_at && (

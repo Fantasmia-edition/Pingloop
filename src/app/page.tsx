@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import ListingCard from "@/components/ListingCard";
+import RecentlyViewed from "@/components/RecentlyViewed";
 import { Listing } from "@/types";
 
 export const revalidate = 60;
@@ -90,24 +91,35 @@ export default async function Home() {
       </section>
 
       {/* Why PingLoop */}
-      <section className="py-14 bg-navy-50 dark:bg-navy">
+      <section className="py-16 bg-navy-50 dark:bg-navy">
         <div className="max-w-5xl mx-auto px-4">
-          <h2 className="text-2xl font-black text-navy text-center mb-10">Pourquoi PingLoop ?</h2>
-          <div className="grid sm:grid-cols-3 gap-6">
-            {[
-              { emoji: "💸", title: "Un Tenergy à 30€ ? C'est possible.", desc: "Arrête de claquer 60€ dans un revêtement neuf. Teste d'abord via l'occasion, décide ensuite." },
-              { emoji: "♻️", title: "Revends ce qui prend la poussière.", desc: "Ce bois qui dort dans ton sac depuis 6 mois ? Quelqu'un en rêve. Mets-le en vente en 60 secondes." },
-              { emoji: "🔔", title: "Alerte sur ce que tu cherches.", desc: "Tu veux un MX-P rouge, bon état, sous 25€ ? On te prévient dès que quelqu'un le met en vente." },
-            ].map((item) => (
-              <div key={item.title} className="bg-white dark:bg-navy-800 rounded-2xl p-6 border border-navy-100 dark:border-navy-700">
-                <div className="w-12 h-12 bg-lime-50 rounded-xl flex items-center justify-center text-2xl mb-4">{item.emoji}</div>
-                <h3 className="font-black text-navy mb-2">{item.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
+          <div className="flex flex-col sm:flex-row gap-12 sm:gap-20 items-start">
+            <div className="sm:sticky sm:top-8 shrink-0">
+              <p className="text-xs font-bold tracking-widest uppercase text-lime mb-3">Pourquoi PingLoop</p>
+              <h2 className="text-3xl sm:text-4xl font-black text-navy dark:text-white leading-tight">
+                Un marché fait<br />par des joueurs.
+              </h2>
+            </div>
+            <div className="flex flex-col divide-y divide-navy-100 dark:divide-navy-700 flex-1">
+              {[
+                { n: "01", title: "Un Tenergy à 30 €, c'est possible.", desc: "Arrête de claquer 60 € dans un revêtement neuf. Teste via l'occasion, décide ensuite." },
+                { n: "02", title: "Revends ce qui dort dans ton sac.", desc: "Ce bois abandonné depuis 6 mois ? Quelqu'un en rêve. Mise en vente en moins d'une minute." },
+                { n: "03", title: "Alerte sur ce que tu cherches.", desc: "MX-P rouge, bon état, sous 25 € — on te prévient dès que ça apparaît." },
+              ].map((item) => (
+                <div key={item.n} className="flex gap-6 py-7 group">
+                  <span className="text-xs font-bold text-lime/60 tabular-nums pt-1 w-6 shrink-0">{item.n}</span>
+                  <div>
+                    <h3 className="font-bold text-navy dark:text-white text-base mb-1.5 group-hover:text-lime transition-colors">{item.title}</h3>
+                    <p className="text-sm text-gray-500 dark:text-navy-100/50 leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
+
+      <RecentlyViewed />
 
       {/* CTA */}
       <section className="py-16 bg-navy text-white text-center">

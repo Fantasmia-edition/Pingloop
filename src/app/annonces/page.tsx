@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/client";
 import ListingCard from "@/components/ListingCard";
 import { Listing, ItemCategory, PimpleType, Condition } from "@/types";
 
+const PAGE_SIZE = 24;
+
 function AnnoncesContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -12,56 +14,71 @@ function AnnoncesContent() {
 
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(0);
 
-  // Init state from URL
   const [search, setSearch] = useState(searchParams.get("q") ?? "");
-  const [category, setCategory] = useState<ItemCategory | "">(
-    (searchParams.get("cat") as ItemCategory) ?? ""
-  );
-  const [pimpleType, setPimpleType] = useState<PimpleType | "">(
-    (searchParams.get("picots") as PimpleType) ?? ""
-  );
-  const [condition, setCondition] = useState<Condition | "">(
-    (searchParams.get("etat") as Condition) ?? ""
-  );
+  const [category, setCategory] = useState<ItemCategory | "">((searchParams.get("cat") as ItemCategory) ?? "");
+  const [pimpleType, setPimpleType] = useState<PimpleType | "">((searchParams.get("picots") as PimpleType) ?? "");
+  const [condition, setCondition] = useState<Condition | "">((searchParams.get("etat") as Condition) ?? "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxprix") ?? "");
+  const [sort, setSort] = useState(searchParams.get("tri") ?? "recent");
 
-  // Push filter changes to URL
   function updateUrl(updates: Record<string, string>) {
     const params = new URLSearchParams(searchParams.toString());
-    Object.entries(updates).forEach(([k, v]) => {
-      if (v) params.set(k, v);
-      else params.delete(k);
-    });
+    Object.entries(updates).forEach(([k, v]) => { if (v) params.set(k, v); else params.delete(k); });
     const qs = params.toString();
     router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
   }
 
-  function handleSearch(v: string) { setSearch(v); updateUrl({ q: v }); }
-  function handleCategory(v: string) { setCategory(v as ItemCategory); updateUrl({ cat: v }); }
-  function handlePimple(v: string) { setPimpleType(v as PimpleType); updateUrl({ picots: v }); }
-  function handleCondition(v: string) { setCondition(v as Condition); updateUrl({ etat: v }); }
-  function handleMaxPrice(v: string) { setMaxPrice(v); updateUrl({ maxprix: v }); }
+  function handleSearch(v: string) { setSearch(v); setPage(0); updateUrl({ q: v }); }
+  function handleCategory(v: string) { setCategory(v as ItemCategory); setPage(0); updateUrl({ cat: v }); }
+  function handlePimple(v: string) { setPimpleType(v as PimpleType); setPage(0); updateUrl({ picots: v }); }
+  function handleCondition(v: string) { setCondition(v as Condition); setPage(0); updateUrl({ etat: v }); }
+  function handleMaxPrice(v: string) { setMaxPrice(v); setPage(0); updateUrl({ maxprix: v }); }
+  function handleSort(v: string) { setSort(v); setPage(0); updateUrl({ tri: v }); }
 
-  const fetchListings = useCallback(async () => {
-    setLoading(true);
-    const supabase = createClient();
-    let query = supabase
+  function buildQuery(supabase: ReturnType<typeof createClient>, offset: number) {
+    const orderCol = sort === "prix_asc" || sort === "prix_desc" ? "price" : "created_at";
+    const ascending = sort === "prix_asc" || sort === "ancien";
+    let q = supabase
       .from("listings")
       .select("*")
       .is("sold_at", null)
-      .order("created_at", { ascending: false });
+      .order(orderCol, { ascending })
+      .range(offset, offset + PAGE_SIZE - 1);
+    if (category) q = q.eq("category", category);
+    if (pimpleType) q = q.eq("pimple_type", pimpleType);
+    if (condition) q = q.eq("condition", condition);
+    if (maxPrice) q = q.lte("price", Number(maxPrice));
+    if (search) q = q.or(`brand.ilike.%${search}%,name.ilike.%${search}%`);
+    return q;
+  }
 
-    if (category) query = query.eq("category", category);
-    if (pimpleType) query = query.eq("pimple_type", pimpleType);
-    if (condition) query = query.eq("condition", condition);
-    if (maxPrice) query = query.lte("price", Number(maxPrice));
-    if (search) query = query.or(`brand.ilike.%${search}%,name.ilike.%${search}%`);
-
-    const { data } = await query;
-    setListings((data as Listing[]) ?? []);
+  const fetchListings = useCallback(async () => {
+    setLoading(true);
+    setPage(0);
+    const supabase = createClient();
+    const { data } = await buildQuery(supabase, 0);
+    const results = (data as Listing[]) ?? [];
+    setListings(results);
+    setHasMore(results.length === PAGE_SIZE);
     setLoading(false);
-  }, [category, pimpleType, condition, maxPrice, search]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category, pimpleType, condition, maxPrice, search, sort]);
+
+  async function loadMore() {
+    setLoadingMore(true);
+    const nextPage = page + 1;
+    const supabase = createClient();
+    const { data } = await buildQuery(supabase, nextPage * PAGE_SIZE);
+    const results = (data as Listing[]) ?? [];
+    setListings((prev) => [...prev, ...results]);
+    setHasMore(results.length === PAGE_SIZE);
+    setPage(nextPage);
+    setLoadingMore(false);
+  }
 
   useEffect(() => {
     const timer = setTimeout(fetchListings, search ? 300 : 0);
@@ -71,7 +88,7 @@ function AnnoncesContent() {
   const hasFilters = !!(search || category || pimpleType || condition || maxPrice);
 
   function clearFilters() {
-    setSearch(""); setCategory(""); setPimpleType(""); setCondition(""); setMaxPrice("");
+    setSearch(""); setCategory(""); setPimpleType(""); setCondition(""); setMaxPrice(""); setSort("recent"); setPage(0);
     router.replace(pathname, { scroll: false });
   }
 
@@ -83,7 +100,8 @@ function AnnoncesContent() {
         <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-1">Toutes les annonces</h1>
         {!loading && (
           <p className="text-sm text-gray-500 dark:text-navy-100/60">
-            {listings.length} annonce{listings.length !== 1 ? "s" : ""} disponible{listings.length !== 1 ? "s" : ""}
+            {listings.length} annonce{listings.length !== 1 ? "s" : ""} chargée{listings.length !== 1 ? "s" : ""}
+            {hasMore ? " — il y en a d'autres" : ""}
           </p>
         )}
       </div>
@@ -125,6 +143,12 @@ function AnnoncesContent() {
           onChange={(e) => handleMaxPrice(e.target.value)}
           className={`w-32 ${inputCls}`}
         />
+        <select value={sort} onChange={(e) => handleSort(e.target.value)} className={inputCls}>
+          <option value="recent">Plus récents</option>
+          <option value="ancien">Plus anciens</option>
+          <option value="prix_asc">Prix croissant</option>
+          <option value="prix_desc">Prix décroissant</option>
+        </select>
         {hasFilters && (
           <button
             onClick={clearFilters}
@@ -153,11 +177,24 @@ function AnnoncesContent() {
           <p className="text-sm mt-1">Modifie tes filtres ou crée une alerte pour être prévenu.</p>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {listings.map((l) => (
-            <ListingCard key={l.id} listing={l} />
-          ))}
-        </div>
+        <>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {listings.map((l) => (
+              <ListingCard key={l.id} listing={l} />
+            ))}
+          </div>
+          {hasMore && (
+            <div className="mt-8 text-center">
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 text-navy dark:text-white font-bold px-8 py-3 rounded-xl hover:border-lime dark:hover:border-lime transition-colors disabled:opacity-50 text-sm"
+              >
+                {loadingMore ? "Chargement…" : "Voir plus d'annonces"}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

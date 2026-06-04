@@ -145,6 +145,11 @@ function ListingRow({ listing: l, onMarkSold, onDelete }: {
         <Link href={`/annonces/${l.id}`} className="text-xs text-gray-500 hover:text-gray-800 font-medium text-center">
           Voir →
         </Link>
+        {!l.sold_at && (
+          <Link href={`/mes-annonces/${l.id}/modifier`} className="text-xs text-blue-500 hover:text-blue-700 font-medium text-center">
+            Modifier
+          </Link>
+        )}
         {!l.sold_at && onMarkSold && (
           confirmSold ? (
             <div className="flex gap-1">

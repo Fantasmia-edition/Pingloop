@@ -29,6 +29,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <main className="flex-1">{children}</main>
         <footer className="border-t border-gray-200 dark:border-navy-700 py-6 text-center text-sm text-gray-400 dark:text-navy-100/50 dark:bg-navy-900">
+          <div className="flex flex-wrap justify-center gap-4 mb-3 text-xs">
+            <a href="/comment-ca-marche" className="hover:text-gray-600 dark:hover:text-white transition-colors">Comment ça marche</a>
+            <a href="/alertes" className="hover:text-gray-600 dark:hover:text-white transition-colors">Alertes</a>
+            <a href="mailto:support@pingloop.fr" className="hover:text-gray-600 dark:hover:text-white transition-colors">Support</a>
+          </div>
           © {new Date().getFullYear()} PingLoop — Fait avec ❤️ par des pongistes, pour des pongistes
         </footer>
       </body>

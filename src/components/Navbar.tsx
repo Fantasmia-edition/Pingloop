@@ -37,6 +37,7 @@ export default function Navbar() {
     { href: "/annonces", label: "Annonces" },
     { href: "/messages", label: "Messages", badge: true },
     { href: "/alertes", label: "Alertes" },
+    { href: "/comment-ca-marche", label: "Comment ça marche" },
     ...(user ? [
       { href: "/mes-annonces", label: "Mes annonces" },
       { href: "/mes-favoris", label: "Favoris" },

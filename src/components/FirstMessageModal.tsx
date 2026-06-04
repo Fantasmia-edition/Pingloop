@@ -48,6 +48,14 @@ export default function FirstMessageModal({ listingId, sellerId, sellerName, lis
 
     if (convId) {
       await supabase.from("messages").insert({ conversation_id: convId, from_id: user.id, text: text.trim() });
+      // Notify seller by email (fire and forget)
+      const { data: profile } = await supabase.from("profiles").select("display_name").eq("id", user.id).single();
+      const fromName = profile?.display_name ?? user.email?.split("@")[0] ?? "Un acheteur";
+      fetch("/api/notify-seller", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "message", listingId, fromName, conversationId: convId }),
+      }).catch(() => {});
       router.push(`/messages/${convId}`);
     }
     setSending(false);

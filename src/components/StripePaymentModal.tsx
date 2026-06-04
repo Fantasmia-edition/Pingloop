@@ -204,6 +204,15 @@ export default function StripePaymentModal({
           </form>
         )}
 
+        {/* Protection acheteur */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 rounded-xl p-3 text-xs text-blue-700 dark:text-blue-300 flex gap-2.5 items-start shrink-0">
+          <span className="text-base leading-none mt-0.5">🔒</span>
+          <div>
+            <p className="font-semibold mb-0.5">Paiement sécurisé via Stripe</p>
+            <p className="text-blue-600/80 dark:text-blue-300/70">Si l'article ne correspond pas à l'annonce, contacte-nous — on te rembourse. Tes coordonnées bancaires ne sont jamais transmises au vendeur.</p>
+          </div>
+        </div>
+
         {/* Étape 2 : Paiement Stripe */}
         {addressReady && (
           <>

@@ -11,17 +11,24 @@ import type { User } from "@supabase/supabase-js";
 const rubbers = rubbersData as Rubber[];
 const brands = [...new Set(rubbers.map((r) => r.brand))].sort();
 
-async function uploadPhotos(blobUrls: string[], listingId: string, userId: string) {
+function dataUrlToBlob(dataUrl: string): Blob {
+  const [header, base64] = dataUrl.split(",");
+  const mime = header.match(/:(.*?);/)?.[1] ?? "image/jpeg";
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
+
+async function uploadPhotos(dataUrls: string[], listingId: string, userId: string) {
   const supabase = createClient();
   const publicUrls: string[] = [];
-  for (const blobUrl of blobUrls) {
-    const res = await fetch(blobUrl);
-    const blob = await res.blob();
-    const ext = blob.type.split("/")[1] ?? "jpg";
-    const path = `${userId}/${listingId}/${Date.now()}.${ext}`;
+  for (const dataUrl of dataUrls) {
+    const blob = dataUrlToBlob(dataUrl);
+    const path = `${userId}/${listingId}/${Date.now()}.jpg`;
     const { error } = await supabase.storage
       .from("listing-photos")
-      .upload(path, blob, { contentType: blob.type });
+      .upload(path, blob, { contentType: "image/jpeg" });
     if (!error) {
       const { data } = supabase.storage.from("listing-photos").getPublicUrl(path);
       publicUrls.push(data.publicUrl);
@@ -45,6 +52,7 @@ export default function VendrePage() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [pickupAvailable, setPickupAvailable] = useState(false);
   const [shippingHome, setShippingHome] = useState(true); // La Poste par défaut
+  const [location, setLocation] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -109,6 +117,10 @@ export default function VendrePage() {
       setError("Sélectionne au moins un mode d'envoi.");
       return;
     }
+    if (pickupAvailable && !location.trim()) {
+      setError("Indique ta ville pour la remise en main propre.");
+      return;
+    }
     setSubmitting(true);
     setError("");
     const supabase = createClient();
@@ -125,6 +137,7 @@ export default function VendrePage() {
       description,
       seller_id: user.id,
       seller_name: displayName || (user.email?.split("@")[0] ?? "Anonyme"),
+      location: location.trim() || null,
       approval_code: selectedRubber?.approval_code ?? null,
       pickup_available: pickupAvailable,
       shipping_home: shippingHome,
@@ -149,8 +162,13 @@ export default function VendrePage() {
       await supabase.from("listings").update({ photos: photoUrls }).eq("id", listing.id);
     }
 
-    // 3. Notify matching alerts (fire and forget)
+    // 3. Notify matching alerts + confirm to seller (fire and forget)
     fetch("/api/notify-alerts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ listingId: listing.id }),
+    }).catch(() => {});
+    fetch("/api/notify-listing-published", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ listingId: listing.id }),
@@ -360,6 +378,18 @@ export default function VendrePage() {
             placeholder="Durée d'utilisation, épaisseur d'éponge, raisons de la vente…"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            className={inputClass}
+          />
+        </div>
+
+        {/* Localisation */}
+        <div>
+          <label className={labelClass}>Ta ville <span className="font-normal text-gray-400">(optionnel)</span></label>
+          <input
+            type="text"
+            placeholder="ex : Paris 11e, Lyon, Bordeaux…"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
             className={inputClass}
           />
         </div>

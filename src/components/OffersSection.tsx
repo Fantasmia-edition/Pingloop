@@ -128,6 +128,15 @@ export default function OffersSection({
       parent_id: parentId ?? null,
     });
 
+    // Notify seller by email when buyer submits a new offer (not a counter-offer acceptance)
+    if (!isSeller && !parentId) {
+      fetch("/api/notify-seller", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "offer", listingId, fromName: myName, amount }),
+      }).catch(() => {});
+    }
+
     // Mirror to conversation
     const buyerId = isSeller ? toId : currentUserId;
     const buyerNameStr = isSeller
