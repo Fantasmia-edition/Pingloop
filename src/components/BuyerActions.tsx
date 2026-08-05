@@ -19,6 +19,8 @@ interface Props {
   shippingHome: boolean;
   pickupAvailable: boolean;
   currentUserId: string | null;
+  sellerStripeOnboarded: boolean;
+  sellerPaypalOnboarded: boolean;
 }
 
 function defaultMethod(home: boolean): ShippingMethod {
@@ -30,6 +32,7 @@ export default function BuyerActions({
   listingId, itemPrice, sellerId, sellerName, listingTitle,
   shippingHome, pickupAvailable,
   currentUserId,
+  sellerStripeOnboarded, sellerPaypalOnboarded,
 }: Props) {
   const hasOptions = shippingHome || pickupAvailable;
 
@@ -103,6 +106,8 @@ export default function BuyerActions({
           itemPrice={itemPrice}
           shippingMethod={method}
           onPurchased={() => {}}
+          sellerStripeOnboarded={sellerStripeOnboarded}
+          sellerPaypalOnboarded={sellerPaypalOnboarded}
         />
       ) : (
         /* Main propre → contacter le vendeur pour convenir */
@@ -126,6 +131,8 @@ export default function BuyerActions({
           currentUserId={currentUserId}
           shippingHome={shippingHome}
           pickupAvailable={pickupAvailable}
+          sellerStripeOnboarded={sellerStripeOnboarded}
+          sellerPaypalOnboarded={sellerPaypalOnboarded}
         />
       )}
 

@@ -55,6 +55,9 @@ export default function VendrePage() {
   const [location, setLocation] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [checkingPayment, setCheckingPayment] = useState(true);
+  const [stripeOnboarded, setStripeOnboarded] = useState(false);
+  const [paypalOnboarded, setPaypalOnboarded] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -64,11 +67,14 @@ export default function VendrePage() {
       if (user) {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("display_name")
+          .select("display_name, stripe_onboarded, paypal_onboarded")
           .eq("id", user.id)
           .single();
         if (profile?.display_name) setDisplayName(profile.display_name);
+        setStripeOnboarded(!!profile?.stripe_onboarded);
+        setPaypalOnboarded(!!profile?.paypal_onboarded);
       }
+      setCheckingPayment(false);
     }
     load();
   }, []);
@@ -101,6 +107,32 @@ export default function VendrePage() {
           className="bg-lime hover:bg-lime-dark text-navy font-bold px-8 py-3 rounded-xl transition-colors"
         >
           Se connecter →
+        </button>
+      </div>
+    );
+  }
+
+  if (checkingPayment) {
+    return (
+      <div className="max-w-lg mx-auto px-4 py-20 text-center text-gray-400 dark:text-navy-100/50 text-sm">
+        Chargement…
+      </div>
+    );
+  }
+
+  if (!stripeOnboarded && !paypalOnboarded) {
+    return (
+      <div className="max-w-lg mx-auto px-4 py-20 text-center">
+        <div className="text-5xl mb-4">💳</div>
+        <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Connecte un moyen de paiement</h1>
+        <p className="text-gray-500 dark:text-navy-100/60 mb-6">
+          Pour vendre sur PingLoop, connecte Stripe ou PayPal depuis ton profil — c&apos;est comme ça que tu recevras l&apos;argent de tes ventes.
+        </p>
+        <button
+          onClick={() => router.push("/profil")}
+          className="bg-lime hover:bg-lime-dark text-navy font-bold px-8 py-3 rounded-xl transition-colors"
+        >
+          Aller à mon profil →
         </button>
       </div>
     );
@@ -167,12 +199,12 @@ export default function VendrePage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ listingId: listing.id }),
-    }).catch(() => {});
+    }).catch((err) => console.error("notify-alerts failed", err));
     fetch("/api/notify-listing-published", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ listingId: listing.id }),
-    }).catch(() => {});
+    }).catch((err) => console.error("notify-listing-published failed", err));
 
     router.push(`/annonces/${listing.id}?published=1`);
   }

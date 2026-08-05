@@ -25,7 +25,7 @@ export async function POST() {
       products: ["PPCP"],
       legal_consents: [{ type: "SHARE_DATA_CONSENT", granted: true }],
       partner_config_override: {
-        return_url: `${SITE_URL}/profil?paypal=success`,
+        return_url: `${SITE_URL}/api/paypal/connect/return`,
         return_url_description: "Retour sur PingLoop",
       },
     }),

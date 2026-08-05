@@ -27,12 +27,15 @@ interface Props {
   currentUserId: string;
   shippingHome?: boolean;
   pickupAvailable?: boolean;
+  sellerStripeOnboarded?: boolean;
+  sellerPaypalOnboarded?: boolean;
 }
 
 export default function OffersSection({
   listingId, sellerId, sellerName = "", listingTitle = "",
   listingPrice, currentUserId,
   shippingHome = false, pickupAvailable = false,
+  sellerStripeOnboarded, sellerPaypalOnboarded,
 }: Props) {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -134,7 +137,7 @@ export default function OffersSection({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "offer", listingId, fromName: myName, amount }),
-      }).catch(() => {});
+      }).catch((err) => console.error("notify-seller failed", err));
     }
 
     // Mirror to conversation
@@ -320,6 +323,8 @@ export default function OffersSection({
                 shippingMethod={acceptedMethod}
                 offerId={latest.id}
                 onPurchased={() => {}}
+                sellerStripeOnboarded={sellerStripeOnboarded}
+                sellerPaypalOnboarded={sellerPaypalOnboarded}
               />
             ) : (
               <p className="text-sm text-center text-gray-600 dark:text-navy-100/70 font-medium py-2">

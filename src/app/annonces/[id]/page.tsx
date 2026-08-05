@@ -11,6 +11,7 @@ import ListingCard from "@/components/ListingCard";
 import TrackView from "@/components/TrackView";
 import ReviewForm from "@/components/ReviewForm";
 import EarlyAdopterBadge from "@/components/EarlyAdopterBadge";
+import ReportListingButton from "@/components/ReportListingButton";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pingloop.fr";
 
@@ -85,7 +86,7 @@ export default async function ListingDetailPage({ params, searchParams }: {
       .order("created_at", { ascending: false })
       .limit(3),
     supabase.from("reviews").select("id").eq("listing_id", id).maybeSingle(),
-    supabase.from("profiles").select("early_adopter").eq("id", l.seller_id).single(),
+    supabase.from("profiles").select("early_adopter, stripe_onboarded, paypal_onboarded").eq("id", l.seller_id).single(),
   ]);
 
   const similar = (similarRaw as Listing[]) ?? [];
@@ -206,6 +207,8 @@ export default async function ListingDetailPage({ params, searchParams }: {
               shippingHome={!!l.shipping_home}
               pickupAvailable={!!l.pickup_available}
               currentUserId={user?.id ?? null}
+              sellerStripeOnboarded={!!sellerProfile?.stripe_onboarded}
+              sellerPaypalOnboarded={!!sellerProfile?.paypal_onboarded}
             />
           )}
 
@@ -233,6 +236,10 @@ export default async function ListingDetailPage({ params, searchParams }: {
                 </div>
               )}
             </div>
+          )}
+
+          {user?.id !== l.seller_id && (
+            <ReportListingButton listingId={l.id} />
           )}
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createServiceClient } from "@/lib/supabase/service";
+import { recordClubContribution } from "@/lib/club-contributions";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -41,7 +42,13 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (listing) {
-      // 3. Créer une notification pour le vendeur (table notifications si elle existe)
+      // 3. Suivi du reversement club (informatif, cf. src/lib/club-contributions.ts)
+      // Reprend le prix article réellement facturé (metadata) — diffère du prix
+      // affiché de l'annonce si une offre négociée a été acceptée.
+      const paidItemPrice = pi.metadata?.item_price ? Number(pi.metadata.item_price) : listing.price;
+      await recordClubContribution(supabase, listingId, listing.seller_id, paidItemPrice);
+
+      // 4. Créer une notification pour le vendeur (table notifications si elle existe)
       // ou poster un message dans la conversation
       if (buyerId && buyerId !== "guest") {
         const { data: conv } = await supabase

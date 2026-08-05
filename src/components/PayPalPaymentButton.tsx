@@ -3,11 +3,13 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 interface Props {
   listingId: string;
+  offerId?: string;
+  shippingMethod?: "home" | "pickup" | null;
   onSuccess: () => void;
   onError: (msg: string) => void;
 }
 
-export default function PayPalPaymentButton({ listingId, onSuccess, onError }: Props) {
+export default function PayPalPaymentButton({ listingId, offerId, shippingMethod, onSuccess, onError }: Props) {
   return (
     <PayPalScriptProvider
       options={{
@@ -22,7 +24,7 @@ export default function PayPalPaymentButton({ listingId, onSuccess, onError }: P
           const res = await fetch("/api/paypal/create-order", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ listingId }),
+            body: JSON.stringify({ listingId, offerId, shippingMethod }),
           });
           const { orderId, error } = await res.json();
           if (error) { onError(error); throw new Error(error); }
