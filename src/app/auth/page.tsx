@@ -55,13 +55,20 @@ function AuthForm() {
         setLoading(false);
         return;
       }
-      const { data, error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      });
       if (error) {
         setError(error.message);
-      } else if (data.user) {
-        // Nouveau compte → onboarding direct
+      } else if (data.session) {
+        // Session active immédiatement (confirmation email désactivée) → onboarding direct
         router.push("/onboarding");
         router.refresh();
+      } else if (data.user) {
+        // Confirmation email requise — pas de session tant que le lien n'est pas cliqué
+        setSuccess("Compte créé ! Vérifie ta boîte mail et clique sur le lien de confirmation pour activer ton compte.");
       }
     }
 
