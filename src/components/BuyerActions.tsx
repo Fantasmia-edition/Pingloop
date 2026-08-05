@@ -5,6 +5,7 @@ import { SHIPPING_PRICES } from "@/types";
 import ContactButton from "@/components/ContactButton";
 import OffersSection from "@/components/OffersSection";
 import FavoriteButton from "@/components/FavoriteButton";
+import PickupTipSelector from "@/components/PickupTipSelector";
 
 const PaymentOptions = dynamic(() => import("./PaymentOptions"), { ssr: false });
 
@@ -21,6 +22,7 @@ interface Props {
   currentUserId: string | null;
   sellerStripeOnboarded: boolean;
   sellerPaypalOnboarded: boolean;
+  sellerClub?: string | null;
 }
 
 function defaultMethod(home: boolean): ShippingMethod {
@@ -33,6 +35,7 @@ export default function BuyerActions({
   shippingHome, pickupAvailable,
   currentUserId,
   sellerStripeOnboarded, sellerPaypalOnboarded,
+  sellerClub,
 }: Props) {
   const hasOptions = shippingHome || pickupAvailable;
 
@@ -111,13 +114,16 @@ export default function BuyerActions({
         />
       ) : (
         /* Main propre → contacter le vendeur pour convenir */
-        <ContactButton
-          listingId={listingId}
-          sellerId={sellerId}
-          sellerName={sellerName}
-          listingTitle={listingTitle}
-          listingPrice={itemPrice}
-        />
+        <div className="flex flex-col gap-3">
+          <ContactButton
+            listingId={listingId}
+            sellerId={sellerId}
+            sellerName={sellerName}
+            listingTitle={listingTitle}
+            listingPrice={itemPrice}
+          />
+          {currentUserId && <PickupTipSelector listingId={listingId} sellerClub={sellerClub} />}
+        </div>
       )}
 
       {/* Offres — si connecté */}

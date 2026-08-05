@@ -86,7 +86,7 @@ export default async function ListingDetailPage({ params, searchParams }: {
       .order("created_at", { ascending: false })
       .limit(3),
     supabase.from("reviews").select("id").eq("listing_id", id).maybeSingle(),
-    supabase.from("profiles").select("early_adopter, stripe_onboarded, paypal_onboarded").eq("id", l.seller_id).single(),
+    supabase.from("profiles").select("early_adopter, stripe_onboarded, paypal_onboarded, club").eq("id", l.seller_id).single(),
   ]);
 
   const similar = (similarRaw as Listing[]) ?? [];
@@ -209,6 +209,7 @@ export default async function ListingDetailPage({ params, searchParams }: {
               currentUserId={user?.id ?? null}
               sellerStripeOnboarded={!!sellerProfile?.stripe_onboarded}
               sellerPaypalOnboarded={!!sellerProfile?.paypal_onboarded}
+              sellerClub={sellerProfile?.club ?? null}
             />
           )}
 

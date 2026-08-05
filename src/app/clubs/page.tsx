@@ -8,12 +8,22 @@ export const metadata: Metadata = {
 
 export default async function ClubsPage() {
   const supabase = await createClient();
-  const { data } = await supabase.from("club_contributions").select("club, amount");
+  const [{ data: sales }, { data: tips }] = await Promise.all([
+    supabase.from("club_contributions").select("club, amount"),
+    supabase.from("pickup_tips").select("club, club_share").not("club", "is", null),
+  ]);
 
   const totals = new Map<string, { amount: number; count: number }>();
-  for (const row of data ?? []) {
+  for (const row of sales ?? []) {
     const entry = totals.get(row.club) ?? { amount: 0, count: 0 };
     entry.amount += Number(row.amount);
+    entry.count += 1;
+    totals.set(row.club, entry);
+  }
+  for (const row of tips ?? []) {
+    if (!row.club || row.club_share == null) continue;
+    const entry = totals.get(row.club) ?? { amount: 0, count: 0 };
+    entry.amount += Number(row.club_share);
     entry.count += 1;
     totals.set(row.club, entry);
   }
@@ -32,7 +42,9 @@ export default async function ClubsPage() {
           On reverse aux clubs
         </h1>
         <p className="text-gray-500 dark:text-navy-100/60 text-lg leading-relaxed">
-          À chaque vente, 1 % du prix est reversé au club du vendeur — sans surcoût pour l&apos;acheteur, sans rien changer à ce que touche le vendeur.
+          À chaque vente, 1 % du prix est reversé au club du vendeur, et lors d&apos;une remise en main
+          propre, la moitié d&apos;un éventuel pourboire de soutien y va aussi — sans surcoût pour
+          l&apos;acheteur, sans rien changer à ce que touche le vendeur.
           {grandTotal > 0 && ` Déjà ${grandTotal.toFixed(2)} € reversés au total.`}
         </p>
       </div>
@@ -52,7 +64,7 @@ export default async function ClubsPage() {
                 <div>
                   <p className="font-bold text-navy dark:text-white">{r.club}</p>
                   <p className="text-xs text-gray-400 dark:text-navy-100/50">
-                    {r.count} vente{r.count > 1 ? "s" : ""}
+                    {r.count} contribution{r.count > 1 ? "s" : ""}
                   </p>
                 </div>
               </div>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createServiceClient } from "@/lib/supabase/service";
 import { recordClubContribution } from "@/lib/club-contributions";
+import { PICKUP_TIP_CLUB_SHARE } from "@/lib/config";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -27,6 +28,38 @@ export async function POST(req: NextRequest) {
 
     // Service role → bypass RLS
     const supabase = createServiceClient();
+
+    // Pourboire "remise en main propre" — flux distinct de la vente elle-même,
+    // ne marque jamais l'annonce comme vendue.
+    if (pi.metadata?.type === "pickup_tip") {
+      const { data: listing } = await supabase
+        .from("listings")
+        .select("seller_id")
+        .eq("id", listingId)
+        .single();
+
+      if (listing && buyerId) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("club")
+          .eq("id", listing.seller_id)
+          .single();
+
+        const club = profile?.club?.trim() || null;
+        const amount = pi.amount / 100;
+        const clubShare = club ? Math.round(amount * PICKUP_TIP_CLUB_SHARE * 100) / 100 : null;
+
+        await supabase.from("pickup_tips").insert({
+          listing_id: listingId,
+          buyer_id: buyerId,
+          seller_id: listing.seller_id,
+          amount,
+          club,
+          club_share: clubShare,
+        });
+      }
+      return NextResponse.json({ received: true });
+    }
 
     // 1. Marquer l'annonce comme vendue
     await supabase

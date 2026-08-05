@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { createClient } from "@/lib/supabase/client";
 import { SHIPPING_PRICES } from "@/types";
+import PickupTipSelector from "@/components/PickupTipSelector";
 
 const PaymentOptions = dynamic(() => import("./PaymentOptions"), { ssr: false });
 
@@ -29,6 +30,7 @@ interface Props {
   pickupAvailable?: boolean;
   sellerStripeOnboarded?: boolean;
   sellerPaypalOnboarded?: boolean;
+  sellerClub?: string | null;
 }
 
 export default function OffersSection({
@@ -36,6 +38,7 @@ export default function OffersSection({
   listingPrice, currentUserId,
   shippingHome = false, pickupAvailable = false,
   sellerStripeOnboarded, sellerPaypalOnboarded,
+  sellerClub,
 }: Props) {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -327,9 +330,12 @@ export default function OffersSection({
                 sellerPaypalOnboarded={sellerPaypalOnboarded}
               />
             ) : (
-              <p className="text-sm text-center text-gray-600 dark:text-navy-100/70 font-medium py-2">
-                🤝 Contacte le vendeur via la messagerie pour convenir de la remise en main propre.
-              </p>
+              <div className="flex flex-col gap-3">
+                <p className="text-sm text-center text-gray-600 dark:text-navy-100/70 font-medium py-2">
+                  🤝 Contacte le vendeur via la messagerie pour convenir de la remise en main propre.
+                </p>
+                <PickupTipSelector listingId={listingId} sellerClub={sellerClub} />
+              </div>
             )}
           </div>
         </div>

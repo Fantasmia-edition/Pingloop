@@ -210,6 +210,29 @@ create policy "Utilisateurs suppriment leurs photos" on storage.objects
 alter publication supabase_realtime add table public.messages;
 
 
+-- PICKUP TIPS
+-- Soutien optionnel lors d'une remise en main propre (aucun argent ne
+-- transite par la plateforme pour l'article lui-même dans ce cas — le
+-- vendeur est payé directement par l'acheteur). 50% pour PingLoop, 50%
+-- pour le club du vendeur s'il en a déclaré un. Écriture réservée au
+-- webhook Stripe (service role) ; lecture publique pour la page /clubs.
+create table public.pickup_tips (
+  id          uuid default gen_random_uuid() primary key,
+  listing_id  uuid references public.listings(id) on delete cascade not null,
+  buyer_id    uuid references auth.users(id) on delete cascade not null,
+  seller_id   uuid references auth.users(id) on delete cascade not null,
+  amount      numeric(10,2) not null check (amount > 0),
+  club        text,
+  club_share  numeric(10,2),
+  created_at  timestamptz default now()
+);
+
+alter table public.pickup_tips enable row level security;
+
+create policy "Tout le monde voit les pourboires" on public.pickup_tips
+  for select using (true);
+
+
 -- FAVORITES
 create table public.favorites (
   id          uuid default gen_random_uuid() primary key,
