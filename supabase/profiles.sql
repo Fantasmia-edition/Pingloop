@@ -7,6 +7,11 @@ create table public.profiles (
   id                  uuid references auth.users(id) on delete cascade primary key,
   display_name        text,
   location            text,
+  club                text,
+  -- Défaut à true pour badger tous les premiers membres — pense à repasser
+  -- ce défaut à false une fois la phase de lancement terminée, sinon tout
+  -- nouvel inscrit continuera à recevoir le badge "premier membre" indéfiniment.
+  early_adopter       boolean default true,
   -- Stripe Connect Express
   stripe_account_id   text unique,
   stripe_onboarded    boolean default false,
