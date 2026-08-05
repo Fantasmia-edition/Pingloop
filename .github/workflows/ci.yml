@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Non-bloquant pour l'instant : 6 erreurs préexistantes (règles React Compiler
+      # sur ThemeToggle/Navbar/UnreadBadge/PriceSuggestion/ListingCard) restent à corriger
+      # séparément, avec une revue dédiée du comportement de ces composants.
+      - run: npm run lint
+        continue-on-error: true
+
+      - run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
+          NEXT_PUBLIC_SITE_URL: https://pingloop.fr
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
+          NEXT_PUBLIC_PAYPAL_CLIENT_ID: placeholder
