@@ -209,7 +209,7 @@ export default function StripePaymentModal({
           <span className="text-base leading-none mt-0.5">🔒</span>
           <div>
             <p className="font-semibold mb-0.5">Paiement sécurisé via Stripe</p>
-            <p className="text-blue-600/80 dark:text-blue-300/70">Si l'article ne correspond pas à l'annonce, contacte-nous — on te rembourse. Tes coordonnées bancaires ne sont jamais transmises au vendeur.</p>
+            <p className="text-blue-600/80 dark:text-blue-300/70">Si l&apos;article ne correspond pas à l&apos;annonce, contacte-nous — on te rembourse. Tes coordonnées bancaires ne sont jamais transmises au vendeur.</p>
           </div>
         </div>
 

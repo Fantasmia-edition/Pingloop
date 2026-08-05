@@ -18,7 +18,7 @@ export default function CommentCaMarchePage() {
           Comment ça marche ?
         </h1>
         <p className="text-gray-500 dark:text-navy-100/60 text-lg leading-relaxed">
-          PingLoop est un marché entre pongistes. Pas d'intermédiaire commercial, pas de stock — des joueurs qui échangent du matos entre eux.
+          PingLoop est un marché entre pongistes. Pas d&apos;intermédiaire commercial, pas de stock — des joueurs qui échangent du matos entre eux.
         </p>
       </div>
 
@@ -105,7 +105,7 @@ export default function CommentCaMarchePage() {
         <h2 className="text-lg font-black text-navy dark:text-white mb-4">Protection des acheteurs</h2>
         <div className="flex flex-col gap-3 text-sm text-gray-600 dark:text-navy-100/70 leading-relaxed">
           <p>🔒 <strong>Paiement sécurisé</strong> — tous les paiements passent par Stripe. Tes coordonnées bancaires ne sont jamais transmises au vendeur.</p>
-          <p>📦 <strong>Article non conforme</strong> — si l'article reçu ne correspond pas à la description, contacte-nous à <a href="mailto:support@pingloop.fr" className="text-navy dark:text-lime font-semibold">support@pingloop.fr</a> dans les 48h suivant la réception.</p>
+          <p>📦 <strong>Article non conforme</strong> — si l&apos;article reçu ne correspond pas à la description, contacte-nous à <a href="mailto:support@pingloop.fr" className="text-navy dark:text-lime font-semibold">support@pingloop.fr</a> dans les 48h suivant la réception.</p>
           <p>❌ <strong>Article non reçu</strong> — en cas de non-livraison, on ouvre une investigation et tu es remboursé.</p>
         </div>
       </section>

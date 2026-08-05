@@ -90,7 +90,7 @@ export default function ModifierAnnoncePage() {
       <button onClick={() => router.push("/mes-annonces")} className="text-sm text-gray-400 hover:text-gray-700 dark:hover:text-white mb-4 inline-flex items-center gap-1">
         ← Mes annonces
       </button>
-      <h1 className="text-xl font-black text-gray-900 dark:text-white mb-1">Modifier l'annonce</h1>
+      <h1 className="text-xl font-black text-gray-900 dark:text-white mb-1">Modifier l&apos;annonce</h1>
       <p className="text-sm text-gray-400 mb-6">{title}</p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">

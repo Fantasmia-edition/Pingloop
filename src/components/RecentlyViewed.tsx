@@ -34,7 +34,7 @@ export default function RecentlyViewed() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-lg font-black text-navy dark:text-white">Récemment consultés</h2>
-            <p className="text-xs text-gray-400 mt-0.5">Là où tu t'es arrêté</p>
+            <p className="text-xs text-gray-400 mt-0.5">Là où tu t&apos;es arrêté</p>
           </div>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
