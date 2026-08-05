@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { Resend } from "resend";
 
 const FROM_EMAIL = "PingLoop <alertes@pingloop.fr>";
@@ -9,7 +10,14 @@ export async function POST(req: NextRequest) {
   const { listingId } = await req.json();
   if (!listingId) return NextResponse.json({ error: "Missing listingId" }, { status: 400 });
 
-  const supabase = await createClient();
+  // Seul le vendeur de l'annonce peut déclencher cette notification
+  const authClient = await createClient();
+  const { data: { user } } = await authClient.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Non connecté" }, { status: 401 });
+
+  // Service role — la RLS de search_alerts limite sinon la lecture aux
+  // alertes du seul appelant, ce qui empêchait de notifier les autres utilisateurs
+  const supabase = createServiceClient();
 
   const { data: listing } = await supabase
     .from("listings")
@@ -18,6 +26,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (!listing) return NextResponse.json({ error: "Listing not found" }, { status: 404 });
+  if (listing.seller_id !== user.id) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   // Find matching alerts
   let query = supabase.from("search_alerts").select("*");

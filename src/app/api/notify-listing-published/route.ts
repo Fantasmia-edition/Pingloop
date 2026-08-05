@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { Resend } from "resend";
 
@@ -10,6 +11,11 @@ export async function POST(req: NextRequest) {
   const { listingId } = await req.json();
   if (!listingId) return NextResponse.json({ error: "Missing listingId" }, { status: 400 });
 
+  // Seul le vendeur de l'annonce peut déclencher cette notification
+  const authClient = await createClient();
+  const { data: { user } } = await authClient.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Non connecté" }, { status: 401 });
+
   const supabase = createServiceClient();
 
   const { data: listing } = await supabase
@@ -19,6 +25,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (!listing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (listing.seller_id !== user.id) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { data: authUser } = await supabase.auth.admin.getUserById(listing.seller_id);
   const email = authUser?.user?.email;

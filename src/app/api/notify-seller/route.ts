@@ -1,42 +1,86 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { Resend } from "resend";
 
 const FROM_EMAIL = "PingLoop <notifications@pingloop.fr>";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
-export async function POST(req: NextRequest) {
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  const body = await req.json();
-  const { type, listingId, fromName, amount, conversationId } = body;
+function escapeHtml(str: string) {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
+export async function POST(req: NextRequest) {
+  const { type, listingId, conversationId } = await req.json();
   if (!type || !listingId) {
     return NextResponse.json({ error: "Missing params" }, { status: 400 });
   }
 
-  const supabase = createServiceClient();
+  // Authentification requise — on ne fait jamais confiance à fromName/amount envoyés par le client
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Non connecté" }, { status: 401 });
 
-  const { data: listing } = await supabase
+  const allowed = await checkRateLimit(supabase, `notify-seller:${user.id}`, 15, 600);
+  if (!allowed) return NextResponse.json({ error: "Trop de requêtes, réessaie plus tard." }, { status: 429 });
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("display_name")
+    .eq("id", user.id)
+    .single();
+  const fromName = escapeHtml(profile?.display_name ?? user.email?.split("@")[0] ?? "Un membre PingLoop");
+
+  let amount: number | null = null;
+
+  if (type === "offer") {
+    // RLS: ne retourne l'offre que si l'utilisateur en est bien l'auteur
+    const { data: offer } = await supabase
+      .from("offers")
+      .select("amount")
+      .eq("listing_id", listingId)
+      .eq("from_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!offer) return NextResponse.json({ error: "Offre introuvable" }, { status: 404 });
+    amount = offer.amount;
+  } else if (type === "message") {
+    if (!conversationId) return NextResponse.json({ error: "Missing conversationId" }, { status: 400 });
+    // RLS: ne retourne la conversation que si l'utilisateur en est participant
+    const { data: conv } = await supabase
+      .from("conversations")
+      .select("id")
+      .eq("id", conversationId)
+      .eq("listing_id", listingId)
+      .maybeSingle();
+    if (!conv) return NextResponse.json({ error: "Conversation introuvable" }, { status: 404 });
+  } else {
+    return NextResponse.json({ error: "Unknown type" }, { status: 400 });
+  }
+
+  const service = createServiceClient();
+  const { data: listing } = await service
     .from("listings")
     .select("id, brand, name, price, seller_id")
     .eq("id", listingId)
     .single();
 
   if (!listing) return NextResponse.json({ error: "Listing not found" }, { status: 404 });
+  if (listing.seller_id === user.id) return NextResponse.json({ sent: false, reason: "self" });
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("display_name")
-    .eq("id", listing.seller_id)
-    .single();
-
-  const { data: authUser } = await supabase.auth.admin.getUserById(listing.seller_id);
+  const { data: authUser } = await service.auth.admin.getUserById(listing.seller_id);
   const sellerEmail = authUser?.user?.email;
-
   if (!sellerEmail) return NextResponse.json({ sent: false, reason: "no email" });
 
-  const listingTitle = `${listing.brand} ${listing.name}`;
-  const sellerName = profile?.display_name ?? "là";
+  const listingTitle = escapeHtml(`${listing.brand} ${listing.name}`);
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   let subject = "";
   let html = "";
@@ -62,7 +106,7 @@ export async function POST(req: NextRequest) {
         </p>
       </div>
     `;
-  } else if (type === "message") {
+  } else {
     const convUrl = `${SITE_URL}/messages/${conversationId}`;
     subject = `✉️ Nouveau message de ${fromName} — ${listingTitle}`;
     html = `
@@ -82,8 +126,6 @@ export async function POST(req: NextRequest) {
         </p>
       </div>
     `;
-  } else {
-    return NextResponse.json({ error: "Unknown type" }, { status: 400 });
   }
 
   await resend.emails.send({ from: FROM_EMAIL, to: sellerEmail, subject, html });

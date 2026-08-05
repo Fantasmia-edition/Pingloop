@@ -36,3 +36,51 @@ export async function paypalFetch(path: string, options: RequestInit = {}) {
   }
   return res.json();
 }
+
+/**
+ * Vérifie l'authenticité d'un webhook PayPal auprès de l'API PayPal.
+ * Nécessite PAYPAL_WEBHOOK_ID (visible dans le dashboard développeur PayPal,
+ * sur la configuration du webhook).
+ */
+export async function verifyPaypalWebhookSignature(
+  headers: Headers,
+  rawBody: string
+): Promise<boolean> {
+  const webhookId = process.env.PAYPAL_WEBHOOK_ID;
+  if (!webhookId) return false;
+
+  const authAlgo = headers.get("paypal-auth-algo");
+  const certUrl = headers.get("paypal-cert-url");
+  const transmissionId = headers.get("paypal-transmission-id");
+  const transmissionSig = headers.get("paypal-transmission-sig");
+  const transmissionTime = headers.get("paypal-transmission-time");
+
+  if (!authAlgo || !certUrl || !transmissionId || !transmissionSig || !transmissionTime) {
+    return false;
+  }
+
+  let webhookEvent: unknown;
+  try {
+    webhookEvent = JSON.parse(rawBody);
+  } catch {
+    return false;
+  }
+
+  try {
+    const verification = await paypalFetch("/v1/notifications/verify-webhook-signature", {
+      method: "POST",
+      body: JSON.stringify({
+        auth_algo: authAlgo,
+        cert_url: certUrl,
+        transmission_id: transmissionId,
+        transmission_sig: transmissionSig,
+        transmission_time: transmissionTime,
+        webhook_id: webhookId,
+        webhook_event: webhookEvent,
+      }),
+    });
+    return verification.verification_status === "SUCCESS";
+  } catch {
+    return false;
+  }
+}

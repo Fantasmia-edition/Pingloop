@@ -7,8 +7,10 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pingloop.fr";
 
 // Protège la route avec un secret pour l'appel depuis un cron externe
 function isAuthorized(req: NextRequest) {
+  const expected = process.env.CRON_SECRET;
+  if (!expected) return false; // jamais d'accès si le secret n'est pas configuré
   const secret = req.headers.get("x-cron-secret");
-  return secret === process.env.CRON_SECRET;
+  return secret === expected;
 }
 
 export async function POST(req: NextRequest) {

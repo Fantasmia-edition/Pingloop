@@ -55,7 +55,7 @@ export default function FirstMessageModal({ listingId, sellerId, sellerName, lis
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "message", listingId, fromName, conversationId: convId }),
-      }).catch(() => {});
+      }).catch((err) => console.error("notify-seller failed", err));
       router.push(`/messages/${convId}`);
     }
     setSending(false);
