@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/client";
 export default function OnboardingPage() {
   const router = useRouter();
   const [pseudo, setPseudo] = useState("");
+  const [club, setClub] = useState("");
+  const [noClub, setNoClub] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [checking, setChecking] = useState(true);
@@ -45,7 +47,7 @@ export default function OnboardingPage() {
 
     const { error: upsertError } = await supabase
       .from("profiles")
-      .upsert({ id: user.id, display_name: trimmed });
+      .upsert({ id: user.id, display_name: trimmed, club: noClub ? null : club.trim() || null });
 
     if (upsertError) {
       setError(upsertError.message);
@@ -83,6 +85,30 @@ export default function OnboardingPage() {
               onChange={(e) => setPseudo(e.target.value)}
               className="w-full border border-gray-200 dark:border-navy-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-navy-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-navy-100/40 focus:outline-none focus:ring-2 focus:ring-lime"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+              Ton club <span className="font-normal text-gray-400">(optionnel)</span>
+            </label>
+            <input
+              type="text"
+              placeholder="ex : TT Marseille"
+              value={club}
+              disabled={noClub}
+              onChange={(e) => setClub(e.target.value)}
+              className="w-full border border-gray-200 dark:border-navy-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-navy-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-navy-100/40 focus:outline-none focus:ring-2 focus:ring-lime disabled:opacity-50"
+            />
+            <p className="text-xs text-gray-400 mt-2">
+              1 % du prix de tes ventes sera reversé à ton club (sans surcoût pour l&apos;acheteur ni impact sur ce que tu touches).
+            </p>
+            <label className="flex items-center gap-2 mt-2 text-sm text-gray-500 dark:text-navy-100/60 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={noClub}
+                onChange={(e) => { setNoClub(e.target.checked); if (e.target.checked) setClub(""); }}
+              />
+              Je n&apos;ai pas de club
+            </label>
           </div>
           {error && <p className="text-sm text-red-500">{error}</p>}
           <button
