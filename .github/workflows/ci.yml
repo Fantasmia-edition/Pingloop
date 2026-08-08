@@ -41,7 +41,12 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
+      # fetch-depth: 0 (historique complet) car le serveur git de Gandi
+      # rejette les push venant d'un clone superficiel ("shallow update
+      # not allowed").
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # Gandi build lui-même l'appli côté serveur (npm install + next build) à
       # partir du code source poussé sur la branche `master` de son remote git
