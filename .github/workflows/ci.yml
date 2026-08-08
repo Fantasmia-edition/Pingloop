@@ -32,6 +32,71 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
-          NEXT_PUBLIC_SITE_URL: https://pingloop.fr
+          NEXT_PUBLIC_SITE_URL: https://www.pingloop.fr
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
           NEXT_PUBLIC_PAYPAL_CLIENT_ID: placeholder
+
+  deploy:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Build réel avec les vraies valeurs de prod (NEXT_PUBLIC_* sont inlinées
+      # dans le bundle au build, donc il faut les vraies valeurs ici, pas des
+      # placeholders). Les secrets serveur (clés privées Stripe/PayPal/Resend/
+      # Supabase) ne passent pas par ici : ils sont configurés directement dans
+      # les variables d'environnement de l'instance Gandi.
+      - name: Build (standalone)
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_PAYPAL_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
+
+      - name: Assemble deploy artifact
+        run: |
+          mkdir -p deploy
+          cp -r .next/standalone/. deploy/
+          mkdir -p deploy/.next
+          cp -r .next/static deploy/.next/static
+          cp -r public deploy/public
+
+      - name: Configure SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.GANDI_SSH_PRIVATE_KEY }}
+
+      - name: Trust Gandi host key
+        run: |
+          HOST="$(echo "${{ vars.GANDI_GIT_REMOTE }}" | sed -E 's#.*@([^/]+)/.*#\1#')"
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
+
+      - name: Push to Gandi
+        working-directory: deploy
+        run: |
+          git init -q
+          git checkout -q -b main
+          git config user.email "ci@pingloop.fr"
+          git config user.name "GitHub Actions"
+          git remote add gandi "${{ vars.GANDI_GIT_REMOTE }}"
+          git add -A
+          git commit -q -m "Deploy ${{ github.sha }}"
+          git push -f gandi main
+
+      # `deploy` fait le checkout + build + redémarrage de l'appli côté Gandi,
+      # contrairement au simple sync de fichiers par sFTP.
+      - name: Trigger Gandi deploy
+        run: |
+          REMOTE_USER_HOST="$(echo "${{ vars.GANDI_GIT_REMOTE }}" | sed -E 's#ssh\+git://([^/]+)/.*#\1#')"
+          ssh "$REMOTE_USER_HOST" "deploy default.git"
