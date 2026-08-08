@@ -43,34 +43,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - run: npm ci
-
-      # Build réel avec les vraies valeurs de prod (NEXT_PUBLIC_* sont inlinées
-      # dans le bundle au build, donc il faut les vraies valeurs ici, pas des
-      # placeholders). Les secrets serveur (clés privées Stripe/PayPal/Resend/
-      # Supabase) ne passent pas par ici : ils sont configurés directement dans
-      # les variables d'environnement de l'instance Gandi.
-      - name: Build (standalone)
-        run: npm run build
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
-          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
-          NEXT_PUBLIC_PAYPAL_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
-
-      - name: Assemble deploy artifact
+      # Gandi build lui-même l'appli côté serveur (npm install + next build) à
+      # partir du code source poussé sur la branche `master` de son remote git
+      # (nom imposé par leur script de déploiement, indépendant de notre `main`
+      # GitHub). On ne lui envoie donc pas un build pré-compilé : le code source
+      # tel quel, plus un `.env.production` généré depuis les secrets GitHub
+      # (Gandi n'a pas d'interface de variables d'environnement pour ce type
+      # d'instance). Ce fichier n'est ajouté que sur ce commit jetable, jamais
+      # sur la branche `main` réelle du repo.
+      - name: Write .env.production
         run: |
-          mkdir -p deploy
-          cp -r .next/standalone/. deploy/
-          mkdir -p deploy/.next
-          cp -r .next/static deploy/.next/static
-          cp -r public deploy/public
+          cat > .env.production << EOF
+          NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_PAYPAL_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
+          STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
+          PAYPAL_CLIENT_ID=${{ secrets.PAYPAL_CLIENT_ID }}
+          PAYPAL_CLIENT_SECRET=${{ secrets.PAYPAL_CLIENT_SECRET }}
+          PAYPAL_BN_CODE=${{ secrets.PAYPAL_BN_CODE }}
+          PAYPAL_ENV=${{ secrets.PAYPAL_ENV }}
+          EOF
 
       - name: Configure SSH
         uses: webfactory/ssh-agent@v0.9.0
@@ -83,19 +80,16 @@ jobs:
           ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
 
       - name: Push to Gandi
-        working-directory: deploy
         run: |
-          git init -q
-          git checkout -q -b main
           git config user.email "ci@pingloop.fr"
           git config user.name "GitHub Actions"
-          git remote add gandi "${{ vars.GANDI_GIT_REMOTE }}"
-          git add -A
+          git add -f .env.production
           git commit -q -m "Deploy ${{ github.sha }}"
-          git push -f gandi main
+          git remote add gandi "${{ vars.GANDI_GIT_REMOTE }}"
+          git push -f gandi HEAD:master
 
-      # `deploy` fait le checkout + build + redémarrage de l'appli côté Gandi,
-      # contrairement au simple sync de fichiers par sFTP.
+      # `deploy` fait le build (npm install + next build) et le redémarrage de
+      # l'appli côté Gandi.
       - name: Trigger Gandi deploy
         run: |
           REMOTE_USER_HOST="$(echo "${{ vars.GANDI_GIT_REMOTE }}" | sed -E 's#ssh\+git://([^/]+)/.*#\1#')"
