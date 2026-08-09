@@ -48,14 +48,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Gandi build lui-même l'appli côté serveur (npm install + next build) à
-      # partir du code source poussé sur la branche `master` de son remote git
-      # (nom imposé par leur script de déploiement, indépendant de notre `main`
-      # GitHub). On ne lui envoie donc pas un build pré-compilé : le code source
-      # tel quel, plus un `.env.production` généré depuis les secrets GitHub
+      # Le bootstrap Node.js de Gandi fait `npm install` puis exec directement
+      # le script `start` — il ne lance jamais `next build` lui-même. On doit
+      # donc construire l'appli ici et pousser le dossier `.next` déjà compilé,
+      # en plus du code source, sur la branche `master` de son remote git (nom
+      # imposé par leur script de déploiement, indépendant de notre `main`
+      # GitHub). Un `.env.production` est généré depuis les secrets GitHub
       # (Gandi n'a pas d'interface de variables d'environnement pour ce type
-      # d'instance). Ce fichier n'est ajouté que sur ce commit jetable, jamais
-      # sur la branche `main` réelle du repo.
+      # d'instance) ; `.next` et lui ne sont ajoutés que sur ce commit jetable,
+      # jamais sur la branche `main` réelle du repo.
       - name: Write .env.production
         run: |
           cat > .env.production << EOF
@@ -74,6 +75,18 @@ jobs:
           PAYPAL_ENV=${{ secrets.PAYPAL_ENV }}
           EOF
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Next.js charge automatiquement .env.production (déjà écrit ci-dessus)
+      # pendant `next build`, donc les NEXT_PUBLIC_* sont bien inlinées.
+      - name: Build
+        run: npm run build
+
       - name: Configure SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -88,7 +101,7 @@ jobs:
         run: |
           git config user.email "ci@pingloop.fr"
           git config user.name "GitHub Actions"
-          git add -f .env.production
+          git add -f .env.production .next
           git commit -q -m "Deploy ${{ github.sha }}"
           git remote add gandi "${{ vars.GANDI_GIT_REMOTE }}"
           git push -f gandi HEAD:master
