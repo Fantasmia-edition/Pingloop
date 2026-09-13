@@ -15,22 +15,21 @@ interface Props {
   shippingMethod: ShippingMethod;
   offerId?: string;
   onPurchased: () => void;
-  /** Si fournis par le parent (page annonce, déjà chargée côté serveur), on
+  /** Si fourni par le parent (page annonce, déjà chargé côté serveur), on
    * évite un aller-retour réseau supplémentaire et le flash de chargement. */
-  sellerStripeOnboarded?: boolean;
   sellerPaypalOnboarded?: boolean;
 }
 
 export default function PaymentOptions({
   listingId, itemPrice, shippingMethod, offerId, onPurchased,
-  sellerStripeOnboarded, sellerPaypalOnboarded,
+  sellerPaypalOnboarded,
 }: Props) {
   const [showStripe, setShowStripe] = useState(false);
   const [success, setSuccess] = useState(false);
   const [paypalError, setPaypalError] = useState("");
-  const [fetchedMethods, setFetchedMethods] = useState<{ stripe: boolean; paypal: boolean } | null>(null);
+  const [fetchedPaypal, setFetchedPaypal] = useState<boolean | null>(null);
 
-  const hasServerData = sellerStripeOnboarded !== undefined && sellerPaypalOnboarded !== undefined;
+  const hasServerData = sellerPaypalOnboarded !== undefined;
 
   useEffect(() => {
     if (hasServerData) return;
@@ -39,21 +38,23 @@ export default function PaymentOptions({
       const supabase = createClient();
       const { data } = await supabase
         .from("listings")
-        .select("profiles!listings_seller_id_fkey(stripe_onboarded, paypal_onboarded)")
+        .select("profiles!listings_seller_id_fkey(paypal_onboarded)")
         .eq("id", listingId)
         .single();
-      const profile = (data as { profiles?: { stripe_onboarded?: boolean; paypal_onboarded?: boolean } } | null)?.profiles;
+      const profile = (data as { profiles?: { paypal_onboarded?: boolean } } | null)?.profiles;
       if (!cancelled) {
-        setFetchedMethods({ stripe: !!profile?.stripe_onboarded, paypal: !!profile?.paypal_onboarded });
+        setFetchedPaypal(!!profile?.paypal_onboarded);
       }
     }
     load();
     return () => { cancelled = true; };
   }, [listingId, hasServerData]);
 
-  const methods = hasServerData
-    ? { stripe: !!sellerStripeOnboarded, paypal: !!sellerPaypalOnboarded }
-    : fetchedMethods;
+  // Le paiement carte fonctionne toujours, même si le vendeur n'a pas encore
+  // connecté Stripe — les fonds sont retenus sur le solde plateforme puis
+  // débloqués automatiquement dès qu'il termine son onboarding (cf.
+  // /api/stripe/payment-intent et /api/stripe/connect/return).
+  const paypalAvailable = hasServerData ? !!sellerPaypalOnboarded : fetchedPaypal;
 
   const shippingCost = shippingMethod === "home" ? SHIPPING_PRICES.home : 0;
   const total = itemPrice + shippingCost;
@@ -70,34 +71,20 @@ export default function PaymentOptions({
     );
   }
 
-  if (!methods) {
-    return <div className="h-12 rounded-xl bg-gray-100 dark:bg-navy-700/60 animate-pulse" />;
-  }
-
-  if (!methods.stripe && !methods.paypal) {
-    return (
-      <div className="text-sm text-gray-400 dark:text-navy-100/50 text-center py-3 border border-dashed border-gray-200 dark:border-navy-700 rounded-xl">
-        Le vendeur n&apos;a pas encore connecté de moyen de paiement.
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-2.5">
-      {methods.stripe && (
-        <button
-          onClick={() => setShowStripe(true)}
-          className="w-full bg-lime hover:bg-lime-dark text-navy font-black py-3.5 rounded-xl text-base transition-colors flex items-center justify-center gap-2"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
-            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-            <line x1="1" y1="10" x2="23" y2="10"/>
-          </svg>
-          Payer par carte — {total} €
-        </button>
-      )}
+      <button
+        onClick={() => setShowStripe(true)}
+        className="w-full bg-lime hover:bg-lime-dark text-navy font-black py-3.5 rounded-xl text-base transition-colors flex items-center justify-center gap-2"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+          <line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+        Payer par carte — {total} €
+      </button>
 
-      {methods.paypal && (
+      {paypalAvailable && (
         <PayPalPaymentButton
           listingId={listingId}
           offerId={offerId}

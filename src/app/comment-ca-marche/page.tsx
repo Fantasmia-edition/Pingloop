@@ -20,6 +20,12 @@ export default function CommentCaMarchePage() {
         <p className="text-gray-500 dark:text-navy-100/60 text-lg leading-relaxed">
           PingLoop est un marché entre pongistes. Pas d&apos;intermédiaire commercial, pas de stock — des joueurs qui échangent du matos entre eux.
         </p>
+        <div className="mt-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl p-4 flex items-start gap-3">
+          <span className="text-xl leading-none">🚧</span>
+          <p className="text-sm text-amber-800 dark:text-amber-300">
+            <strong>PingLoop est en version bêta.</strong> Seule la remise en main propre est disponible pour l&apos;instant — la livraison à domicile arrive très bientôt. Un bug, une idée ? Écris-nous à support@pingloop.fr.
+          </p>
+        </div>
       </div>
 
       {/* Acheteurs */}
@@ -42,7 +48,7 @@ export default function CommentCaMarchePage() {
             {
               n: "03",
               title: "Paye en sécurité",
-              desc: "Le paiement passe par Stripe — tes coordonnées bancaires ne sont jamais transmises au vendeur. Tu peux choisir la livraison à domicile (La Poste, 8 €) ou la remise en main propre.",
+              desc: "Le paiement passe par Stripe ou PayPal — tes coordonnées bancaires ne sont jamais transmises au vendeur. Pour l'instant, seule la remise en main propre est disponible ; la livraison à domicile (La Poste) arrive très bientôt.",
             },
             {
               n: "04",
@@ -81,7 +87,7 @@ export default function CommentCaMarchePage() {
             {
               n: "03",
               title: "Expédie ou remets en main propre",
-              desc: "Une fois le paiement confirmé, tu reçois l'adresse de livraison par messagerie. Pour la main propre, vous convenez d'un lieu ensemble.",
+              desc: "Pour l'instant, toutes les ventes se font en remise en main propre : une fois le paiement confirmé, convenez d'un lieu et d'un horaire via la messagerie. La livraison à domicile (La Poste) arrive très bientôt.",
             },
             {
               n: "04",

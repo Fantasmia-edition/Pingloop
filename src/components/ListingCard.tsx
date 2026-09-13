@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Listing, CONDITION_LABELS, CONDITION_COLORS, PIMPLE_LABELS, CATEGORY_CONFIG, SHIPPING_PRICES } from "@/types";
+import { HOME_SHIPPING_ENABLED } from "@/lib/config";
 
 interface Props {
   listing: Listing & { photos?: string[]; seller_name?: string; sold_at?: string | null };
@@ -80,9 +81,9 @@ export default function ListingCard({ listing }: Props) {
         </div>
 
         {/* Shipping pills */}
-        {(listing.shipping_home || listing.pickup_available) && (
+        {((HOME_SHIPPING_ENABLED && listing.shipping_home) || listing.pickup_available) && (
           <div className="flex flex-wrap gap-1.5 text-[10px] font-semibold text-gray-500 dark:text-navy-100/50">
-            {listing.shipping_home && (
+            {HOME_SHIPPING_ENABLED && listing.shipping_home && (
               <span className="bg-gray-50 dark:bg-navy-700 px-2 py-0.5 rounded-full border border-gray-200 dark:border-navy-600">
                 🏠 La Poste {SHIPPING_PRICES.home} €
               </span>

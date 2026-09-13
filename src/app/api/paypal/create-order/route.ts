@@ -6,7 +6,14 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { SHIPPING_PRICES } from "@/types";
 
 export async function POST(req: NextRequest) {
-  const { listingId, offerId, shippingMethod } = await req.json();
+  const { listingId, offerId, shippingMethod, shippingAddress } = await req.json();
+
+  if (shippingMethod === "home") {
+    const a = shippingAddress;
+    if (!a?.name || !a?.line1 || !a?.postal_code || !a?.city) {
+      return NextResponse.json({ error: "Adresse de livraison incomplète." }, { status: 400 });
+    }
+  }
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -70,6 +77,18 @@ export async function POST(req: NextRequest) {
             amount: { currency_code: "EUR", value: fee },
           }],
         },
+        ...(shippingMethod === "home" ? {
+          shipping: {
+            name: { full_name: shippingAddress.name },
+            address: {
+              address_line_1: shippingAddress.line1,
+              address_line_2: shippingAddress.line2 || undefined,
+              admin_area_2: shippingAddress.city,
+              postal_code: shippingAddress.postal_code,
+              country_code: "FR",
+            },
+          },
+        } : {}),
       }],
     }),
   });

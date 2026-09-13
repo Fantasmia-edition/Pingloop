@@ -2,6 +2,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { SHIPPING_PRICES } from "@/types";
+import { HOME_SHIPPING_ENABLED } from "@/lib/config";
 import ContactButton from "@/components/ContactButton";
 import OffersSection from "@/components/OffersSection";
 import FavoriteButton from "@/components/FavoriteButton";
@@ -20,13 +21,12 @@ interface Props {
   shippingHome: boolean;
   pickupAvailable: boolean;
   currentUserId: string | null;
-  sellerStripeOnboarded: boolean;
   sellerPaypalOnboarded: boolean;
   sellerClub?: string | null;
 }
 
 function defaultMethod(home: boolean): ShippingMethod {
-  if (home) return "home";
+  if (HOME_SHIPPING_ENABLED && home) return "home";
   return "pickup";
 }
 
@@ -34,10 +34,10 @@ export default function BuyerActions({
   listingId, itemPrice, sellerId, sellerName, listingTitle,
   shippingHome, pickupAvailable,
   currentUserId,
-  sellerStripeOnboarded, sellerPaypalOnboarded,
+  sellerPaypalOnboarded,
   sellerClub,
 }: Props) {
-  const hasOptions = shippingHome || pickupAvailable;
+  const hasOptions = (HOME_SHIPPING_ENABLED && shippingHome) || pickupAvailable;
 
   const [method, setMethod] = useState<ShippingMethod>(
     defaultMethod(shippingHome)
@@ -48,7 +48,7 @@ export default function BuyerActions({
   const total = itemPrice + shippingCost;
 
   const options: { key: ShippingMethod; icon: string; label: string; sub: string; price: number }[] = [
-    ...(shippingHome    ? [{ key: "home"   as const, icon: "🏠", label: "Envoi par La Poste",    sub: "Colissimo · livré chez vous",    price: SHIPPING_PRICES.home }] : []),
+    ...(HOME_SHIPPING_ENABLED && shippingHome ? [{ key: "home"   as const, icon: "🏠", label: "Envoi par La Poste",    sub: "Colissimo · livré chez vous",    price: SHIPPING_PRICES.home }] : []),
     ...(pickupAvailable ? [{ key: "pickup" as const, icon: "🤝", label: "Remise en main propre", sub: "À convenir avec le vendeur",     price: 0                    }] : []),
   ];
 
@@ -62,6 +62,18 @@ export default function BuyerActions({
             <p className="text-xs font-bold text-gray-600 dark:text-navy-100/70 uppercase tracking-wide">Mode d&apos;envoi</p>
           </div>
           <div className="divide-y divide-gray-100 dark:divide-navy-700">
+            {!HOME_SHIPPING_ENABLED && (
+              <div className="flex items-center gap-3 px-4 py-3 opacity-50">
+                <span className="text-base w-5 text-center">🏠</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">Envoi par La Poste</p>
+                  <p className="text-xs text-gray-400 dark:text-navy-100/50 truncate">On y travaille — arrive très bientôt !</p>
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400 dark:text-navy-100/50 border border-gray-300 dark:border-navy-600 rounded-full px-2 py-0.5 shrink-0">
+                  Bientôt
+                </span>
+              </div>
+            )}
             {options.map((o) => (
               <button
                 key={o.key}
@@ -109,7 +121,6 @@ export default function BuyerActions({
           itemPrice={itemPrice}
           shippingMethod={method}
           onPurchased={() => {}}
-          sellerStripeOnboarded={sellerStripeOnboarded}
           sellerPaypalOnboarded={sellerPaypalOnboarded}
         />
       ) : (
@@ -137,7 +148,6 @@ export default function BuyerActions({
           currentUserId={currentUserId}
           shippingHome={shippingHome}
           pickupAvailable={pickupAvailable}
-          sellerStripeOnboarded={sellerStripeOnboarded}
           sellerPaypalOnboarded={sellerPaypalOnboarded}
         />
       )}

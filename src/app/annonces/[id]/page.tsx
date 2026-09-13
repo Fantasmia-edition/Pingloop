@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { CONDITION_LABELS, CONDITION_COLORS, PIMPLE_LABELS, CATEGORY_CONFIG, SHIPPING_PRICES, Listing } from "@/types";
+import { HOME_SHIPPING_ENABLED } from "@/lib/config";
 import MarkSoldButton from "@/components/MarkSoldButton";
 import OffersSection from "@/components/OffersSection";
 import BuyerActions from "@/components/BuyerActions";
@@ -86,7 +87,7 @@ export default async function ListingDetailPage({ params, searchParams }: {
       .order("created_at", { ascending: false })
       .limit(3),
     supabase.from("reviews").select("id").eq("listing_id", id).maybeSingle(),
-    supabase.from("profiles").select("early_adopter, stripe_onboarded, paypal_onboarded, club").eq("id", l.seller_id).single(),
+    supabase.from("profiles").select("early_adopter, paypal_onboarded, club").eq("id", l.seller_id).single(),
   ]);
 
   const similar = (similarRaw as Listing[]) ?? [];
@@ -132,9 +133,9 @@ export default async function ListingDetailPage({ params, searchParams }: {
           <p className="text-4xl font-black text-gray-900 dark:text-lime">{l.price} €</p>
 
           {/* Badges modes d'envoi disponibles */}
-          {(l.shipping_home || l.pickup_available) && (
+          {((HOME_SHIPPING_ENABLED && l.shipping_home) || l.pickup_available) && (
             <div className="flex flex-wrap gap-2">
-              {l.shipping_home && (
+              {HOME_SHIPPING_ENABLED && l.shipping_home && (
                 <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 border border-navy-100 dark:border-navy-600">
                   🏠 La Poste · {SHIPPING_PRICES.home} €
                 </span>
@@ -207,7 +208,6 @@ export default async function ListingDetailPage({ params, searchParams }: {
               shippingHome={!!l.shipping_home}
               pickupAvailable={!!l.pickup_available}
               currentUserId={user?.id ?? null}
-              sellerStripeOnboarded={!!sellerProfile?.stripe_onboarded}
               sellerPaypalOnboarded={!!sellerProfile?.paypal_onboarded}
               sellerClub={sellerProfile?.club ?? null}
             />

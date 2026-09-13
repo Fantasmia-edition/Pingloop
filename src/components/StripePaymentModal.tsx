@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import type { ShippingAddress } from "@/types";
+import ShippingAddressForm from "./ShippingAddressForm";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -55,14 +57,6 @@ function CheckoutForm({ onSuccess, onClose }: { onSuccess: () => void; onClose: 
   );
 }
 
-interface ShippingAddress {
-  name: string;
-  line1: string;
-  line2: string;
-  postal_code: string;
-  city: string;
-}
-
 interface Props {
   listingId: string;
   price: number;
@@ -83,16 +77,13 @@ export default function StripePaymentModal({
 
   // Adresse de livraison — uniquement pour La Poste
   const needsAddress = shippingMethod === "home";
-  const [address, setAddress] = useState<ShippingAddress>({ name: "", line1: "", line2: "", postal_code: "", city: "" });
+  const [address, setAddress] = useState<ShippingAddress | null>(null);
   const [addressReady, setAddressReady] = useState(!needsAddress);
 
-  const inputClass = "w-full border border-gray-200 dark:border-navy-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime bg-white dark:bg-navy-700 text-gray-900 dark:text-white placeholder:text-gray-400";
-
-  function handleAddressSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!address.name || !address.line1 || !address.postal_code || !address.city) return;
+  function handleAddressSubmit(addr: ShippingAddress) {
+    setAddress(addr);
     setAddressReady(true);
-    initPayment(address);
+    initPayment(addr);
   }
 
   async function initPayment(shippingAddr?: ShippingAddress) {
@@ -156,52 +147,7 @@ export default function StripePaymentModal({
 
         {/* Étape 1 : Adresse de livraison (uniquement La Poste) */}
         {needsAddress && !addressReady && (
-          <form onSubmit={handleAddressSubmit} className="flex flex-col gap-3">
-            <p className="text-sm font-bold text-gray-900 dark:text-white">📦 Adresse de livraison</p>
-            <input
-              required
-              placeholder="Nom et prénom"
-              value={address.name}
-              onChange={e => setAddress(a => ({ ...a, name: e.target.value }))}
-              className={inputClass}
-            />
-            <input
-              required
-              placeholder="Adresse (rue, numéro)"
-              value={address.line1}
-              onChange={e => setAddress(a => ({ ...a, line1: e.target.value }))}
-              className={inputClass}
-            />
-            <input
-              placeholder="Complément d'adresse (optionnel)"
-              value={address.line2}
-              onChange={e => setAddress(a => ({ ...a, line2: e.target.value }))}
-              className={inputClass}
-            />
-            <div className="flex gap-2">
-              <input
-                required
-                placeholder="Code postal"
-                value={address.postal_code}
-                onChange={e => setAddress(a => ({ ...a, postal_code: e.target.value }))}
-                className={inputClass}
-                style={{ maxWidth: "120px" }}
-              />
-              <input
-                required
-                placeholder="Ville"
-                value={address.city}
-                onChange={e => setAddress(a => ({ ...a, city: e.target.value }))}
-                className={inputClass}
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-lime hover:bg-lime-dark text-navy font-black py-3 rounded-xl text-sm transition-colors mt-1"
-            >
-              Continuer vers le paiement →
-            </button>
-          </form>
+          <ShippingAddressForm onSubmit={handleAddressSubmit} />
         )}
 
         {/* Protection acheteur */}
@@ -216,7 +162,7 @@ export default function StripePaymentModal({
         {/* Étape 2 : Paiement Stripe */}
         {addressReady && (
           <>
-            {needsAddress && (
+            {needsAddress && address && (
               <div className="bg-gray-50 dark:bg-navy-700/60 rounded-xl p-3 text-xs text-gray-600 dark:text-navy-100/70">
                 📦 Livraison à <strong>{address.name}</strong>, {address.line1}, {address.postal_code} {address.city}
                 <button onClick={() => setAddressReady(false)} className="ml-2 text-navy dark:text-lime underline">Modifier</button>

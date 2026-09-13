@@ -293,6 +293,43 @@ create policy "Utilisateur voit ses propres signalements" on public.reports
   for select using (auth.uid() = reporter_id);
 
 
+-- ORDERS
+-- Commande créée à la confirmation du paiement (webhook Stripe / capture PayPal).
+-- Stocke l'adresse de livraison saisie par l'acheteur au moment du paiement,
+-- indépendamment de la messagerie — l'acheteur ne doit jamais avoir à
+-- recopier son adresse dans un message pour que le vendeur la reçoive.
+-- payout_status suit la "cagnotte" : si le vendeur n'avait pas encore connecté
+-- Stripe au moment de la vente, les fonds restent sur le solde Stripe de la
+-- plateforme (payment-intent créé sans transfer_data) et sont débloqués par un
+-- Transfer explicite dès que le vendeur termine son onboarding (cf.
+-- /api/stripe/connect/return).
+-- Écriture réservée au service role (webhooks) ; lecture limitée aux deux parties.
+create table public.orders (
+  id                    uuid default gen_random_uuid() primary key,
+  listing_id            uuid references public.listings(id) on delete cascade not null unique,
+  buyer_id              uuid references auth.users(id) on delete cascade,
+  seller_id             uuid references auth.users(id) on delete cascade not null,
+  provider              text not null check (provider in ('stripe', 'paypal')),
+  item_price            numeric(10,2) not null,
+  shipping_cost         numeric(10,2) not null default 0,
+  shipping_method       text not null check (shipping_method in ('home', 'pickup')),
+  shipping_name         text,
+  shipping_line1        text,
+  shipping_line2        text,
+  shipping_postal_code  text,
+  shipping_city         text,
+  payout_status         text not null default 'paid_out' check (payout_status in ('paid_out', 'pending_seller_onboarding')),
+  stripe_charge_id      text,
+  amount_due_seller     numeric(10,2),
+  created_at            timestamptz default now()
+);
+
+alter table public.orders enable row level security;
+
+create policy "Acheteur et vendeur voient leur commande" on public.orders
+  for select using (auth.uid() = buyer_id or auth.uid() = seller_id);
+
+
 -- RATE LIMITING
 -- Table + fonction RPC génériques, appelables depuis les routes API
 -- (Postgres plutôt que Vercel Edge : couvre aussi bien les appels API que

@@ -31,6 +31,14 @@ export interface Listing {
   pickup_available?: boolean;
 }
 
+export interface ShippingAddress {
+  name: string;
+  line1: string;
+  line2: string;
+  postal_code: string;
+  city: string;
+}
+
 export interface SearchAlert {
   id: string;
   brand?: string;

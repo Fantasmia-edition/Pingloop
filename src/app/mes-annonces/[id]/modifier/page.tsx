@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Condition, CONDITION_LABELS } from "@/types";
+import { HOME_SHIPPING_ENABLED } from "@/lib/config";
 
 export default function ModifierAnnoncePage() {
   const router = useRouter();
@@ -41,7 +42,8 @@ export default function ModifierAnnoncePage() {
       setLocation(data.location ?? "");
       setDescription(data.description ?? "");
       setCondition(data.condition as Condition);
-      setShippingHome(!!data.shipping_home);
+      // Bêta : seule la remise en main propre est disponible pour l'instant.
+      setShippingHome(HOME_SHIPPING_ENABLED && !!data.shipping_home);
       setPickupAvailable(!!data.pickup_available);
       setLoading(false);
     }
@@ -140,10 +142,24 @@ export default function ModifierAnnoncePage() {
 
         <div>
           <p className="text-sm font-semibold text-gray-700 dark:text-navy-100 mb-2">Modes de livraison</p>
+          <p className="text-xs text-gray-400 dark:text-navy-100/50 -mt-1 mb-2">
+            Version bêta : seule la remise en main propre est disponible pour l&apos;instant.
+          </p>
           <div className="flex flex-col gap-2">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input type="checkbox" checked={shippingHome} onChange={(e) => setShippingHome(e.target.checked)} className="w-4 h-4 accent-lime" />
+            <label className={`flex items-center gap-3 ${HOME_SHIPPING_ENABLED ? "cursor-pointer" : "opacity-50"}`}>
+              <input
+                type="checkbox"
+                checked={shippingHome}
+                disabled={!HOME_SHIPPING_ENABLED}
+                onChange={(e) => setShippingHome(e.target.checked)}
+                className="w-4 h-4 accent-lime"
+              />
               <span className="text-sm text-gray-700 dark:text-navy-100">La Poste (8 €)</span>
+              {!HOME_SHIPPING_ENABLED && (
+                <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400 dark:text-navy-100/50 border border-gray-300 dark:border-navy-600 rounded-full px-2 py-0.5">
+                  Bientôt
+                </span>
+              )}
             </label>
             <label className="flex items-center gap-3 cursor-pointer">
               <input type="checkbox" checked={pickupAvailable} onChange={(e) => setPickupAvailable(e.target.checked)} className="w-4 h-4 accent-lime" />

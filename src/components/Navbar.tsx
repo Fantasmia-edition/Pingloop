@@ -49,9 +49,12 @@ export default function Navbar() {
     <header className="bg-navy sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-0.5">
-          <span className="text-xl font-black tracking-tight text-lime">Ping</span>
-          <span className="text-xl font-black tracking-tight text-white">Loop</span>
+        <Link href="/" className="flex items-center gap-1.5">
+          <span className="flex items-center gap-0.5">
+            <span className="text-xl font-black tracking-tight text-lime">Ping</span>
+            <span className="text-xl font-black tracking-tight text-white">Loop</span>
+          </span>
+          <span className="text-[10px] font-bold tracking-wide uppercase text-navy bg-lime px-1.5 py-0.5 rounded">Bêta</span>
         </Link>
 
         {/* Desktop nav */}

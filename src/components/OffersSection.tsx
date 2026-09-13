@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { createClient } from "@/lib/supabase/client";
 import { SHIPPING_PRICES } from "@/types";
+import { HOME_SHIPPING_ENABLED } from "@/lib/config";
 import PickupTipSelector from "@/components/PickupTipSelector";
 
 const PaymentOptions = dynamic(() => import("./PaymentOptions"), { ssr: false });
@@ -28,7 +29,6 @@ interface Props {
   currentUserId: string;
   shippingHome?: boolean;
   pickupAvailable?: boolean;
-  sellerStripeOnboarded?: boolean;
   sellerPaypalOnboarded?: boolean;
   sellerClub?: string | null;
 }
@@ -37,7 +37,7 @@ export default function OffersSection({
   listingId, sellerId, sellerName = "", listingTitle = "",
   listingPrice, currentUserId,
   shippingHome = false, pickupAvailable = false,
-  sellerStripeOnboarded, sellerPaypalOnboarded,
+  sellerPaypalOnboarded,
   sellerClub,
 }: Props) {
   const [offers, setOffers] = useState<Offer[]>([]);
@@ -50,7 +50,7 @@ export default function OffersSection({
   const [myName, setMyName] = useState("");
   // State for accepted-offer payment flow
   const [acceptedMethod, setAcceptedMethod] = useState<"home" | "pickup">(
-    shippingHome ? "home" : "pickup"
+    HOME_SHIPPING_ENABLED && shippingHome ? "home" : "pickup"
   );
 
   const isSeller = currentUserId === sellerId;
@@ -254,12 +254,12 @@ export default function OffersSection({
 
     // ── Offer accepted → shipping + payment ──
     if (latest.status === "accepted") {
-      const hasShipping = shippingHome;
+      const hasShipping = HOME_SHIPPING_ENABLED && shippingHome;
       const acceptedShippingCost = acceptedMethod === "home" ? SHIPPING_PRICES.home : 0;
       const acceptedTotal = latest.amount + acceptedShippingCost;
 
       const shippingOptions = [
-        ...(shippingHome    ? [{ key: "home"   as const, icon: "🏠", label: "Envoi par La Poste",    sub: "Colissimo · livré chez vous", price: SHIPPING_PRICES.home }] : []),
+        ...(HOME_SHIPPING_ENABLED && shippingHome ? [{ key: "home"   as const, icon: "🏠", label: "Envoi par La Poste",    sub: "Colissimo · livré chez vous", price: SHIPPING_PRICES.home }] : []),
         ...(pickupAvailable ? [{ key: "pickup" as const, icon: "🤝", label: "Remise en main propre", sub: "À convenir avec le vendeur",  price: 0                    }] : []),
       ];
 
@@ -276,8 +276,20 @@ export default function OffersSection({
           </div>
 
           {/* Shipping selector */}
-          {shippingOptions.length > 1 && (
+          {(!HOME_SHIPPING_ENABLED || shippingOptions.length > 1) && (
             <div className="divide-y divide-gray-100 dark:divide-navy-700">
+              {!HOME_SHIPPING_ENABLED && (
+                <div className="flex items-center gap-3 px-4 py-3 opacity-50">
+                  <span className="text-base w-5 text-center">🏠</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">Envoi par La Poste</p>
+                    <p className="text-xs text-gray-400 dark:text-navy-100/50 truncate">On y travaille — arrive très bientôt !</p>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400 dark:text-navy-100/50 border border-gray-300 dark:border-navy-600 rounded-full px-2 py-0.5 shrink-0">
+                    Bientôt
+                  </span>
+                </div>
+              )}
               {shippingOptions.map(o => (
                 <button
                   key={o.key}
@@ -326,7 +338,6 @@ export default function OffersSection({
                 shippingMethod={acceptedMethod}
                 offerId={latest.id}
                 onPurchased={() => {}}
-                sellerStripeOnboarded={sellerStripeOnboarded}
                 sellerPaypalOnboarded={sellerPaypalOnboarded}
               />
             ) : (

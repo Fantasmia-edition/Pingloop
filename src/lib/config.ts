@@ -1,3 +1,7 @@
+// Lancement bêta : livraison postale pas encore activée, seule la remise en
+// main propre est proposée aux utilisateurs. Repasser à true pour la réactiver.
+export const HOME_SHIPPING_ENABLED = false;
+
 export const COMMISSION_RATE = 0.07; // 7%
 // Part de la commission reversée au club du vendeur (prélevée sur COMMISSION_RATE,
 // n'augmente pas le prix payé par l'acheteur ni ne diminue le montant reçu par le vendeur).

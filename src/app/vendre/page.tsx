@@ -3,6 +3,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import rubbersData from "@/data/rubbers_ittf.json";
 import { Rubber, ItemCategory, Condition, CONDITION_LABELS, PIMPLE_LABELS, CATEGORY_CONFIG, SHIPPING_PRICES } from "@/types";
+import { HOME_SHIPPING_ENABLED } from "@/lib/config";
 import PhotoUpload from "@/components/PhotoUpload";
 import PriceSuggestion from "@/components/PriceSuggestion";
 import { createClient } from "@/lib/supabase/client";
@@ -50,8 +51,9 @@ export default function VendrePage() {
   const [description, setDescription] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
-  const [pickupAvailable, setPickupAvailable] = useState(false);
-  const [shippingHome, setShippingHome] = useState(true); // La Poste par défaut
+  // Bêta : seule la remise en main propre est disponible pour l'instant.
+  const [pickupAvailable, setPickupAvailable] = useState(true);
+  const [shippingHome, setShippingHome] = useState(false);
   const [location, setLocation] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -120,24 +122,6 @@ export default function VendrePage() {
     );
   }
 
-  if (!stripeOnboarded && !paypalOnboarded) {
-    return (
-      <div className="max-w-lg mx-auto px-4 py-20 text-center">
-        <div className="text-5xl mb-4">💳</div>
-        <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Connecte un moyen de paiement</h1>
-        <p className="text-gray-500 dark:text-navy-100/60 mb-6">
-          Pour vendre sur PingLoop, connecte Stripe ou PayPal depuis ton profil — c&apos;est comme ça que tu recevras l&apos;argent de tes ventes.
-        </p>
-        <button
-          onClick={() => router.push("/profil")}
-          className="bg-lime hover:bg-lime-dark text-navy font-bold px-8 py-3 rounded-xl transition-colors"
-        >
-          Aller à mon profil →
-        </button>
-      </div>
-    );
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
@@ -172,7 +156,7 @@ export default function VendrePage() {
       location: location.trim() || null,
       approval_code: selectedRubber?.approval_code ?? null,
       pickup_available: pickupAvailable,
-      shipping_home: shippingHome,
+      shipping_home: HOME_SHIPPING_ENABLED && shippingHome,
       photos: [],
     };
 
@@ -215,6 +199,25 @@ export default function VendrePage() {
         <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-1">Mettre en vente</h1>
         <p className="text-sm text-gray-500 dark:text-navy-100/60">Remplis le formulaire — ça prend moins d&apos;une minute.</p>
       </div>
+
+      {!stripeOnboarded && !paypalOnboarded && (
+        <div className="mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl p-4 flex items-start gap-3">
+          <span className="text-xl leading-none">💳</span>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-amber-800 dark:text-amber-300">Aucun moyen de paiement connecté</p>
+            <p className="text-xs text-amber-700/80 dark:text-amber-300/70 mt-0.5">
+              Tu peux publier ton annonce dès maintenant, mais les acheteurs ne pourront pas encore te payer. Connecte Stripe ou PayPal depuis ton profil avant la première vente.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => router.push("/profil")}
+            className="shrink-0 text-xs font-bold text-amber-800 dark:text-amber-300 underline whitespace-nowrap"
+          >
+            Mon profil →
+          </button>
+        </div>
+      )}
 
       <form
         className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 rounded-2xl p-6 flex flex-col gap-5"
@@ -428,13 +431,27 @@ export default function VendrePage() {
 
         {/* Envoi */}
         <div>
-          <label className={labelClass}>Modes d&apos;envoi proposés</label>
+          <label className={labelClass}>Mode d&apos;envoi</label>
           <p className="text-xs text-gray-400 dark:text-navy-100/50 -mt-1 mb-3">
-            Sélectionne au moins une option — le tarif d&apos;envoi est fixé par PingLoop
+            Version bêta : seule la remise en main propre est disponible pour l&apos;instant.
           </p>
           <div className="flex flex-col gap-2">
+            {!HOME_SHIPPING_ENABLED && (
+              <div className="flex items-center gap-3 p-3.5 border-2 border-dashed border-gray-200 dark:border-navy-700 rounded-xl opacity-60">
+                <span className="text-xl">🏠</span>
+                <div className="flex-1">
+                  <p className="font-semibold text-sm text-gray-500 dark:text-navy-100/60">Envoi par La Poste</p>
+                  <p className="text-xs text-gray-400 dark:text-navy-100/50">On y travaille — arrive très bientôt !</p>
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400 dark:text-navy-100/50 border border-gray-300 dark:border-navy-600 rounded-full px-2 py-0.5 shrink-0">
+                  Bientôt
+                </span>
+              </div>
+            )}
             {[
-              { icon: "🏠", label: "Envoi par La Poste", sub: `Colissimo · ${SHIPPING_PRICES.home} €`, value: shippingHome, set: setShippingHome },
+              ...(HOME_SHIPPING_ENABLED
+                ? [{ icon: "🏠", label: "Envoi par La Poste", sub: `Colissimo · ${SHIPPING_PRICES.home} €`, value: shippingHome, set: setShippingHome }]
+                : []),
               { icon: "🤝", label: "Remise en main propre", sub: "Rencontre convenue avec l'acheteur · gratuit", value: pickupAvailable, set: setPickupAvailable },
             ].map(({ icon, label, sub, value, set }) => (
               <button

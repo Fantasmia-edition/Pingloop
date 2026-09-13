@@ -23,7 +23,7 @@ export default async function Home() {
       <section className="bg-navy text-white">
         <div className="max-w-5xl mx-auto px-4 py-20 text-center">
           <div className="inline-flex items-center gap-2 bg-white/10 text-lime text-sm font-semibold px-3 py-1 rounded-full mb-6">
-            🏓 Le marché des pongistes
+            🏓 Le marché des pongistes · Version bêta
           </div>
           <h1 className="text-4xl sm:text-6xl font-black leading-tight mb-5">
             Du matos de qualité,<br />

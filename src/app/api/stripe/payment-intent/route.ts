@@ -8,6 +8,13 @@ import { COMMISSION_RATE } from "@/lib/config";
 export async function POST(req: NextRequest) {
   const { listingId, shippingMethod, offerId, shippingAddress } = await req.json();
 
+  if (shippingMethod === "home") {
+    const a = shippingAddress;
+    if (!a?.name || !a?.line1 || !a?.postal_code || !a?.city) {
+      return NextResponse.json({ error: "Adresse de livraison incomplète." }, { status: 400 });
+    }
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -26,9 +33,11 @@ export async function POST(req: NextRequest) {
   if (listing.sold_at) return NextResponse.json({ error: "Cet article a déjà été vendu." }, { status: 400 });
 
   const sellerProfile = (listing as { profiles?: { stripe_account_id?: string; stripe_onboarded?: boolean } }).profiles;
-  if (!sellerProfile?.stripe_onboarded || !sellerProfile?.stripe_account_id) {
-    return NextResponse.json({ error: "Le vendeur n'a pas encore activé les paiements par carte." }, { status: 400 });
-  }
+  // Vendeur pas encore onboardé sur Stripe → on encaisse quand même (sur le
+  // solde Stripe de la plateforme, sans split) plutôt que de perdre la vente.
+  // Les fonds dus sont débloqués vers le vendeur via un Transfer explicite dès
+  // qu'il termine son onboarding (cf. /api/stripe/connect/return).
+  const sellerOnboarded = !!sellerProfile?.stripe_onboarded && !!sellerProfile?.stripe_account_id;
 
   // Si paiement d'une offre acceptée → utiliser le montant de l'offre
   let itemPrice = listing.price;
@@ -64,10 +73,13 @@ export async function POST(req: NextRequest) {
       item_price:       String(itemPrice),
       shipping_cost:    String(shippingCost),
       shipping_address: shippingAddress ? JSON.stringify(shippingAddress) : "",
+      pending_payout:   sellerOnboarded ? "" : "true",
     },
     automatic_payment_methods: { enabled: true },
-    application_fee_amount: applicationFeeCents,
-    transfer_data: { destination: sellerProfile.stripe_account_id },
+    ...(sellerOnboarded ? {
+      application_fee_amount: applicationFeeCents,
+      transfer_data: { destination: sellerProfile!.stripe_account_id! },
+    } : {}),
   });
 
   return NextResponse.json({ clientSecret: paymentIntent.client_secret });
