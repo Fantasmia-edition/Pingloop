@@ -29,7 +29,7 @@ export default function ListingCard({ listing }: Props) {
       }`}
     >
       {/* Photo */}
-      <div className="aspect-video w-full bg-gray-100 dark:bg-navy-700 flex items-center justify-center relative overflow-hidden">
+      <div className="aspect-video w-full bg-navy-900 flex items-center justify-center relative overflow-hidden">
         {mainPhoto ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -38,7 +38,7 @@ export default function ListingCard({ listing }: Props) {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
-          <span className="text-gray-300 dark:text-navy-600">
+          <span className="text-navy-700">
             <CategoryIcon category={listing.category} className="w-10 h-10" />
           </span>
         )}
@@ -60,7 +60,7 @@ export default function ListingCard({ listing }: Props) {
           <h3 className="font-bold text-navy dark:text-white text-base leading-tight">
             {listing.brand} {listing.name}
           </h3>
-          <p className="text-xl font-black text-navy dark:text-lime whitespace-nowrap">{listing.price} €</p>
+          <p className="text-2xl font-black text-navy dark:text-lime whitespace-nowrap tracking-tight">{listing.price} €</p>
         </div>
 
         <div className="flex flex-wrap gap-1.5">

@@ -7,6 +7,7 @@ import type { User } from "@supabase/supabase-js";
 import UnreadBadge from "@/components/UnreadBadge";
 import NotificationBell from "@/components/NotificationBell";
 import ThemeToggle from "@/components/ThemeToggle";
+import { LoopMark } from "@/components/LoopTrajectory";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -50,9 +51,10 @@ export default function Navbar() {
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-1.5">
+          <LoopMark className="w-5 h-5 shrink-0" />
           <span className="flex items-center gap-0.5">
-            <span className="text-xl font-black tracking-tight text-lime">Ping</span>
-            <span className="text-xl font-black tracking-tight text-white">Loop</span>
+            <span className="text-xl font-black tracking-tight text-white">Ping</span>
+            <span className="text-xl font-black tracking-tight text-lime">Loop</span>
           </span>
           <span className="text-[10px] font-bold tracking-wide uppercase text-navy bg-lime px-1.5 py-0.5 rounded">Bêta</span>
         </Link>

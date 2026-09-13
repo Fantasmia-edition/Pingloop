@@ -134,7 +134,7 @@ export default async function ListingDetailPage({ params, searchParams }: {
           </div>
 
           {/* Prix */}
-          <p className="text-4xl font-black text-gray-900 dark:text-lime">{l.price} €</p>
+          <p className="text-5xl font-black text-gray-900 dark:text-lime tracking-tight">{l.price} €</p>
 
           {/* Badges modes d'envoi disponibles */}
           {((HOME_SHIPPING_ENABLED && l.shipping_home) || l.pickup_available) && (

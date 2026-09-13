@@ -77,8 +77,8 @@ export const SHIPPING_PRICES = {
 } as const;
 
 export const CONDITION_COLORS: Record<Condition, string> = {
-  new: "bg-green-100 text-green-800",
-  like_new: "bg-blue-100 text-blue-800",
-  good: "bg-yellow-100 text-yellow-800",
-  fair: "bg-orange-100 text-orange-800",
+  new: "bg-lime text-navy",
+  like_new: "bg-lime-100 text-navy dark:bg-lime/20 dark:text-lime",
+  good: "bg-gray-100 text-gray-700 dark:bg-navy-700 dark:text-navy-100",
+  fair: "bg-gray-100 text-gray-500 dark:bg-navy-700 dark:text-navy-100/70",
 };

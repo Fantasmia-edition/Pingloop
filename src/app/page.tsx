@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import ListingCard from "@/components/ListingCard";
 import RecentlyViewed from "@/components/RecentlyViewed";
 import { Listing } from "@/types";
-import { PackagePlus } from "lucide-react";
+import { PackagePlus, ArrowRight } from "lucide-react";
+import { LoopMark, LoopTrajectory } from "@/components/LoopTrajectory";
 
 export const revalidate = 60;
 
@@ -21,40 +22,44 @@ export default async function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="bg-navy text-white">
-        <div className="max-w-5xl mx-auto px-4 py-20 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/10 text-lime text-sm font-semibold px-3 py-1 rounded-full mb-6">
-            🏓 Le marché des pongistes · Version bêta
+      <section className="relative bg-navy text-white overflow-hidden">
+        <LoopTrajectory className="absolute inset-0 w-full h-full opacity-40 pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-lime/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative max-w-5xl mx-auto px-4 py-24 sm:py-32 text-center">
+          <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-lime text-sm font-semibold px-3 py-1.5 rounded-full mb-8">
+            <LoopMark className="w-4 h-4" />
+            Le marché des pongistes · Version bêta
           </div>
-          <h1 className="text-4xl sm:text-6xl font-black leading-tight mb-5">
-            Du matos de qualité,<br />
+          <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mb-6">
+            Du matos<br />de qualité,<br />
             <span className="text-lime">sans te ruiner.</span>
           </h1>
           <p className="text-lg text-white/60 max-w-xl mx-auto mb-10">
             Bois, revêtements, raquettes complètes — d&apos;occasion, entre pongistes qui savent de quoi ils parlent.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/annonces" className="bg-lime hover:bg-lime-dark text-navy font-bold px-8 py-3.5 rounded-xl transition-colors text-base">
-              Voir les annonces →
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+            <Link href="/annonces" className="group bg-lime hover:bg-lime-dark text-navy font-bold px-8 py-3.5 rounded-xl transition-colors text-base inline-flex items-center gap-2">
+              Voir les annonces
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" strokeWidth={2.5} />
             </Link>
-            <Link href="/vendre" className="bg-white/10 hover:bg-white/20 text-white font-bold px-8 py-3.5 rounded-xl transition-colors text-base">
+            <Link href="/vendre" className="text-white/70 hover:text-white font-semibold px-8 py-3.5 transition-colors text-base underline-offset-4 hover:underline">
               Mettre en vente
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="bg-navy-800 py-6 border-t border-white/10">
-        <div className="max-w-5xl mx-auto px-4 grid grid-cols-3 gap-4 text-center text-white">
+      {/* Stats — scoreboard */}
+      <section className="bg-navy-800 border-t border-white/10">
+        <div className="max-w-5xl mx-auto px-4 grid grid-cols-3 divide-x divide-white/10 text-center text-white">
           {[
             { value: "1 616", label: "revêtements ITTF" },
             { value: "142", label: "marques référencées" },
             { value: "60 sec", label: "pour mettre en vente" },
           ].map((s) => (
-            <div key={s.label}>
-              <p className="text-2xl sm:text-3xl font-black text-lime">{s.value}</p>
-              <p className="text-xs sm:text-sm text-white/50 mt-0.5">{s.label}</p>
+            <div key={s.label} className="py-8 px-2">
+              <p className="text-3xl sm:text-5xl font-black text-lime tabular-nums tracking-tight">{s.value}</p>
+              <p className="text-[11px] sm:text-xs font-semibold text-white/40 mt-1.5 uppercase tracking-wider">{s.label}</p>
             </div>
           ))}
         </div>
@@ -123,12 +128,14 @@ export default async function Home() {
       <RecentlyViewed />
 
       {/* CTA */}
-      <section className="py-16 bg-navy text-white text-center">
-        <div className="max-w-xl mx-auto px-4">
-          <p className="text-3xl font-bold mb-3">T&apos;as du matos qui dort ?</p>
+      <section className="relative py-20 bg-navy text-white text-center overflow-hidden">
+        <LoopTrajectory className="absolute inset-0 w-full h-full opacity-20 pointer-events-none scale-x-[-1]" />
+        <div className="relative max-w-xl mx-auto px-4">
+          <p className="text-3xl sm:text-4xl font-black mb-3">T&apos;as du matos qui dort ?</p>
           <p className="text-white/50 mb-8">Mets-le en vente en moins d&apos;une minute. On s&apos;occupe de trouver l&apos;acheteur.</p>
-          <Link href="/vendre" className="bg-lime hover:bg-lime-dark text-navy font-bold px-8 py-3.5 rounded-xl transition-colors inline-block">
-            Vendre maintenant →
+          <Link href="/vendre" className="group bg-lime hover:bg-lime-dark text-navy font-bold px-8 py-3.5 rounded-xl transition-colors inline-flex items-center gap-2">
+            Vendre maintenant
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" strokeWidth={2.5} />
           </Link>
         </div>
       </section>

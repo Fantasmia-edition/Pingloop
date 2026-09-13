@@ -10,7 +10,7 @@ interface BadgeProps {
 }
 
 const VARIANT_STYLES: Record<BadgeVariant, string> = {
-  tag: "rounded-md bg-navy text-white",
+  tag: "rounded-md bg-navy/80 backdrop-blur-sm text-white border border-white/10",
   pill: "rounded-full bg-gray-100 dark:bg-navy-700 text-gray-700 dark:text-navy-100",
   solid: "rounded-md bg-lime text-navy",
   outline: "rounded-md border border-gray-200 dark:border-navy-600 text-gray-600 dark:text-navy-100/80 bg-white/70 dark:bg-navy-800",
