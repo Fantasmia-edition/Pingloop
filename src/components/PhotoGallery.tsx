@@ -1,13 +1,15 @@
 "use client";
 import { useState, useRef } from "react";
+import { CategoryIcon } from "@/components/icons";
+import { ItemCategory } from "@/types";
 
 interface Props {
   photos: string[];
   alt: string;
-  emoji: string;
+  category: ItemCategory;
 }
 
-export default function PhotoGallery({ photos, alt, emoji }: Props) {
+export default function PhotoGallery({ photos, alt, category }: Props) {
   const [current, setCurrent] = useState(0);
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
@@ -31,8 +33,8 @@ export default function PhotoGallery({ photos, alt, emoji }: Props) {
 
   if (!photos || photos.length === 0) {
     return (
-      <div className="aspect-square rounded-2xl bg-gray-100 dark:bg-navy-800 flex items-center justify-center border border-gray-200 dark:border-navy-700">
-        <span className="text-7xl">{emoji}</span>
+      <div className="aspect-square rounded-2xl bg-gray-100 dark:bg-navy-800 flex items-center justify-center border border-gray-200 dark:border-navy-700 text-gray-300 dark:text-navy-600">
+        <CategoryIcon category={category} className="w-20 h-20" />
       </div>
     );
   }

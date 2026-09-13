@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { MessageCircle } from "lucide-react";
 
 interface ConvRow {
   id: string;
@@ -79,7 +80,7 @@ export default function MessagesPage() {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-6">Messages</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Messages</h1>
         <div className="flex flex-col gap-2">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-20 bg-white border border-gray-200 rounded-xl animate-pulse" />
@@ -91,11 +92,11 @@ export default function MessagesPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-6">Messages</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Messages</h1>
 
       {convs.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
-          <p className="text-4xl mb-3">💬</p>
+          <MessageCircle className="w-10 h-10 mx-auto mb-3 text-gray-300" strokeWidth={1.5} />
           <p className="font-semibold text-gray-600">Aucune conversation</p>
           <p className="text-sm mt-1">Trouve un article qui t&apos;intéresse et contacte le vendeur !</p>
           <Link href="/annonces" className="mt-4 inline-block text-navy font-semibold text-sm hover:underline">

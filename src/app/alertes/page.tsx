@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import rubbersData from "@/data/rubbers_ittf.json";
 import { Rubber, ItemCategory, PimpleType, PIMPLE_LABELS, CATEGORY_CONFIG } from "@/types";
 import { createClient } from "@/lib/supabase/client";
+import { CategoryIcon } from "@/components/icons";
+import { Bell } from "lucide-react";
 
 const rubbers = rubbersData as Rubber[];
 const brands = [...new Set(rubbers.map((r) => r.brand))].sort();
@@ -110,7 +112,7 @@ export default function AlertesPage() {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-black text-gray-900 mb-6">Mes alertes</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">Mes alertes</h1>
         <div className="flex flex-col gap-2">
           {[1, 2].map((i) => <div key={i} className="h-14 bg-white border border-gray-200 rounded-xl animate-pulse" />)}
         </div>
@@ -121,7 +123,7 @@ export default function AlertesPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-black text-gray-900 mb-1">Mes alertes</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Mes alertes</h1>
         <p className="text-sm text-gray-500">On t&apos;envoie un email à <strong>{userEmail}</strong> dès qu&apos;une annonce correspond.</p>
       </div>
 
@@ -146,12 +148,12 @@ export default function AlertesPage() {
       )}
 
       <div className="bg-white border border-gray-200 rounded-2xl p-6">
-        <h2 className="font-black text-gray-900 mb-4">Créer une alerte</h2>
+        <h2 className="font-bold text-gray-900 mb-4">Créer une alerte</h2>
         <form onSubmit={handleSave} className="flex flex-col gap-4">
           <div>
             <label className={labelClass}>Type</label>
             <div className="grid grid-cols-3 gap-2">
-              {(Object.entries(CATEGORY_CONFIG) as [ItemCategory, { label: string; emoji: string }][]).map(([cat, { label, emoji }]) => (
+              {(Object.entries(CATEGORY_CONFIG) as [ItemCategory, { label: string }][]).map(([cat, { label }]) => (
                 <button
                   key={cat}
                   type="button"
@@ -160,7 +162,7 @@ export default function AlertesPage() {
                     category === cat ? "border-lime bg-lime-50 text-navy" : "border-gray-200 text-gray-600"
                   }`}
                 >
-                  <span className="text-lg">{emoji}</span>
+                  <CategoryIcon category={cat} className="w-5 h-5" />
                   <span>{label}</span>
                 </button>
               ))}
@@ -239,9 +241,9 @@ export default function AlertesPage() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-black py-3.5 rounded-xl transition-colors"
+            className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-bold py-3.5 rounded-xl transition-colors inline-flex items-center justify-center gap-1.5"
           >
-            {saving ? "Enregistrement…" : "Créer l'alerte 🔔"}
+            {saving ? "Enregistrement…" : (<><Bell className="w-4 h-4" strokeWidth={2} />Créer l&apos;alerte</>)}
           </button>
         </form>
       </div>

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { createClient } from "@/lib/supabase/client";
 import { SHIPPING_PRICES } from "@/types";
+import { PartyPopper, CreditCard } from "lucide-react";
 
 const StripePaymentModal = dynamic(() => import("./StripePaymentModal"), { ssr: false });
 const PayPalPaymentButton = dynamic(() => import("./PayPalPaymentButton"), { ssr: false });
@@ -62,8 +63,8 @@ export default function PaymentOptions({
   if (success) {
     return (
       <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-2xl p-5 text-center">
-        <p className="text-2xl mb-2">🎉</p>
-        <p className="text-green-700 dark:text-green-400 font-black text-base">Paiement confirmé !</p>
+        <PartyPopper className="w-6 h-6 mx-auto mb-2 text-green-600 dark:text-green-400" strokeWidth={2} />
+        <p className="text-green-700 dark:text-green-400 font-bold text-base">Paiement confirmé !</p>
         <p className="text-sm text-green-600 dark:text-green-500 mt-1">
           Tu recevras un email de confirmation. Le vendeur a été notifié.
         </p>
@@ -75,12 +76,9 @@ export default function PaymentOptions({
     <div className="flex flex-col gap-2.5">
       <button
         onClick={() => setShowStripe(true)}
-        className="w-full bg-lime hover:bg-lime-dark text-navy font-black py-3.5 rounded-xl text-base transition-colors flex items-center justify-center gap-2"
+        className="w-full bg-lime hover:bg-lime-dark text-navy font-bold py-3.5 rounded-xl text-base transition-colors flex items-center justify-center gap-2"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
-          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-          <line x1="1" y1="10" x2="23" y2="10"/>
-        </svg>
+        <CreditCard className="w-4 h-4" strokeWidth={2} />
         Payer par carte — {total} €
       </button>
 

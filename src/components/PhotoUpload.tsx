@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState, useCallback } from "react";
+import { Camera, Loader2 } from "lucide-react";
 
 const MAX_SIZE = 1200; // px côté max
 const QUALITY = 0.82;
@@ -76,7 +77,9 @@ export default function PhotoUpload({ photos, onChange, max = 5 }: Props) {
                 : "border-gray-200 hover:border-lime/60 hover:bg-gray-50 cursor-pointer"
           }`}
         >
-          <p className="text-2xl mb-1">{compressing ? "⏳" : "📷"}</p>
+          <div className="mb-1 flex justify-center text-gray-400">
+            {compressing ? <Loader2 className="w-6 h-6 animate-spin" strokeWidth={2} /> : <Camera className="w-6 h-6" strokeWidth={1.75} />}
+          </div>
           <p className="text-sm font-semibold text-gray-700">
             {compressing ? "Compression en cours…" : "Clique ou glisse tes photos ici"}
           </p>

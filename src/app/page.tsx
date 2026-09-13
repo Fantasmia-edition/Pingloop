@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import ListingCard from "@/components/ListingCard";
 import RecentlyViewed from "@/components/RecentlyViewed";
 import { Listing } from "@/types";
+import { PackagePlus } from "lucide-react";
 
 export const revalidate = 60;
 
@@ -33,7 +34,7 @@ export default async function Home() {
             Bois, revêtements, raquettes complètes — d&apos;occasion, entre pongistes qui savent de quoi ils parlent.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/annonces" className="bg-lime hover:bg-lime-dark text-navy font-black px-8 py-3.5 rounded-xl transition-colors text-base">
+            <Link href="/annonces" className="bg-lime hover:bg-lime-dark text-navy font-bold px-8 py-3.5 rounded-xl transition-colors text-base">
               Voir les annonces →
             </Link>
             <Link href="/vendre" className="bg-white/10 hover:bg-white/20 text-white font-bold px-8 py-3.5 rounded-xl transition-colors text-base">
@@ -64,7 +65,7 @@ export default async function Home() {
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-2xl font-black text-navy">Dernières annonces</h2>
+              <h2 className="text-2xl font-bold text-navy">Dernières annonces</h2>
               <p className="text-sm text-gray-400 mt-0.5">Fraîchement publiées par la communauté</p>
             </div>
             <Link href="/annonces" className="text-sm font-bold text-navy hover:text-navy-700 underline underline-offset-2">
@@ -79,7 +80,7 @@ export default async function Home() {
             </div>
           ) : (
             <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded-2xl">
-              <p className="text-4xl mb-3">🏓</p>
+              <PackagePlus className="w-10 h-10 mx-auto mb-3 text-gray-300" strokeWidth={1.5} />
               <p className="font-bold text-navy text-lg">Sois le premier à vendre !</p>
               <p className="text-gray-400 text-sm mt-1 mb-4">La communauté t&apos;attend.</p>
               <Link href="/vendre" className="bg-lime hover:bg-lime-dark text-navy font-bold px-6 py-2.5 rounded-xl transition-colors text-sm inline-block">
@@ -96,7 +97,7 @@ export default async function Home() {
           <div className="flex flex-col sm:flex-row gap-12 sm:gap-20 items-start">
             <div className="sm:sticky sm:top-8 shrink-0">
               <p className="text-xs font-bold tracking-widest uppercase text-lime mb-3">Pourquoi PingLoop</p>
-              <h2 className="text-3xl sm:text-4xl font-black text-navy dark:text-white leading-tight">
+              <h2 className="text-3xl sm:text-4xl font-bold text-navy dark:text-white leading-tight">
                 Un marché fait<br />par des joueurs.
               </h2>
             </div>
@@ -124,9 +125,9 @@ export default async function Home() {
       {/* CTA */}
       <section className="py-16 bg-navy text-white text-center">
         <div className="max-w-xl mx-auto px-4">
-          <p className="text-3xl font-black mb-3">T&apos;as du matos qui dort ?</p>
+          <p className="text-3xl font-bold mb-3">T&apos;as du matos qui dort ?</p>
           <p className="text-white/50 mb-8">Mets-le en vente en moins d&apos;une minute. On s&apos;occupe de trouver l&apos;acheteur.</p>
-          <Link href="/vendre" className="bg-lime hover:bg-lime-dark text-navy font-black px-8 py-3.5 rounded-xl transition-colors inline-block">
+          <Link href="/vendre" className="bg-lime hover:bg-lime-dark text-navy font-bold px-8 py-3.5 rounded-xl transition-colors inline-block">
             Vendre maintenant →
           </Link>
         </div>

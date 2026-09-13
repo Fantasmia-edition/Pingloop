@@ -3,6 +3,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import EarlyAdopterBadge from "@/components/EarlyAdopterBadge";
+import { CheckCircle2 } from "lucide-react";
 
 function ProfilContent() {
   const router = useRouter();
@@ -71,7 +72,7 @@ function ProfilContent() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     await supabase.from("profiles").upsert({ id: user.id, display_name: displayName, location, club: club.trim() || null });
-    setToast("✅ Profil sauvegardé !");
+    setToast("Profil sauvegardé !");
     setSaving(false);
     setTimeout(() => setToast(""), 3000);
   }
@@ -82,7 +83,7 @@ function ProfilContent() {
   return (
     <div className="max-w-xl mx-auto px-4 py-8 flex flex-col gap-6">
       <div className="flex items-center gap-3 flex-wrap">
-        <h1 className="text-2xl font-black text-gray-900 dark:text-white">Mon profil</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Mon profil</h1>
         {earlyAdopter && <EarlyAdopterBadge />}
       </div>
 
@@ -93,14 +94,16 @@ function ProfilContent() {
       )}
 
       {toast && (
-        <div className="bg-lime-50 dark:bg-lime/10 border border-lime/30 rounded-xl px-4 py-3 text-sm font-semibold text-navy dark:text-lime">
+        <div className="bg-lime-50 dark:bg-lime/10 border border-lime/30 rounded-xl px-4 py-3 text-sm font-semibold text-navy dark:text-lime flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 shrink-0" strokeWidth={2} />
           {toast}
         </div>
       )}
 
       {stripeStatus === "success" && (
-        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-xl px-4 py-3 text-sm font-semibold text-green-700 dark:text-green-400">
-          ✅ Compte Stripe connecté !
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-xl px-4 py-3 text-sm font-semibold text-green-700 dark:text-green-400 flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 shrink-0" strokeWidth={2} />
+          Compte Stripe connecté !
         </div>
       )}
       {stripeStatus === "pending" && (
@@ -114,8 +117,9 @@ function ProfilContent() {
         </div>
       )}
       {paypalStatus === "success" && (
-        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-xl px-4 py-3 text-sm font-semibold text-green-700 dark:text-green-400">
-          ✅ Compte PayPal connecté !
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-xl px-4 py-3 text-sm font-semibold text-green-700 dark:text-green-400 flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 shrink-0" strokeWidth={2} />
+          Compte PayPal connecté !
         </div>
       )}
       {paypalStatus === "pending" && (
@@ -130,7 +134,7 @@ function ProfilContent() {
       )}
 
       <div className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 rounded-2xl p-6 flex flex-col gap-4">
-        <h2 className="font-black text-gray-900 dark:text-white">Informations</h2>
+        <h2 className="font-bold text-gray-900 dark:text-white">Informations</h2>
 
         <div>
           <label className={labelClass}>Email</label>
@@ -173,7 +177,7 @@ function ProfilContent() {
         <button
           onClick={saveProfile}
           disabled={saving}
-          className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-black py-3 rounded-xl text-sm transition-colors"
+          className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-bold py-3 rounded-xl text-sm transition-colors"
         >
           {saving ? "Sauvegarde…" : "Sauvegarder"}
         </button>
@@ -182,7 +186,7 @@ function ProfilContent() {
       {/* Moyens de paiement */}
       <div className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 rounded-2xl p-6 flex flex-col gap-5">
         <div>
-          <h2 className="font-black text-gray-900 dark:text-white">Recevoir mes paiements</h2>
+          <h2 className="font-bold text-gray-900 dark:text-white">Recevoir mes paiements</h2>
           <p className="text-sm text-gray-500 dark:text-navy-100/60 mt-1">
             Connecte au moins un des deux pour pouvoir vendre — Stripe ou PayPal, à toi de choisir (tu peux aussi activer les deux).
           </p>

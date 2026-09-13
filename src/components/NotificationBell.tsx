@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { Bell, MessageCircle, CheckCircle2, XCircle, Mail, type LucideIcon } from "lucide-react";
 
 interface Notif {
   id: string;
@@ -148,11 +149,11 @@ export default function NotificationBell() {
     offer_declined: "text-red-400",
     message: "text-blue-400",
   };
-  const iconLabel: Record<Notif["type"], string> = {
-    offer_pending: "💬",
-    offer_accepted: "✅",
-    offer_declined: "❌",
-    message: "✉️",
+  const iconComponent: Record<Notif["type"], LucideIcon> = {
+    offer_pending: MessageCircle,
+    offer_accepted: CheckCircle2,
+    offer_declined: XCircle,
+    message: Mail,
   };
 
   return (
@@ -162,9 +163,7 @@ export default function NotificationBell() {
         className="relative flex items-center justify-center text-white/70 hover:text-white transition-colors"
         title={`${count} notification${count > 1 ? "s" : ""}`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-        </svg>
+        <Bell className="w-5 h-5" strokeWidth={2} />
         <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 bg-lime text-navy text-[9px] font-black rounded-full flex items-center justify-center px-0.5 leading-none">
           {count > 9 ? "9+" : count}
         </span>
@@ -176,14 +175,16 @@ export default function NotificationBell() {
             <p className="text-xs font-bold text-gray-500 dark:text-navy-100/60 uppercase tracking-wide">Notifications</p>
           </div>
           <div className="flex flex-col max-h-80 overflow-y-auto">
-            {notifs.map((n) => (
+            {notifs.map((n) => {
+              const Icon = iconComponent[n.type];
+              return (
               <Link
                 key={n.id}
                 href={n.href}
                 onClick={() => setOpen(false)}
                 className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-navy-700 transition-colors border-b border-gray-50 dark:border-navy-700/50 last:border-0"
               >
-                <span className={`text-base mt-0.5 ${iconColor[n.type]}`}>{iconLabel[n.type]}</span>
+                <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${iconColor[n.type]}`} strokeWidth={2} />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-gray-700 dark:text-navy-100 leading-snug">{n.label}</p>
                   <p className="text-[10px] text-gray-400 dark:text-navy-100/40 mt-0.5">
@@ -191,7 +192,7 @@ export default function NotificationBell() {
                   </p>
                 </div>
               </Link>
-            ))}
+            );})}
           </div>
         </div>
       )}

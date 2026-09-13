@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/client";
 import { SHIPPING_PRICES } from "@/types";
 import { HOME_SHIPPING_ENABLED } from "@/lib/config";
 import PickupTipSelector from "@/components/PickupTipSelector";
+import { ShippingIcon } from "@/components/icons";
+import { MessageCircle, PartyPopper, Check, X, ArrowLeftRight, Handshake } from "lucide-react";
 
 const PaymentOptions = dynamic(() => import("./PaymentOptions"), { ssr: false });
 
@@ -243,9 +245,10 @@ export default function OffersSection({
           ) : (
             <button
               onClick={() => setShowBuyerForm(true)}
-              className="w-full border-2 border-dashed border-gray-300 dark:border-navy-600 hover:border-lime text-gray-500 dark:text-navy-100/60 hover:text-navy font-semibold py-3 rounded-xl text-sm transition-colors"
+              className="w-full border-2 border-dashed border-gray-300 dark:border-navy-600 hover:border-lime text-gray-500 dark:text-navy-100/60 hover:text-navy font-semibold py-3 rounded-xl text-sm transition-colors inline-flex items-center justify-center gap-1.5"
             >
-              💬 Faire une offre
+              <MessageCircle className="w-4 h-4" strokeWidth={2} />
+              Faire une offre
             </button>
           )}
         </div>
@@ -259,16 +262,17 @@ export default function OffersSection({
       const acceptedTotal = latest.amount + acceptedShippingCost;
 
       const shippingOptions = [
-        ...(HOME_SHIPPING_ENABLED && shippingHome ? [{ key: "home"   as const, icon: "🏠", label: "Envoi par La Poste",    sub: "Colissimo · livré chez vous", price: SHIPPING_PRICES.home }] : []),
-        ...(pickupAvailable ? [{ key: "pickup" as const, icon: "🤝", label: "Remise en main propre", sub: "À convenir avec le vendeur",  price: 0                    }] : []),
+        ...(HOME_SHIPPING_ENABLED && shippingHome ? [{ key: "home"   as const, label: "Envoi par La Poste",    sub: "Colissimo · livré chez vous", price: SHIPPING_PRICES.home }] : []),
+        ...(pickupAvailable ? [{ key: "pickup" as const, label: "Remise en main propre", sub: "À convenir avec le vendeur",  price: 0                    }] : []),
       ];
 
       return (
         <div className="border-2 border-green-400 dark:border-green-600 rounded-xl overflow-hidden">
           {/* Header */}
           <div className="bg-green-50 dark:bg-green-900/20 px-4 py-3 border-b border-green-200 dark:border-green-700">
-            <p className="text-green-700 dark:text-green-400 font-black">
-              🎉 Offre acceptée — {latest.amount} €
+            <p className="text-green-700 dark:text-green-400 font-bold flex items-center gap-1.5">
+              <PartyPopper className="w-4 h-4 shrink-0" strokeWidth={2} />
+              Offre acceptée — {latest.amount} €
             </p>
             <p className="text-green-600 dark:text-green-500 text-xs mt-0.5">
               Choisis le mode de livraison et finalise le paiement.
@@ -280,7 +284,7 @@ export default function OffersSection({
             <div className="divide-y divide-gray-100 dark:divide-navy-700">
               {!HOME_SHIPPING_ENABLED && (
                 <div className="flex items-center gap-3 px-4 py-3 opacity-50">
-                  <span className="text-base w-5 text-center">🏠</span>
+                  <ShippingIcon method="home" className="w-4 h-4 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">Envoi par La Poste</p>
                     <p className="text-xs text-gray-400 dark:text-navy-100/50 truncate">On y travaille — arrive très bientôt !</p>
@@ -301,7 +305,7 @@ export default function OffersSection({
                       : "bg-white dark:bg-navy-800 hover:bg-gray-50 dark:hover:bg-navy-700"
                   }`}
                 >
-                  <span className="text-base w-5 text-center">{o.icon}</span>
+                  <ShippingIcon method={o.key} className="w-4 h-4 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">{o.label}</p>
                     <p className="text-xs text-gray-400 dark:text-navy-100/50 truncate">{o.sub}</p>
@@ -312,7 +316,7 @@ export default function OffersSection({
                   <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
                     acceptedMethod === o.key ? "border-lime bg-lime" : "border-gray-300 dark:border-navy-600"
                   }`}>
-                    {acceptedMethod === o.key && <span className="text-navy text-[8px] font-black leading-none">✓</span>}
+                    {acceptedMethod === o.key && <Check className="w-2.5 h-2.5 text-navy" strokeWidth={3} />}
                   </div>
                 </button>
               ))}
@@ -342,8 +346,9 @@ export default function OffersSection({
               />
             ) : (
               <div className="flex flex-col gap-3">
-                <p className="text-sm text-center text-gray-600 dark:text-navy-100/70 font-medium py-2">
-                  🤝 Contacte le vendeur via la messagerie pour convenir de la remise en main propre.
+                <p className="text-sm text-center text-gray-600 dark:text-navy-100/70 font-medium py-2 flex items-center justify-center gap-1.5">
+                  <Handshake className="w-4 h-4 shrink-0" strokeWidth={2} />
+                  Contacte le vendeur via la messagerie pour convenir de la remise en main propre.
                 </p>
                 <PickupTipSelector listingId={listingId} sellerClub={sellerClub} />
               </div>
@@ -377,16 +382,18 @@ export default function OffersSection({
             <button
               onClick={() => respond(latest.id, "accepted", latest.amount, currentUserId, myName)}
               disabled={submitting}
-              className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 rounded-xl text-sm transition-colors"
+              className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 rounded-xl text-sm transition-colors inline-flex items-center justify-center gap-1.5"
             >
-              ✓ Accepter
+              <Check className="w-4 h-4" strokeWidth={2.5} />
+              Accepter
             </button>
             <button
               onClick={() => respond(latest.id, "declined", latest.amount, currentUserId, myName)}
               disabled={submitting}
-              className="flex-1 bg-gray-100 dark:bg-navy-700 hover:bg-gray-200 dark:hover:bg-navy-600 text-gray-700 dark:text-white font-bold py-2.5 rounded-xl text-sm transition-colors"
+              className="flex-1 bg-gray-100 dark:bg-navy-700 hover:bg-gray-200 dark:hover:bg-navy-600 text-gray-700 dark:text-white font-bold py-2.5 rounded-xl text-sm transition-colors inline-flex items-center justify-center gap-1.5"
             >
-              ✗ Refuser
+              <X className="w-4 h-4" strokeWidth={2.5} />
+              Refuser
             </button>
           </div>
         </div>
@@ -423,8 +430,9 @@ export default function OffersSection({
   return (
     <div className="border border-gray-200 dark:border-navy-700 rounded-xl overflow-hidden">
       <div className="bg-gray-50 dark:bg-navy-800 px-4 py-2.5 border-b border-gray-200 dark:border-navy-700">
-        <p className="text-sm font-semibold text-gray-700 dark:text-navy-100">
-          💬 Offres reçues ({buyerIds.length})
+        <p className="text-sm font-semibold text-gray-700 dark:text-navy-100 flex items-center gap-1.5">
+          <MessageCircle className="w-4 h-4 shrink-0" strokeWidth={2} />
+          Offres reçues ({buyerIds.length})
         </p>
       </div>
       <div className="divide-y divide-gray-100 dark:divide-navy-700">
@@ -450,8 +458,9 @@ export default function OffersSection({
               </div>
 
               {latest.status === "accepted" && (
-                <p className="text-green-600 font-semibold text-sm text-center bg-green-50 dark:bg-green-900/20 rounded-lg py-2">
-                  ✓ Acceptée — en attente du paiement acheteur
+                <p className="text-green-600 font-semibold text-sm text-center bg-green-50 dark:bg-green-900/20 rounded-lg py-2 flex items-center justify-center gap-1.5">
+                  <Check className="w-4 h-4" strokeWidth={2.5} />
+                  Acceptée — en attente du paiement acheteur
                 </p>
               )}
               {latest.status === "declined" && (
@@ -501,23 +510,26 @@ export default function OffersSection({
                     <button
                       onClick={() => respond(latest.id, "accepted", latest.amount, buyerId, buyerName)}
                       disabled={submitting}
-                      className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-lg text-sm transition-colors"
+                      className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-lg text-sm transition-colors inline-flex items-center justify-center gap-1"
                     >
-                      ✓ Accepter
+                      <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
+                      Accepter
                     </button>
                     <button
                       onClick={() => { setCounterForm({ offerId: latest.id, buyerId }); setCounterAmount(""); }}
                       disabled={submitting}
-                      className="flex-1 bg-lime-100 dark:bg-lime/20 hover:bg-lime-200 text-navy-800 dark:text-white font-bold py-2 rounded-lg text-sm transition-colors"
+                      className="flex-1 bg-lime-100 dark:bg-lime/20 hover:bg-lime-200 text-navy-800 dark:text-white font-bold py-2 rounded-lg text-sm transition-colors inline-flex items-center justify-center gap-1"
                     >
-                      ↔ Contre-offre
+                      <ArrowLeftRight className="w-3.5 h-3.5" strokeWidth={2.5} />
+                      Contre-offre
                     </button>
                     <button
                       onClick={() => respond(latest.id, "declined", latest.amount, buyerId, buyerName)}
                       disabled={submitting}
-                      className="flex-1 bg-gray-100 dark:bg-navy-700 hover:bg-gray-200 dark:hover:bg-navy-600 text-gray-700 dark:text-white font-bold py-2 rounded-lg text-sm transition-colors"
+                      className="flex-1 bg-gray-100 dark:bg-navy-700 hover:bg-gray-200 dark:hover:bg-navy-600 text-gray-700 dark:text-white font-bold py-2 rounded-lg text-sm transition-colors inline-flex items-center justify-center gap-1"
                     >
-                      ✗ Refuser
+                      <X className="w-3.5 h-3.5" strokeWidth={2.5} />
+                      Refuser
                     </button>
                   </div>
                 )

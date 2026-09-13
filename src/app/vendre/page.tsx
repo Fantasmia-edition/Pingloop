@@ -8,6 +8,8 @@ import PhotoUpload from "@/components/PhotoUpload";
 import PriceSuggestion from "@/components/PriceSuggestion";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import { CategoryIcon, ShippingIcon } from "@/components/icons";
+import { Lock, CreditCard, Check } from "lucide-react";
 
 const rubbers = rubbersData as Rubber[];
 const brands = [...new Set(rubbers.map((r) => r.brand))].sort();
@@ -101,8 +103,8 @@ export default function VendrePage() {
   if (!user) {
     return (
       <div className="max-w-lg mx-auto px-4 py-20 text-center">
-        <div className="text-5xl mb-4">🔒</div>
-        <h1 className="text-2xl font-black text-gray-900 mb-2">Connexion requise</h1>
+        <Lock className="w-10 h-10 mx-auto mb-4 text-gray-300" strokeWidth={1.5} />
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Connexion requise</h1>
         <p className="text-gray-500 mb-6">Pour mettre en vente, connecte-toi en 30 secondes — sans mot de passe.</p>
         <button
           onClick={() => router.push("/auth?redirect=/vendre")}
@@ -196,13 +198,13 @@ export default function VendrePage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-1">Mettre en vente</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Mettre en vente</h1>
         <p className="text-sm text-gray-500 dark:text-navy-100/60">Remplis le formulaire — ça prend moins d&apos;une minute.</p>
       </div>
 
       {!stripeOnboarded && !paypalOnboarded && (
         <div className="mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl p-4 flex items-start gap-3">
-          <span className="text-xl leading-none">💳</span>
+          <CreditCard className="w-5 h-5 shrink-0 text-amber-700 dark:text-amber-300" strokeWidth={2} />
           <div className="flex-1">
             <p className="text-sm font-bold text-amber-800 dark:text-amber-300">Aucun moyen de paiement connecté</p>
             <p className="text-xs text-amber-700/80 dark:text-amber-300/70 mt-0.5">
@@ -227,7 +229,7 @@ export default function VendrePage() {
         <div>
           <label className={labelClass}>Type d&apos;article</label>
           <div className="grid grid-cols-3 gap-2">
-            {(Object.entries(CATEGORY_CONFIG) as [ItemCategory, { label: string; emoji: string }][]).map(([cat, { label, emoji }]) => (
+            {(Object.entries(CATEGORY_CONFIG) as [ItemCategory, { label: string }][]).map(([cat, { label }]) => (
               <button
                 key={cat}
                 type="button"
@@ -238,7 +240,7 @@ export default function VendrePage() {
                     : "border-gray-200 text-gray-600 hover:border-gray-300"
                 }`}
               >
-                <span className="text-lg">{emoji}</span>
+                <CategoryIcon category={cat} className="w-5 h-5" />
                 <span>{label}</span>
               </button>
             ))}
@@ -438,7 +440,7 @@ export default function VendrePage() {
           <div className="flex flex-col gap-2">
             {!HOME_SHIPPING_ENABLED && (
               <div className="flex items-center gap-3 p-3.5 border-2 border-dashed border-gray-200 dark:border-navy-700 rounded-xl opacity-60">
-                <span className="text-xl">🏠</span>
+                <ShippingIcon method="home" className="w-5 h-5 text-gray-400" />
                 <div className="flex-1">
                   <p className="font-semibold text-sm text-gray-500 dark:text-navy-100/60">Envoi par La Poste</p>
                   <p className="text-xs text-gray-400 dark:text-navy-100/50">On y travaille — arrive très bientôt !</p>
@@ -450,10 +452,10 @@ export default function VendrePage() {
             )}
             {[
               ...(HOME_SHIPPING_ENABLED
-                ? [{ icon: "🏠", label: "Envoi par La Poste", sub: `Colissimo · ${SHIPPING_PRICES.home} €`, value: shippingHome, set: setShippingHome }]
+                ? [{ method: "home" as const, label: "Envoi par La Poste", sub: `Colissimo · ${SHIPPING_PRICES.home} €`, value: shippingHome, set: setShippingHome }]
                 : []),
-              { icon: "🤝", label: "Remise en main propre", sub: "Rencontre convenue avec l'acheteur · gratuit", value: pickupAvailable, set: setPickupAvailable },
-            ].map(({ icon, label, sub, value, set }) => (
+              { method: "pickup" as const, label: "Remise en main propre", sub: "Rencontre convenue avec l'acheteur · gratuit", value: pickupAvailable, set: setPickupAvailable },
+            ].map(({ method, label, sub, value, set }) => (
               <button
                 key={label}
                 type="button"
@@ -464,7 +466,7 @@ export default function VendrePage() {
                     : "border-gray-200 dark:border-navy-700 hover:border-gray-300"
                 }`}
               >
-                <span className="text-xl">{icon}</span>
+                <ShippingIcon method={method} className="w-5 h-5 text-navy dark:text-white" />
                 <div className="flex-1">
                   <p className="font-semibold text-sm text-gray-900 dark:text-white">{label}</p>
                   <p className="text-xs text-gray-400 dark:text-navy-100/50">{sub}</p>
@@ -472,7 +474,7 @@ export default function VendrePage() {
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
                   value ? "border-lime bg-lime" : "border-gray-300 dark:border-navy-600"
                 }`}>
-                  {value && <span className="text-navy text-[10px] font-black leading-none">✓</span>}
+                  {value && <Check className="w-3 h-3 text-navy" strokeWidth={3} />}
                 </div>
               </button>
             ))}
@@ -492,7 +494,7 @@ export default function VendrePage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-black py-4 rounded-xl text-base transition-colors mt-1"
+          className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-bold py-4 rounded-xl text-base transition-colors mt-1"
         >
           {submitting ? "Publication en cours…" : "Publier l'annonce →"}
         </button>

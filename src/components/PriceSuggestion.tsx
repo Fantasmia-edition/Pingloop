@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Condition } from "@/types";
+import { AlertTriangle, Lightbulb } from "lucide-react";
 
 interface Props {
   brand: string;
@@ -77,8 +78,9 @@ export default function PriceSuggestion({ brand, name, condition, currentPrice }
 
   return (
     <div className={`rounded-xl px-4 py-3 text-sm border ${isTooHigh ? "bg-red-50 border-red-200" : isTooLow ? "bg-blue-50 border-blue-200" : "bg-lime-50 border-orange-100"}`}>
-      <p className="font-semibold text-gray-800 mb-1">
-        {isTooHigh ? "⚠️ Prix un peu élevé" : isTooLow ? "💡 Tu peux demander un peu plus" : "💡 Fourchette conseillée"}
+      <p className="font-semibold text-gray-800 mb-1 flex items-center gap-1.5">
+        {isTooHigh ? <AlertTriangle className="w-4 h-4 shrink-0" strokeWidth={2} /> : <Lightbulb className="w-4 h-4 shrink-0" strokeWidth={2} />}
+        {isTooHigh ? "Prix un peu élevé" : isTooLow ? "Tu peux demander un peu plus" : "Fourchette conseillée"}
       </p>
       {hasSuggest && (
         <p className="text-gray-600 text-xs">

@@ -3,7 +3,8 @@ import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import ListingCard from "@/components/ListingCard";
-import { Listing, ItemCategory, PimpleType, Condition } from "@/types";
+import { Listing, ItemCategory, PimpleType, Condition, CATEGORY_CONFIG } from "@/types";
+import { SearchX } from "lucide-react";
 
 const PAGE_SIZE = 24;
 
@@ -97,7 +98,7 @@ function AnnoncesContent() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-1">Toutes les annonces</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Toutes les annonces</h1>
         {!loading && (
           <p className="text-sm text-gray-500 dark:text-navy-100/60">
             {listings.length} annonce{listings.length !== 1 ? "s" : ""} chargée{listings.length !== 1 ? "s" : ""}
@@ -117,11 +118,9 @@ function AnnoncesContent() {
         />
         <select value={category} onChange={(e) => handleCategory(e.target.value)} className={inputCls}>
           <option value="">Type : tous</option>
-          <option value="rubber">🏓 Revêtement</option>
-          <option value="blade">🪵 Bois</option>
-          <option value="racket">🎯 Raquette complète</option>
-          <option value="tshirt">👕 T-Shirt</option>
-          <option value="case">🎒 Housse</option>
+          {(Object.entries(CATEGORY_CONFIG) as [ItemCategory, { label: string }][]).map(([cat, { label }]) => (
+            <option key={cat} value={cat}>{label}</option>
+          ))}
         </select>
         <select value={pimpleType} onChange={(e) => handlePimple(e.target.value)} className={inputCls}>
           <option value="">Picots : tous</option>
@@ -172,7 +171,7 @@ function AnnoncesContent() {
         </div>
       ) : listings.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
-          <p className="text-4xl mb-3">🔍</p>
+          <SearchX className="w-10 h-10 mx-auto mb-3 text-gray-300 dark:text-navy-600" strokeWidth={1.5} />
           <p className="font-semibold text-gray-600 dark:text-navy-100/70">Aucune annonce trouvée</p>
           <p className="text-sm mt-1">Modifie tes filtres ou crée une alerte pour être prévenu.</p>
         </div>

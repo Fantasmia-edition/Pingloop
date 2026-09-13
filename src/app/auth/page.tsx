@@ -2,6 +2,7 @@
 import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { CategoryIcon } from "@/components/icons";
 
 type Mode = "login" | "signup" | "forgot";
 
@@ -120,7 +121,7 @@ function AuthForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-black py-3.5 rounded-xl transition-colors"
+        className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-bold py-3.5 rounded-xl transition-colors"
       >
         {loading ? "…" : mode === "login" ? "Se connecter →" : mode === "signup" ? "Créer mon compte →" : "Envoyer le lien →"}
       </button>
@@ -155,8 +156,10 @@ export default function AuthPage() {
   return (
     <div className="max-w-sm mx-auto px-4 py-16">
       <div className="text-center mb-8">
-        <span className="text-4xl">🏓</span>
-        <h1 className="text-2xl font-black text-gray-900 mt-3 mb-1">Connexion à PingLoop</h1>
+        <div className="w-14 h-14 mx-auto rounded-full bg-lime-50 dark:bg-lime/10 text-navy dark:text-lime flex items-center justify-center">
+          <CategoryIcon category="rubber" className="w-7 h-7" />
+        </div>
+        <h1 className="text-2xl font-bold text-gray-900 mt-3 mb-1">Connexion à PingLoop</h1>
         <p className="text-sm text-gray-500">
           Connecte-toi pour vendre, acheter ou créer des alertes.
         </p>

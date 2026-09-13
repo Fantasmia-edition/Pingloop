@@ -13,6 +13,9 @@ import TrackView from "@/components/TrackView";
 import ReviewForm from "@/components/ReviewForm";
 import EarlyAdopterBadge from "@/components/EarlyAdopterBadge";
 import ReportListingButton from "@/components/ReportListingButton";
+import Badge from "@/components/Badge";
+import { ShippingIcon } from "@/components/icons";
+import { PartyPopper, Check } from "lucide-react";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pingloop.fr";
 
@@ -98,8 +101,9 @@ export default async function ListingDetailPage({ params, searchParams }: {
     <div className="max-w-5xl mx-auto px-4 py-8">
       <TrackView id={id} />
       {published && (
-        <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-3 mb-6 text-sm font-semibold">
-          🎉 Annonce publiée avec succès ! Elle est maintenant visible par tous les pongistes.
+        <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-3 mb-6 text-sm font-semibold flex items-center gap-2">
+          <PartyPopper className="w-4 h-4 shrink-0" strokeWidth={2} />
+          Annonce publiée avec succès ! Elle est maintenant visible par tous les pongistes.
         </div>
       )}
 
@@ -115,7 +119,7 @@ export default async function ListingDetailPage({ params, searchParams }: {
         <PhotoGallery
           photos={l.photos ?? []}
           alt={`${l.brand} ${l.name}`}
-          emoji={CATEGORY_CONFIG[l.category]?.emoji ?? "📦"}
+          category={l.category}
         />
 
         {/* Info */}
@@ -124,7 +128,7 @@ export default async function ListingDetailPage({ params, searchParams }: {
             <span className="text-xs font-semibold text-navy dark:text-lime uppercase tracking-wide">
               {CATEGORY_CONFIG[l.category]?.label ?? l.category}
             </span>
-            <h1 className="text-3xl font-black text-gray-900 dark:text-white leading-tight">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white leading-tight">
               {l.brand} {l.name}
             </h1>
           </div>
@@ -136,14 +140,14 @@ export default async function ListingDetailPage({ params, searchParams }: {
           {((HOME_SHIPPING_ENABLED && l.shipping_home) || l.pickup_available) && (
             <div className="flex flex-wrap gap-2">
               {HOME_SHIPPING_ENABLED && l.shipping_home && (
-                <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 border border-navy-100 dark:border-navy-600">
-                  🏠 La Poste · {SHIPPING_PRICES.home} €
-                </span>
+                <Badge variant="outline" icon={<ShippingIcon method="home" className="w-3.5 h-3.5" />} className="text-xs px-2.5 py-1">
+                  La Poste · {SHIPPING_PRICES.home} €
+                </Badge>
               )}
               {l.pickup_available && (
-                <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-navy-50 dark:bg-navy-700 text-navy dark:text-navy-100 border border-navy-100 dark:border-navy-600">
-                  🤝 Main propre
-                </span>
+                <Badge variant="outline" icon={<ShippingIcon method="pickup" className="w-3.5 h-3.5" />} className="text-xs px-2.5 py-1">
+                  Main propre
+                </Badge>
               )}
             </div>
           )}
@@ -232,8 +236,9 @@ export default async function ListingDetailPage({ params, searchParams }: {
                   <MarkSoldButton listingId={l.id} />
                 </>
               ) : (
-                <div className="bg-gray-100 dark:bg-navy-700 rounded-xl px-4 py-3 text-sm text-gray-500 dark:text-navy-100/60 font-semibold text-center">
-                  ✓ Vendu le {new Date(l.sold_at).toLocaleDateString("fr-FR")}
+                <div className="bg-gray-100 dark:bg-navy-700 rounded-xl px-4 py-3 text-sm text-gray-500 dark:text-navy-100/60 font-semibold text-center flex items-center justify-center gap-1.5">
+                  <Check className="w-4 h-4" strokeWidth={2.5} />
+                  Vendu le {new Date(l.sold_at).toLocaleDateString("fr-FR")}
                 </div>
               )}
             </div>
@@ -249,7 +254,7 @@ export default async function ListingDetailPage({ params, searchParams }: {
       {similar.length > 0 && (
         <section className="mt-14">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-black text-gray-900 dark:text-white">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
               Annonces similaires
             </h2>
             <Link

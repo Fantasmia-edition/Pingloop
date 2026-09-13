@@ -7,6 +7,8 @@ import ContactButton from "@/components/ContactButton";
 import OffersSection from "@/components/OffersSection";
 import FavoriteButton from "@/components/FavoriteButton";
 import PickupTipSelector from "@/components/PickupTipSelector";
+import { ShippingIcon } from "@/components/icons";
+import { Check } from "lucide-react";
 
 const PaymentOptions = dynamic(() => import("./PaymentOptions"), { ssr: false });
 
@@ -47,9 +49,9 @@ export default function BuyerActions({
 
   const total = itemPrice + shippingCost;
 
-  const options: { key: ShippingMethod; icon: string; label: string; sub: string; price: number }[] = [
-    ...(HOME_SHIPPING_ENABLED && shippingHome ? [{ key: "home"   as const, icon: "🏠", label: "Envoi par La Poste",    sub: "Colissimo · livré chez vous",    price: SHIPPING_PRICES.home }] : []),
-    ...(pickupAvailable ? [{ key: "pickup" as const, icon: "🤝", label: "Remise en main propre", sub: "À convenir avec le vendeur",     price: 0                    }] : []),
+  const options: { key: ShippingMethod; label: string; sub: string; price: number }[] = [
+    ...(HOME_SHIPPING_ENABLED && shippingHome ? [{ key: "home"   as const, label: "Envoi par La Poste",    sub: "Colissimo · livré chez vous",    price: SHIPPING_PRICES.home }] : []),
+    ...(pickupAvailable ? [{ key: "pickup" as const, label: "Remise en main propre", sub: "À convenir avec le vendeur",     price: 0                    }] : []),
   ];
 
   return (
@@ -64,7 +66,7 @@ export default function BuyerActions({
           <div className="divide-y divide-gray-100 dark:divide-navy-700">
             {!HOME_SHIPPING_ENABLED && (
               <div className="flex items-center gap-3 px-4 py-3 opacity-50">
-                <span className="text-base w-5 text-center">🏠</span>
+                <ShippingIcon method="home" className="w-4 h-4 shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">Envoi par La Poste</p>
                   <p className="text-xs text-gray-400 dark:text-navy-100/50 truncate">On y travaille — arrive très bientôt !</p>
@@ -85,7 +87,7 @@ export default function BuyerActions({
                     : "bg-white dark:bg-navy-800 hover:bg-gray-50 dark:hover:bg-navy-700"
                 }`}
               >
-                <span className="text-base w-5 text-center">{o.icon}</span>
+                <ShippingIcon method={o.key} className="w-4 h-4 shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">{o.label}</p>
                   <p className="text-xs text-gray-400 dark:text-navy-100/50 truncate">{o.sub}</p>
@@ -96,7 +98,7 @@ export default function BuyerActions({
                 <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
                   method === o.key ? "border-lime bg-lime" : "border-gray-300 dark:border-navy-600"
                 }`}>
-                  {method === o.key && <span className="text-navy text-[8px] font-black leading-none">✓</span>}
+                  {method === o.key && <Check className="w-2.5 h-2.5 text-navy" strokeWidth={3} />}
                 </div>
               </button>
             ))}

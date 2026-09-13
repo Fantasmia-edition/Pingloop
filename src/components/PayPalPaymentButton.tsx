@@ -3,6 +3,7 @@ import { useState } from "react";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import type { ShippingAddress } from "@/types";
 import ShippingAddressForm from "./ShippingAddressForm";
+import { Package } from "lucide-react";
 
 interface Props {
   listingId: string;
@@ -26,9 +27,12 @@ export default function PayPalPaymentButton({ listingId, offerId, shippingMethod
   return (
     <div className="flex flex-col gap-2.5">
       {needsAddress && address && (
-        <div className="bg-gray-50 dark:bg-navy-700/60 rounded-xl p-3 text-xs text-gray-600 dark:text-navy-100/70">
-          📦 Livraison à <strong>{address.name}</strong>, {address.line1}, {address.postal_code} {address.city}
-          <button onClick={() => setAddress(null)} className="ml-2 text-navy dark:text-lime underline">Modifier</button>
+        <div className="bg-gray-50 dark:bg-navy-700/60 rounded-xl p-3 text-xs text-gray-600 dark:text-navy-100/70 flex items-start gap-1.5">
+          <Package className="w-3.5 h-3.5 mt-0.5 shrink-0" strokeWidth={2} />
+          <span>
+            Livraison à <strong>{address.name}</strong>, {address.line1}, {address.postal_code} {address.city}
+            <button onClick={() => setAddress(null)} className="ml-2 text-navy dark:text-lime underline">Modifier</button>
+          </span>
         </div>
       )}
 

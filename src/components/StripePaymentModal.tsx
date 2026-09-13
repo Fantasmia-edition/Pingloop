@@ -4,6 +4,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import type { ShippingAddress } from "@/types";
 import ShippingAddressForm from "./ShippingAddressForm";
+import { ShieldCheck, Package, X } from "lucide-react";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -48,7 +49,7 @@ function CheckoutForm({ onSuccess, onClose }: { onSuccess: () => void; onClose: 
         <button
           type="submit"
           disabled={!stripe || processing}
-          className="flex-1 bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-black py-3 rounded-xl text-sm transition-colors"
+          className="flex-1 bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-bold py-3 rounded-xl text-sm transition-colors"
         >
           {processing ? "Paiement…" : "Payer →"}
         </button>
@@ -116,14 +117,14 @@ export default function StripePaymentModal({
         {/* Header */}
         <div className="flex items-center justify-between shrink-0">
           <div>
-            <h2 className="font-black text-gray-900 dark:text-white">Paiement sécurisé</h2>
+            <h2 className="font-bold text-gray-900 dark:text-white">Paiement sécurisé</h2>
             <p className="text-xs text-gray-400 dark:text-navy-100/50 mt-0.5">Propulsé par Stripe</p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-gray-100 dark:bg-navy-700 flex items-center justify-center text-gray-500 hover:bg-gray-200 dark:hover:bg-navy-600 transition-colors text-lg leading-none"
+            className="w-8 h-8 rounded-full bg-gray-100 dark:bg-navy-700 flex items-center justify-center text-gray-500 hover:bg-gray-200 dark:hover:bg-navy-600 transition-colors"
           >
-            ×
+            <X className="w-4 h-4" strokeWidth={2.5} />
           </button>
         </div>
 
@@ -152,7 +153,7 @@ export default function StripePaymentModal({
 
         {/* Protection acheteur */}
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 rounded-xl p-3 text-xs text-blue-700 dark:text-blue-300 flex gap-2.5 items-start shrink-0">
-          <span className="text-base leading-none mt-0.5">🔒</span>
+          <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" strokeWidth={2} />
           <div>
             <p className="font-semibold mb-0.5">Paiement sécurisé via Stripe</p>
             <p className="text-blue-600/80 dark:text-blue-300/70">Si l&apos;article ne correspond pas à l&apos;annonce, contacte-nous — on te rembourse. Tes coordonnées bancaires ne sont jamais transmises au vendeur.</p>
@@ -163,9 +164,12 @@ export default function StripePaymentModal({
         {addressReady && (
           <>
             {needsAddress && address && (
-              <div className="bg-gray-50 dark:bg-navy-700/60 rounded-xl p-3 text-xs text-gray-600 dark:text-navy-100/70">
-                📦 Livraison à <strong>{address.name}</strong>, {address.line1}, {address.postal_code} {address.city}
-                <button onClick={() => setAddressReady(false)} className="ml-2 text-navy dark:text-lime underline">Modifier</button>
+              <div className="bg-gray-50 dark:bg-navy-700/60 rounded-xl p-3 text-xs text-gray-600 dark:text-navy-100/70 flex items-start gap-1.5">
+                <Package className="w-3.5 h-3.5 mt-0.5 shrink-0" strokeWidth={2} />
+                <span>
+                  Livraison à <strong>{address.name}</strong>, {address.line1}, {address.postal_code} {address.city}
+                  <button onClick={() => setAddressReady(false)} className="ml-2 text-navy dark:text-lime underline">Modifier</button>
+                </span>
               </div>
             )}
 

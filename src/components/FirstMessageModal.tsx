@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { MessageCircle } from "lucide-react";
 
 interface Props {
   listingId: string;
@@ -65,7 +66,7 @@ export default function FirstMessageModal({ listingId, sellerId, sellerName, lis
     <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl w-full max-w-md p-6 flex flex-col gap-4" onClick={(e) => e.stopPropagation()}>
         <div>
-          <h2 className="font-black text-gray-900 text-lg">Contacter {sellerName.split(" ")[0]}</h2>
+          <h2 className="font-bold text-gray-900 text-lg">Contacter {sellerName.split(" ")[0]}</h2>
           <p className="text-sm text-gray-400 mt-0.5">{listingTitle} · {listingPrice}€</p>
         </div>
         <textarea
@@ -85,9 +86,9 @@ export default function FirstMessageModal({ listingId, sellerId, sellerName, lis
           <button
             onClick={send}
             disabled={!text.trim() || sending}
-            className="flex-1 bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-black py-3 rounded-xl text-sm transition-colors"
+            className="flex-1 bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-bold py-3 rounded-xl text-sm transition-colors inline-flex items-center justify-center gap-1.5"
           >
-            {sending ? "Envoi…" : "Envoyer 💬"}
+            {sending ? "Envoi…" : (<><MessageCircle className="w-4 h-4" strokeWidth={2} />Envoyer</>)}
           </button>
         </div>
       </div>

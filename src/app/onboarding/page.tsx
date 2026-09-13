@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { CategoryIcon } from "@/components/icons";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -68,8 +69,10 @@ export default function OnboardingPage() {
   return (
     <div className="max-w-sm mx-auto px-4 py-16">
       <div className="text-center mb-8">
-        <span className="text-4xl">🏓</span>
-        <h1 className="text-2xl font-black text-gray-900 dark:text-white mt-3 mb-1">Bienvenue sur PingLoop !</h1>
+        <div className="w-14 h-14 mx-auto rounded-full bg-lime-50 dark:bg-lime/10 text-navy dark:text-lime flex items-center justify-center">
+          <CategoryIcon category="rubber" className="w-7 h-7" />
+        </div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mt-3 mb-1">Bienvenue sur PingLoop !</h1>
         <p className="text-sm text-gray-500">Choisis un pseudo — il sera affiché sur tes annonces.</p>
       </div>
       <div className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 rounded-2xl p-6">
@@ -114,7 +117,7 @@ export default function OnboardingPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-black py-3.5 rounded-xl transition-colors"
+            className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-bold py-3.5 rounded-xl transition-colors"
           >
             {loading ? "…" : "C'est parti →"}
           </button>

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import FirstMessageModal from "@/components/FirstMessageModal";
+import { MessageCircle } from "lucide-react";
 
 interface Props {
   listingId: string;
@@ -49,9 +50,14 @@ export default function ContactButton({ listingId, sellerId, sellerName, listing
       <button
         onClick={handleContact}
         disabled={loading}
-        className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-black py-4 rounded-xl text-base transition-colors flex items-center justify-center gap-2"
+        className="w-full bg-lime hover:bg-lime-dark disabled:opacity-50 text-navy font-bold py-4 rounded-xl text-base transition-colors flex items-center justify-center gap-2"
       >
-        {loading ? "Chargement…" : `💬 Contacter ${sellerName.split(" ")[0]}`}
+        {loading ? "Chargement…" : (
+          <>
+            <MessageCircle className="w-4 h-4" strokeWidth={2} />
+            Contacter {sellerName.split(" ")[0]}
+          </>
+        )}
       </button>
       {showModal && (
         <FirstMessageModal

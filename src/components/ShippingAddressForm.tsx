@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import type { ShippingAddress } from "@/types";
+import { Package } from "lucide-react";
 
 interface Props {
   onSubmit: (address: ShippingAddress) => void;
@@ -19,7 +20,10 @@ export default function ShippingAddressForm({ onSubmit }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      <p className="text-sm font-bold text-gray-900 dark:text-white">📦 Adresse de livraison</p>
+      <p className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+        <Package className="w-4 h-4 shrink-0" strokeWidth={2} />
+        Adresse de livraison
+      </p>
       <input
         required
         placeholder="Nom et prénom"
@@ -59,7 +63,7 @@ export default function ShippingAddressForm({ onSubmit }: Props) {
       </div>
       <button
         type="submit"
-        className="w-full bg-lime hover:bg-lime-dark text-navy font-black py-3 rounded-xl text-sm transition-colors mt-1"
+        className="w-full bg-lime hover:bg-lime-dark text-navy font-bold py-3 rounded-xl text-sm transition-colors mt-1"
       >
         Continuer vers le paiement →
       </button>

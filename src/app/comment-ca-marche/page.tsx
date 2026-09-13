@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Construction, ShieldCheck, PackageX, XCircle } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Comment ça marche — PingLoop",
@@ -14,14 +15,14 @@ export default function CommentCaMarchePage() {
 
       <div className="mb-10">
         <p className="text-xs font-bold tracking-widest uppercase text-lime mb-3">Guide</p>
-        <h1 className="text-4xl font-black text-navy dark:text-white leading-tight mb-4">
+        <h1 className="text-4xl font-bold text-navy dark:text-white leading-tight mb-4">
           Comment ça marche ?
         </h1>
         <p className="text-gray-500 dark:text-navy-100/60 text-lg leading-relaxed">
           PingLoop est un marché entre pongistes. Pas d&apos;intermédiaire commercial, pas de stock — des joueurs qui échangent du matos entre eux.
         </p>
         <div className="mt-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl p-4 flex items-start gap-3">
-          <span className="text-xl leading-none">🚧</span>
+          <Construction className="w-5 h-5 shrink-0 text-amber-700 dark:text-amber-300" strokeWidth={2} />
           <p className="text-sm text-amber-800 dark:text-amber-300">
             <strong>PingLoop est en version bêta.</strong> Seule la remise en main propre est disponible pour l&apos;instant — la livraison à domicile arrive très bientôt. Un bug, une idée ? Écris-nous à support@pingloop.fr.
           </p>
@@ -30,7 +31,7 @@ export default function CommentCaMarchePage() {
 
       {/* Acheteurs */}
       <section className="mb-12">
-        <h2 className="text-xl font-black text-navy dark:text-white mb-6 pb-3 border-b border-gray-100 dark:border-navy-700">
+        <h2 className="text-xl font-bold text-navy dark:text-white mb-6 pb-3 border-b border-gray-100 dark:border-navy-700">
           Pour les acheteurs
         </h2>
         <div className="flex flex-col divide-y divide-gray-100 dark:divide-navy-700">
@@ -69,7 +70,7 @@ export default function CommentCaMarchePage() {
 
       {/* Vendeurs */}
       <section className="mb-12">
-        <h2 className="text-xl font-black text-navy dark:text-white mb-6 pb-3 border-b border-gray-100 dark:border-navy-700">
+        <h2 className="text-xl font-bold text-navy dark:text-white mb-6 pb-3 border-b border-gray-100 dark:border-navy-700">
           Pour les vendeurs
         </h2>
         <div className="flex flex-col divide-y divide-gray-100 dark:divide-navy-700">
@@ -108,17 +109,26 @@ export default function CommentCaMarchePage() {
 
       {/* Protection */}
       <section className="mb-12 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 rounded-2xl p-6">
-        <h2 className="text-lg font-black text-navy dark:text-white mb-4">Protection des acheteurs</h2>
+        <h2 className="text-lg font-bold text-navy dark:text-white mb-4">Protection des acheteurs</h2>
         <div className="flex flex-col gap-3 text-sm text-gray-600 dark:text-navy-100/70 leading-relaxed">
-          <p>🔒 <strong>Paiement sécurisé</strong> — tous les paiements passent par Stripe. Tes coordonnées bancaires ne sont jamais transmises au vendeur.</p>
-          <p>📦 <strong>Article non conforme</strong> — si l&apos;article reçu ne correspond pas à la description, contacte-nous à <a href="mailto:support@pingloop.fr" className="text-navy dark:text-lime font-semibold">support@pingloop.fr</a> dans les 48h suivant la réception.</p>
-          <p>❌ <strong>Article non reçu</strong> — en cas de non-livraison, on ouvre une investigation et tu es remboursé.</p>
+          <p className="flex items-start gap-2">
+            <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" strokeWidth={2} />
+            <span><strong>Paiement sécurisé</strong> — tous les paiements passent par Stripe. Tes coordonnées bancaires ne sont jamais transmises au vendeur.</span>
+          </p>
+          <p className="flex items-start gap-2">
+            <PackageX className="w-4 h-4 mt-0.5 shrink-0" strokeWidth={2} />
+            <span><strong>Article non conforme</strong> — si l&apos;article reçu ne correspond pas à la description, contacte-nous à <a href="mailto:support@pingloop.fr" className="text-navy dark:text-lime font-semibold">support@pingloop.fr</a> dans les 48h suivant la réception.</span>
+          </p>
+          <p className="flex items-start gap-2">
+            <XCircle className="w-4 h-4 mt-0.5 shrink-0" strokeWidth={2} />
+            <span><strong>Article non reçu</strong> — en cas de non-livraison, on ouvre une investigation et tu es remboursé.</span>
+          </p>
         </div>
       </section>
 
       {/* FAQ */}
       <section className="mb-12">
-        <h2 className="text-xl font-black text-navy dark:text-white mb-6 pb-3 border-b border-gray-100 dark:border-navy-700">
+        <h2 className="text-xl font-bold text-navy dark:text-white mb-6 pb-3 border-b border-gray-100 dark:border-navy-700">
           Questions fréquentes
         </h2>
         <div className="flex flex-col gap-5">
@@ -154,7 +164,7 @@ export default function CommentCaMarchePage() {
 
       {/* CTA */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <Link href="/annonces" className="flex-1 bg-navy dark:bg-lime text-white dark:text-navy font-black py-3.5 rounded-xl text-center text-sm transition-colors hover:opacity-90">
+        <Link href="/annonces" className="flex-1 bg-navy dark:bg-lime text-white dark:text-navy font-bold py-3.5 rounded-xl text-center text-sm transition-colors hover:opacity-90">
           Voir les annonces →
         </Link>
         <Link href="/vendre" className="flex-1 border-2 border-navy dark:border-lime text-navy dark:text-lime font-bold py-3.5 rounded-xl text-center text-sm hover:bg-navy/5 dark:hover:bg-lime/10 transition-colors">
