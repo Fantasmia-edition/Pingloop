@@ -41,6 +41,14 @@ export default function UnreadBadge() {
   // Also react to realtime inserts/updates (requires REPLICA IDENTITY FULL on messages table)
   useEffect(() => {
     const supabase = createClient();
+
+    // En dev, React StrictMode monte l'effet deux fois de suite : le cleanup
+    // du premier montage (removeChannel, async) n'a pas toujours fini avant que
+    // le second tente de se réabonner au même canal nommé en dur, ce qui fait
+    // planter le SDK Realtime. On réutilise le canal déjà présent si besoin.
+    const existing = supabase.getChannels().find((c) => c.topic === "realtime:unread-global");
+    if (existing) return;
+
     const channel = supabase
       .channel("unread-global")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, fetchUnread)
