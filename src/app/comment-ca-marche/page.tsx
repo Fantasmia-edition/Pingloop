@@ -93,7 +93,7 @@ export default function CommentCaMarchePage() {
             {
               n: "04",
               title: "Marque l'annonce comme vendue",
-              desc: "L'annonce disparaît automatiquement après le paiement. Si tu as vendu en dehors de PingLoop, marque-la manuellement dans 'Mes annonces'.",
+              desc: "L'annonce disparaît automatiquement après un paiement via PingLoop. Si tu as vendu en dehors de la plateforme, supprime l'annonce depuis 'Mes annonces' — on te proposera de le signaler et, si tu le souhaites, de soutenir PingLoop avec un petit don.",
             },
           ].map((s) => (
             <div key={s.n} className="flex gap-6 py-6">
@@ -151,7 +151,7 @@ export default function CommentCaMarchePage() {
             },
             {
               q: "La remise en main propre est-elle sûre ?",
-              a: "Elle n'est pas couverte par la protection acheteur de PingLoop car le paiement se fait hors plateforme. On recommande de se retrouver dans un lieu public.",
+              a: "Oui si tu paies via PingLoop avant de te déplacer : le paiement est protégé comme n'importe quel achat, et tu récupères juste l'article ensuite. Ce n'est que si vendeur et acheteur choisissent de payer en dehors de la plateforme que la protection acheteur de PingLoop ne s'applique plus — dans ce cas, on recommande de se retrouver dans un lieu public.",
             },
           ].map((faq) => (
             <div key={faq.q} className="border-b border-gray-100 dark:border-navy-700 pb-5 last:border-0">

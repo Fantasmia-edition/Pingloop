@@ -8,7 +8,7 @@ import OffersSection from "@/components/OffersSection";
 import FavoriteButton from "@/components/FavoriteButton";
 import PickupTipSelector from "@/components/PickupTipSelector";
 import { ShippingIcon } from "@/components/icons";
-import { Check } from "lucide-react";
+import { Check, ShieldCheck, ChevronDown } from "lucide-react";
 
 const PaymentOptions = dynamic(() => import("./PaymentOptions"), { ssr: false });
 
@@ -44,6 +44,7 @@ export default function BuyerActions({
   const [method, setMethod] = useState<ShippingMethod>(
     defaultMethod(shippingHome)
   );
+  const [showDirectContact, setShowDirectContact] = useState(false);
 
   const shippingCost = method === "home" ? SHIPPING_PRICES.home : 0;
 
@@ -116,26 +117,46 @@ export default function BuyerActions({
         </div>
       )}
 
-      {/* Paiement par carte — toujours disponible */}
-      {method !== "pickup" ? (
-        <PaymentOptions
-          listingId={listingId}
-          itemPrice={itemPrice}
-          shippingMethod={method}
-          onPurchased={() => {}}
-          sellerPaypalOnboarded={sellerPaypalOnboarded}
-        />
-      ) : (
-        /* Main propre → contacter le vendeur pour convenir */
+      {/* Paiement via PingLoop — option prioritaire, y compris en main propre */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 rounded-xl p-3 text-xs text-blue-700 dark:text-blue-300 flex gap-2.5 items-start">
+        <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" strokeWidth={2} />
+        <p>
+          <strong>Paie via PingLoop</strong> — tes coordonnées bancaires ne sont jamais transmises au vendeur, et si l&apos;objet ne
+          correspond pas à l&apos;annonce, on te rembourse. Une partie de chaque vente soutient aussi les clubs de tennis de table.
+        </p>
+      </div>
+      <PaymentOptions
+        listingId={listingId}
+        itemPrice={itemPrice}
+        shippingMethod={method}
+        onPurchased={() => {}}
+        sellerPaypalOnboarded={sellerPaypalOnboarded}
+      />
+
+      {/* Option secondaire, repliée — s'arranger directement avec le vendeur */}
+      {method === "pickup" && (
         <div className="flex flex-col gap-3">
-          <ContactButton
-            listingId={listingId}
-            sellerId={sellerId}
-            sellerName={sellerName}
-            listingTitle={listingTitle}
-            listingPrice={itemPrice}
-          />
-          {currentUserId && <PickupTipSelector listingId={listingId} sellerClub={sellerClub} />}
+          {!showDirectContact ? (
+            <button
+              type="button"
+              onClick={() => setShowDirectContact(true)}
+              className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-navy-100 font-medium flex items-center justify-center gap-1 py-1"
+            >
+              Tu préfères t&apos;arranger directement avec le vendeur ?
+              <ChevronDown className="w-3.5 h-3.5" strokeWidth={2} />
+            </button>
+          ) : (
+            <>
+              <ContactButton
+                listingId={listingId}
+                sellerId={sellerId}
+                sellerName={sellerName}
+                listingTitle={listingTitle}
+                listingPrice={itemPrice}
+              />
+              {currentUserId && <PickupTipSelector listingId={listingId} sellerClub={sellerClub} />}
+            </>
+          )}
         </div>
       )}
 

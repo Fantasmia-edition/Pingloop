@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Listing, CONDITION_LABELS, CONDITION_COLORS } from "@/types";
 import Badge from "@/components/Badge";
+import DeleteListingModal from "@/components/DeleteListingModal";
 import { CategoryIcon } from "@/components/icons";
 import { PackageOpen, MapPin } from "lucide-react";
 
@@ -62,10 +63,14 @@ export default function MesAnnoncesPage() {
     setListings((prev) => prev.map((l) => l.id === id ? { ...l, sold_at: new Date().toISOString() } : l));
   }
 
+  function removeFromState(id: string) {
+    setListings((prev) => prev.filter((l) => l.id !== id));
+  }
+
   async function deleteListing(id: string) {
     const supabase = createClient();
     await supabase.from("listings").delete().eq("id", id);
-    setListings((prev) => prev.filter((l) => l.id !== id));
+    removeFromState(id);
   }
 
   const active = listings.filter((l) => !l.sold_at);
@@ -108,7 +113,14 @@ export default function MesAnnoncesPage() {
               </h2>
               <div className="flex flex-col gap-3">
                 {active.map((l) => (
-                  <ListingRow key={l.id} listing={l} onMarkSold={() => markSold(l.id)} onDelete={() => deleteListing(l.id)} />
+                  <ListingRow
+                    key={l.id}
+                    listing={l}
+                    onMarkSold={() => markSold(l.id)}
+                    onDelete={() => deleteListing(l.id)}
+                    onDeleted={() => removeFromState(l.id)}
+                    declareOffPlatform
+                  />
                 ))}
               </div>
             </div>
@@ -132,14 +144,17 @@ export default function MesAnnoncesPage() {
   );
 }
 
-function ListingRow({ listing: l, order, onMarkSold, onDelete }: {
+function ListingRow({ listing: l, order, onMarkSold, onDelete, onDeleted, declareOffPlatform }: {
   listing: FullListing;
   order?: Order;
   onMarkSold?: () => void;
   onDelete: () => void;
+  onDeleted?: () => void;
+  declareOffPlatform?: boolean;
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmSold, setConfirmSold] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const hasAddress = order?.shipping_method === "home" && order.shipping_line1;
 
@@ -191,7 +206,11 @@ function ListingRow({ listing: l, order, onMarkSold, onDelete }: {
               </button>
             )
           )}
-          {confirmDelete ? (
+          {declareOffPlatform ? (
+            <button onClick={() => setShowDeleteModal(true)} className="text-xs text-gray-400 hover:text-red-500 font-medium">
+              Supprimer
+            </button>
+          ) : confirmDelete ? (
             <div className="flex gap-1">
               <button onClick={onDelete} className="text-xs text-red-600 font-bold">Oui</button>
               <span className="text-gray-300">|</span>
@@ -204,6 +223,17 @@ function ListingRow({ listing: l, order, onMarkSold, onDelete }: {
           )}
         </div>
       </div>
+
+      {showDeleteModal && onDeleted && (
+        <DeleteListingModal
+          listingId={l.id}
+          brand={l.brand}
+          name={l.name}
+          price={l.price}
+          onClose={() => setShowDeleteModal(false)}
+          onDeleted={onDeleted}
+        />
+      )}
 
       {/* Adresse de livraison — renseignée par l'acheteur au paiement, jamais via la messagerie */}
       {hasAddress && (

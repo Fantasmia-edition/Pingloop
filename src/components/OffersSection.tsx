@@ -5,8 +5,9 @@ import { createClient } from "@/lib/supabase/client";
 import { SHIPPING_PRICES } from "@/types";
 import { HOME_SHIPPING_ENABLED } from "@/lib/config";
 import PickupTipSelector from "@/components/PickupTipSelector";
+import ContactButton from "@/components/ContactButton";
 import { ShippingIcon } from "@/components/icons";
-import { MessageCircle, PartyPopper, Check, X, ArrowLeftRight, Handshake } from "lucide-react";
+import { MessageCircle, PartyPopper, Check, X, ArrowLeftRight, Handshake, ShieldCheck, ChevronDown } from "lucide-react";
 
 const PaymentOptions = dynamic(() => import("./PaymentOptions"), { ssr: false });
 
@@ -54,6 +55,7 @@ export default function OffersSection({
   const [acceptedMethod, setAcceptedMethod] = useState<"home" | "pickup">(
     HOME_SHIPPING_ENABLED && shippingHome ? "home" : "pickup"
   );
+  const [showDirectContact, setShowDirectContact] = useState(false);
 
   const isSeller = currentUserId === sellerId;
   const minBuyerAmount = Math.ceil(listingPrice * 0.8);
@@ -334,24 +336,48 @@ export default function OffersSection({
           )}
 
           {/* Payment / Pickup CTA */}
-          <div className="p-4">
-            {acceptedMethod !== "pickup" ? (
-              <PaymentOptions
-                listingId={listingId}
-                itemPrice={latest.amount}
-                shippingMethod={acceptedMethod}
-                offerId={latest.id}
-                onPurchased={() => {}}
-                sellerPaypalOnboarded={sellerPaypalOnboarded}
-              />
-            ) : (
-              <div className="flex flex-col gap-3">
-                <p className="text-sm text-center text-gray-600 dark:text-navy-100/70 font-medium py-2 flex items-center justify-center gap-1.5">
-                  <Handshake className="w-4 h-4 shrink-0" strokeWidth={2} />
-                  Contacte le vendeur via la messagerie pour convenir de la remise en main propre.
-                </p>
-                <PickupTipSelector listingId={listingId} sellerClub={sellerClub} />
-              </div>
+          <div className="p-4 flex flex-col gap-3">
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 rounded-xl p-3 text-xs text-blue-700 dark:text-blue-300 flex gap-2.5 items-start">
+              <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" strokeWidth={2} />
+              <p>
+                <strong>Paie via PingLoop</strong> — coordonnées bancaires jamais transmises au vendeur, remboursé si l&apos;objet ne
+                correspond pas à l&apos;annonce, et une partie de la vente soutient les clubs.
+              </p>
+            </div>
+            <PaymentOptions
+              listingId={listingId}
+              itemPrice={latest.amount}
+              shippingMethod={acceptedMethod}
+              offerId={latest.id}
+              onPurchased={() => {}}
+              sellerPaypalOnboarded={sellerPaypalOnboarded}
+            />
+            {acceptedMethod === "pickup" && (
+              !showDirectContact ? (
+                <button
+                  type="button"
+                  onClick={() => setShowDirectContact(true)}
+                  className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-navy-100 font-medium flex items-center justify-center gap-1 py-1"
+                >
+                  Tu préfères t&apos;arranger directement avec le vendeur ?
+                  <ChevronDown className="w-3.5 h-3.5" strokeWidth={2} />
+                </button>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  <p className="text-sm text-center text-gray-600 dark:text-navy-100/70 font-medium py-1 flex items-center justify-center gap-1.5">
+                    <Handshake className="w-4 h-4 shrink-0" strokeWidth={2} />
+                    Contacte le vendeur via la messagerie pour convenir de la remise en main propre.
+                  </p>
+                  <ContactButton
+                    listingId={listingId}
+                    sellerId={sellerId}
+                    sellerName={sellerName}
+                    listingTitle={listingTitle}
+                    listingPrice={latest.amount}
+                  />
+                  <PickupTipSelector listingId={listingId} sellerClub={sellerClub} />
+                </div>
+              )
             )}
           </div>
         </div>
