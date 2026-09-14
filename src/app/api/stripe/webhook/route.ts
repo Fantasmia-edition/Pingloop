@@ -62,17 +62,19 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Marquer l'annonce comme vendue
-    await supabase
+    const { error: markSoldError } = await supabase
       .from("listings")
       .update({ sold_at: new Date().toISOString() })
       .eq("id", listingId);
+    if (markSoldError) console.error("webhook: échec mark sold_at", listingId, markSoldError);
 
     // 2. Récupérer infos annonce + vendeur pour notifier
-    const { data: listing } = await supabase
+    const { data: listing, error: listingFetchError } = await supabase
       .from("listings")
       .select("brand, name, price, seller_id, seller_name")
       .eq("id", listingId)
       .single();
+    if (listingFetchError) console.error("webhook: échec lecture listing", listingId, listingFetchError);
 
     if (listing) {
       // 3. Suivi du reversement club (informatif, cf. src/lib/club-contributions.ts)
@@ -91,7 +93,7 @@ export async function POST(req: NextRequest) {
       const shippingCostValue = pi.metadata?.shipping_cost ? Number(pi.metadata.shipping_cost) : 0;
       const latestCharge = typeof pi.latest_charge === "string" ? pi.latest_charge : pi.latest_charge?.id ?? null;
 
-      await supabase.from("orders").upsert({
+      const { error: orderError } = await supabase.from("orders").upsert({
         listing_id: listingId,
         buyer_id: buyerId && buyerId !== "guest" ? buyerId : null,
         seller_id: listing.seller_id,
@@ -110,6 +112,7 @@ export async function POST(req: NextRequest) {
           ? Math.round((paidItemPrice * (1 - COMMISSION_RATE) + shippingCostValue) * 100) / 100
           : null,
       }, { onConflict: "listing_id", ignoreDuplicates: true });
+      if (orderError) console.error("webhook: échec création order", listingId, orderError);
 
       // 4. Créer une notification pour le vendeur (table notifications si elle existe)
       // ou poster un message dans la conversation

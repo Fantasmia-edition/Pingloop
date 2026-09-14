@@ -24,14 +24,20 @@ export async function POST(req: NextRequest) {
 
   const { data: listing } = await supabase
     .from("listings")
-    .select("price, sold_at, profiles!listings_seller_id_fkey(paypal_merchant_id, paypal_onboarded)")
+    .select("price, sold_at, seller_id")
     .eq("id", listingId)
     .single();
 
   if (!listing) return NextResponse.json({ error: "Annonce introuvable" }, { status: 404 });
   if (listing.sold_at) return NextResponse.json({ error: "Déjà vendu" }, { status: 400 });
 
-  const sellerProfile = (listing as { profiles?: { paypal_merchant_id?: string; paypal_onboarded?: boolean } }).profiles;
+  // Pas de clé étrangère directe entre listings et profiles (les deux référencent
+  // auth.users séparément) — impossible à embarquer dans le select ci-dessus.
+  const { data: sellerProfile } = await supabase
+    .from("profiles")
+    .select("paypal_merchant_id, paypal_onboarded")
+    .eq("id", listing.seller_id)
+    .single();
   if (!sellerProfile?.paypal_onboarded || !sellerProfile?.paypal_merchant_id) {
     return NextResponse.json({ error: "Vendeur non configuré sur PayPal" }, { status: 400 });
   }

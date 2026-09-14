@@ -37,12 +37,19 @@ export default function PaymentOptions({
     let cancelled = false;
     async function load() {
       const supabase = createClient();
-      const { data } = await supabase
+      const { data: listing } = await supabase
         .from("listings")
-        .select("profiles!listings_seller_id_fkey(paypal_onboarded)")
+        .select("seller_id")
         .eq("id", listingId)
         .single();
-      const profile = (data as { profiles?: { paypal_onboarded?: boolean } } | null)?.profiles;
+      if (!listing) { if (!cancelled) setFetchedPaypal(false); return; }
+      // Pas de clé étrangère directe entre listings et profiles (les deux
+      // référencent auth.users séparément) — deux requêtes nécessaires.
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("paypal_onboarded")
+        .eq("id", listing.seller_id)
+        .single();
       if (!cancelled) {
         setFetchedPaypal(!!profile?.paypal_onboarded);
       }

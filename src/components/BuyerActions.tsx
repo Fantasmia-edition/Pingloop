@@ -3,6 +3,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { SHIPPING_PRICES } from "@/types";
 import { HOME_SHIPPING_ENABLED } from "@/lib/config";
+import { useRouter } from "next/navigation";
 import ContactButton from "@/components/ContactButton";
 import OffersSection from "@/components/OffersSection";
 import FavoriteButton from "@/components/FavoriteButton";
@@ -39,6 +40,7 @@ export default function BuyerActions({
   sellerPaypalOnboarded,
   sellerClub,
 }: Props) {
+  const router = useRouter();
   const hasOptions = (HOME_SHIPPING_ENABLED && shippingHome) || pickupAvailable;
 
   const [method, setMethod] = useState<ShippingMethod>(
@@ -125,13 +127,23 @@ export default function BuyerActions({
           correspond pas à l&apos;annonce, on te rembourse. Une partie de chaque vente soutient aussi les clubs de tennis de table.
         </p>
       </div>
-      <PaymentOptions
-        listingId={listingId}
-        itemPrice={itemPrice}
-        shippingMethod={method}
-        onPurchased={() => {}}
-        sellerPaypalOnboarded={sellerPaypalOnboarded}
-      />
+      {currentUserId ? (
+        <PaymentOptions
+          listingId={listingId}
+          itemPrice={itemPrice}
+          shippingMethod={method}
+          onPurchased={() => {}}
+          sellerPaypalOnboarded={sellerPaypalOnboarded}
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => router.push(`/auth?redirect=/annonces/${listingId}`)}
+          className="w-full bg-lime hover:bg-lime-dark text-navy font-bold py-3.5 rounded-xl text-base transition-colors"
+        >
+          Connecte-toi pour payer →
+        </button>
+      )}
 
       {/* Option secondaire, repliée — s'arranger directement avec le vendeur */}
       {method === "pickup" && (
