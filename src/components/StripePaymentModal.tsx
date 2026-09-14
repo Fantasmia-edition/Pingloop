@@ -66,13 +66,14 @@ interface Props {
   shippingCost: number;
   offerId?: string;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (pickupCode?: string | null) => void;
 }
 
 export default function StripePaymentModal({
   listingId, price, shippingMethod, itemPrice, shippingCost, offerId, onClose, onSuccess,
 }: Props) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [pickupCode, setPickupCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -99,9 +100,10 @@ export default function StripePaymentModal({
         shippingAddress: shippingAddr ?? null,
       }),
     });
-    const { clientSecret: cs, error: err } = await res.json();
+    const { clientSecret: cs, pickupCode: pc, error: err } = await res.json();
     if (err) { setError(err); setLoading(false); return; }
     setClientSecret(cs);
+    setPickupCode(pc ?? null);
     setLoading(false);
   }
 
@@ -195,7 +197,7 @@ export default function StripePaymentModal({
                   },
                 }}
               >
-                <CheckoutForm onSuccess={onSuccess} onClose={onClose} />
+                <CheckoutForm onSuccess={() => onSuccess(pickupCode)} onClose={onClose} />
               </Elements>
             )}
           </>

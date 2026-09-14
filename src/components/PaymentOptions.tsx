@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { createClient } from "@/lib/supabase/client";
 import { SHIPPING_PRICES } from "@/types";
-import { PartyPopper, CreditCard } from "lucide-react";
+import { PartyPopper, CreditCard, KeyRound } from "lucide-react";
 
 const StripePaymentModal = dynamic(() => import("./StripePaymentModal"), { ssr: false });
 const PayPalPaymentButton = dynamic(() => import("./PayPalPaymentButton"), { ssr: false });
@@ -27,6 +27,7 @@ export default function PaymentOptions({
 }: Props) {
   const [showStripe, setShowStripe] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [successPickupCode, setSuccessPickupCode] = useState<string | null>(null);
   const [paypalError, setPaypalError] = useState("");
   const [fetchedPaypal, setFetchedPaypal] = useState<boolean | null>(null);
 
@@ -75,6 +76,18 @@ export default function PaymentOptions({
         <p className="text-sm text-green-600 dark:text-green-500 mt-1">
           Tu recevras un email de confirmation. Le vendeur a été notifié.
         </p>
+        {successPickupCode && (
+          <div className="mt-4 bg-white dark:bg-navy-800 border-2 border-dashed border-green-300 dark:border-green-700 rounded-xl p-4">
+            <p className="text-xs font-semibold text-gray-500 dark:text-navy-100/60 flex items-center justify-center gap-1.5 mb-1.5">
+              <KeyRound className="w-3.5 h-3.5" strokeWidth={2} />
+              Ton code de remise
+            </p>
+            <p className="text-3xl font-black tabular-nums tracking-widest text-gray-900 dark:text-white">{successPickupCode}</p>
+            <p className="text-xs text-gray-400 dark:text-navy-100/50 mt-1.5">
+              Donne-le au vendeur au moment de l&apos;échange — il l&apos;utilisera pour confirmer la remise sur PingLoop.
+            </p>
+          </div>
+        )}
       </div>
     );
   }
@@ -94,7 +107,7 @@ export default function PaymentOptions({
           listingId={listingId}
           offerId={offerId}
           shippingMethod={shippingMethod}
-          onSuccess={() => { setSuccess(true); onPurchased(); }}
+          onSuccess={(pickupCode) => { setSuccessPickupCode(pickupCode ?? null); setSuccess(true); onPurchased(); }}
           onError={(msg) => setPaypalError(msg)}
         />
       )}
@@ -109,8 +122,9 @@ export default function PaymentOptions({
           shippingMethod={shippingMethod}
           offerId={offerId}
           onClose={() => setShowStripe(false)}
-          onSuccess={() => {
+          onSuccess={(pickupCode) => {
             setShowStripe(false);
+            setSuccessPickupCode(pickupCode ?? null);
             setSuccess(true);
             onPurchased();
           }}

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SHIPPING_PRICES } from "@/types";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { COMMISSION_RATE } from "@/lib/config";
+import { generatePickupCode } from "@/lib/pickup-code";
 
 export async function POST(req: NextRequest) {
   const { listingId, shippingMethod, offerId, shippingAddress } = await req.json();
@@ -62,6 +63,9 @@ export async function POST(req: NextRequest) {
   }
 
   const shippingCost = shippingMethod === "home" ? SHIPPING_PRICES.home : 0;
+  // Remis à l'acheteur juste après paiement, à donner au vendeur lors de la
+  // remise en main propre pour qu'il confirme l'échange sur la plateforme.
+  const pickupCode = shippingMethod !== "home" ? generatePickupCode() : null;
 
   const totalCents = Math.round((itemPrice + shippingCost) * 100);
   // Commission calculée sur le prix de l'article uniquement (pas les frais de port,
@@ -80,6 +84,7 @@ export async function POST(req: NextRequest) {
       shipping_cost:    String(shippingCost),
       shipping_address: shippingAddress ? JSON.stringify(shippingAddress) : "",
       pending_payout:   sellerOnboarded ? "" : "true",
+      pickup_code:      pickupCode ?? "",
     },
     automatic_payment_methods: { enabled: true },
     ...(sellerOnboarded ? {
@@ -88,5 +93,5 @@ export async function POST(req: NextRequest) {
     } : {}),
   });
 
-  return NextResponse.json({ clientSecret: paymentIntent.client_secret });
+  return NextResponse.json({ clientSecret: paymentIntent.client_secret, pickupCode });
 }

@@ -3,6 +3,7 @@ import { paypalFetch } from "@/lib/paypal";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { recordClubContribution } from "@/lib/club-contributions";
+import { generatePickupCode } from "@/lib/pickup-code";
 import { SHIPPING_PRICES } from "@/types";
 
 export async function POST(req: NextRequest) {
@@ -10,11 +11,14 @@ export async function POST(req: NextRequest) {
 
   const authClient = await createClient();
   const { data: { user } } = await authClient.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Non connecté" }, { status: 401 });
 
   const capture = await paypalFetch(`/v2/checkout/orders/${orderId}/capture`, {
     method: "POST",
     body: JSON.stringify({}),
   });
+
+  let pickupCode: string | null = null;
 
   if (capture.status === "COMPLETED") {
     const listingId = capture.purchase_units?.[0]?.reference_id;
@@ -42,11 +46,15 @@ export async function POST(req: NextRequest) {
         const paidItemPrice = customId && !isNaN(Number(customId)) ? Number(customId) : listing.price;
         await recordClubContribution(supabase, listingId, listing.seller_id, paidItemPrice);
 
+        // Remis à l'acheteur juste après paiement, à donner au vendeur lors de la
+        // remise en main propre pour qu'il confirme l'échange sur la plateforme.
+        if (shippingMethod !== "home") pickupCode = generatePickupCode();
+
         // Commande + adresse de livraison — stockage structuré, indépendant de la
         // messagerie (upsert idempotent si l'acheteur redéclenche la capture).
-        await supabase.from("orders").upsert({
+        const { error: orderError } = await supabase.from("orders").upsert({
           listing_id: listingId,
-          buyer_id: user?.id ?? null,
+          buyer_id: user.id,
           seller_id: listing.seller_id,
           provider: "paypal",
           item_price: paidItemPrice,
@@ -57,10 +65,12 @@ export async function POST(req: NextRequest) {
           shipping_line2: shippingAddress?.line2 ?? null,
           shipping_postal_code: shippingAddress?.postal_code ?? null,
           shipping_city: shippingAddress?.city ?? null,
+          pickup_code: pickupCode,
         }, { onConflict: "listing_id", ignoreDuplicates: true });
+        if (orderError) console.error("paypal capture: échec création order", listingId, orderError);
       }
     }
   }
 
-  return NextResponse.json({ status: capture.status });
+  return NextResponse.json({ status: capture.status, pickupCode });
 }

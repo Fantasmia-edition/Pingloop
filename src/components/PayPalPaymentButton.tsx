@@ -9,7 +9,7 @@ interface Props {
   listingId: string;
   offerId?: string;
   shippingMethod?: "home" | "pickup" | null;
-  onSuccess: () => void;
+  onSuccess: (pickupCode?: string | null) => void;
   onError: (msg: string) => void;
 }
 
@@ -61,9 +61,9 @@ export default function PayPalPaymentButton({ listingId, offerId, shippingMethod
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ orderId: data.orderID, shippingMethod, shippingAddress: address }),
             });
-            const { status } = await res.json();
+            const { status, pickupCode } = await res.json();
             if (status === "COMPLETED") {
-              onSuccess();
+              onSuccess(pickupCode);
             } else {
               onError("Le paiement n'a pas pu être confirmé.");
             }

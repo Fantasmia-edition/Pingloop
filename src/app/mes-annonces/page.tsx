@@ -7,7 +7,7 @@ import { Listing, CONDITION_LABELS, CONDITION_COLORS } from "@/types";
 import Badge from "@/components/Badge";
 import DeleteListingModal from "@/components/DeleteListingModal";
 import { CategoryIcon } from "@/components/icons";
-import { PackageOpen, MapPin } from "lucide-react";
+import { PackageOpen, MapPin, KeyRound, Check } from "lucide-react";
 
 type FullListing = Listing & { photos: string[]; seller_name: string; sold_at: string | null };
 
@@ -19,6 +19,7 @@ interface Order {
   shipping_line2: string | null;
   shipping_postal_code: string | null;
   shipping_city: string | null;
+  pickup_confirmed_at: string | null;
 }
 
 export default function MesAnnoncesPage() {
@@ -45,7 +46,7 @@ export default function MesAnnoncesPage() {
       // fiable (indépendante de la messagerie), cf. table `orders`.
       const { data: orderRows } = await supabase
         .from("orders")
-        .select("listing_id, shipping_method, shipping_name, shipping_line1, shipping_line2, shipping_postal_code, shipping_city")
+        .select("listing_id, shipping_method, shipping_name, shipping_line1, shipping_line2, shipping_postal_code, shipping_city, pickup_confirmed_at")
         .eq("seller_id", user.id);
 
       const byListing: Record<string, Order> = {};
@@ -65,6 +66,13 @@ export default function MesAnnoncesPage() {
 
   function removeFromState(id: string) {
     setListings((prev) => prev.filter((l) => l.id !== id));
+  }
+
+  function markPickupConfirmed(listingId: string) {
+    setOrders((prev) => prev[listingId]
+      ? { ...prev, [listingId]: { ...prev[listingId], pickup_confirmed_at: new Date().toISOString() } }
+      : prev
+    );
   }
 
   async function deleteListing(id: string) {
@@ -133,7 +141,13 @@ export default function MesAnnoncesPage() {
               </h2>
               <div className="flex flex-col gap-3 opacity-60">
                 {sold.map((l) => (
-                  <ListingRow key={l.id} listing={l} order={orders[l.id]} onDelete={() => deleteListing(l.id)} />
+                  <ListingRow
+                    key={l.id}
+                    listing={l}
+                    order={orders[l.id]}
+                    onDelete={() => deleteListing(l.id)}
+                    onPickupConfirmed={() => markPickupConfirmed(l.id)}
+                  />
                 ))}
               </div>
             </div>
@@ -144,19 +158,42 @@ export default function MesAnnoncesPage() {
   );
 }
 
-function ListingRow({ listing: l, order, onMarkSold, onDelete, onDeleted, declareOffPlatform }: {
+function ListingRow({ listing: l, order, onMarkSold, onDelete, onDeleted, declareOffPlatform, onPickupConfirmed }: {
   listing: FullListing;
   order?: Order;
   onMarkSold?: () => void;
   onDelete: () => void;
   onDeleted?: () => void;
   declareOffPlatform?: boolean;
+  onPickupConfirmed?: () => void;
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmSold, setConfirmSold] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [pickupCodeInput, setPickupCodeInput] = useState("");
+  const [pickupSubmitting, setPickupSubmitting] = useState(false);
+  const [pickupError, setPickupError] = useState("");
 
   const hasAddress = order?.shipping_method === "home" && order.shipping_line1;
+  const needsPickupConfirm = order?.shipping_method === "pickup" && !order.pickup_confirmed_at;
+
+  async function confirmPickup() {
+    if (!pickupCodeInput.trim()) return;
+    setPickupSubmitting(true);
+    setPickupError("");
+    const res = await fetch("/api/orders/confirm-pickup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ listingId: l.id, code: pickupCodeInput.trim() }),
+    });
+    const { confirmed, error } = await res.json();
+    setPickupSubmitting(false);
+    if (confirmed) {
+      onPickupConfirmed?.();
+    } else {
+      setPickupError(error || "Code incorrect.");
+    }
+  }
 
   return (
     <div className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 rounded-xl p-4 flex flex-col gap-3">
@@ -244,6 +281,41 @@ function ListingRow({ listing: l, order, onMarkSold, onDelete, onDeleted, declar
             {order!.shipping_line2 ? `, ${order!.shipping_line2}` : ""}, {order!.shipping_postal_code} {order!.shipping_city}
           </span>
         </div>
+      )}
+
+      {/* Confirmation de remise en main propre — code donné par l'acheteur au rendez-vous */}
+      {needsPickupConfirm && (
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 rounded-lg px-3 py-2.5 flex flex-col gap-2">
+          <p className="text-xs text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+            <KeyRound className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+            Demande le code de remise à l&apos;acheteur pour confirmer l&apos;échange
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              inputMode="numeric"
+              maxLength={4}
+              placeholder="Code à 4 chiffres"
+              value={pickupCodeInput}
+              onChange={(e) => setPickupCodeInput(e.target.value.replace(/\D/g, ""))}
+              className="flex-1 border border-amber-300 dark:border-amber-700/60 rounded-lg px-3 py-1.5 text-sm tracking-widest bg-white dark:bg-navy-800 text-gray-900 dark:text-white"
+            />
+            <button
+              onClick={confirmPickup}
+              disabled={pickupSubmitting || pickupCodeInput.trim().length !== 4}
+              className="shrink-0 bg-amber-600 hover:bg-amber-700 disabled:opacity-40 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors"
+            >
+              {pickupSubmitting ? "…" : "Valider"}
+            </button>
+          </div>
+          {pickupError && <p className="text-xs text-red-600 dark:text-red-400">{pickupError}</p>}
+        </div>
+      )}
+      {order?.shipping_method === "pickup" && order.pickup_confirmed_at && (
+        <p className="text-xs text-green-600 dark:text-green-400 font-semibold flex items-center gap-1.5">
+          <Check className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} />
+          Remise confirmée
+        </p>
       )}
     </div>
   );

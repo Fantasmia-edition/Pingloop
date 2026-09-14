@@ -151,7 +151,7 @@ export default function CommentCaMarchePage() {
             },
             {
               q: "La remise en main propre est-elle sûre ?",
-              a: "Oui si tu paies via PingLoop avant de te déplacer : le paiement est protégé comme n'importe quel achat, et tu récupères juste l'article ensuite. Ce n'est que si vendeur et acheteur choisissent de payer en dehors de la plateforme que la protection acheteur de PingLoop ne s'applique plus — dans ce cas, on recommande de se retrouver dans un lieu public.",
+              a: "Oui si tu paies via PingLoop avant de te déplacer : le paiement est protégé comme n'importe quel achat, et tu récupères juste l'article ensuite. Après le paiement, l'acheteur reçoit un code à 4 chiffres à donner au vendeur lors du rendez-vous — le vendeur le saisit sur PingLoop pour confirmer que l'échange a bien eu lieu. Ce n'est que si vendeur et acheteur choisissent de payer en dehors de la plateforme que la protection acheteur de PingLoop ne s'applique plus — dans ce cas, on recommande de se retrouver dans un lieu public.",
             },
           ].map((faq) => (
             <div key={faq.q} className="border-b border-gray-100 dark:border-navy-700 pb-5 last:border-0">

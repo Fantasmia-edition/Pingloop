@@ -1,8 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Resend } from "resend";
 import { stripe } from "@/lib/stripe";
 import { createServiceClient } from "@/lib/supabase/service";
 import { recordClubContribution } from "@/lib/club-contributions";
 import { PICKUP_TIP_CLUB_SHARE, COMMISSION_RATE } from "@/lib/config";
+
+const FROM_EMAIL = "PingLoop <notifications@pingloop.fr>";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+function escapeHtml(str: string) {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -108,23 +121,53 @@ export async function POST(req: NextRequest) {
         shipping_city: shippingAddress?.city ?? null,
         payout_status: isPending ? "pending_seller_onboarding" : "paid_out",
         stripe_charge_id: isPending ? latestCharge : null,
+        pickup_code: shippingMethod !== "home" ? (pi.metadata?.pickup_code || null) : null,
         amount_due_seller: isPending
           ? Math.round((paidItemPrice * (1 - COMMISSION_RATE) + shippingCostValue) * 100) / 100
           : null,
       }, { onConflict: "listing_id", ignoreDuplicates: true });
       if (orderError) console.error("webhook: échec création order", listingId, orderError);
 
-      // 4. Créer une notification pour le vendeur (table notifications si elle existe)
-      // ou poster un message dans la conversation
+      // 4. Message de confirmation dans la conversation — créée si elle n'existe
+      // pas encore (un achat direct au prix affiché ne passe plus forcément par
+      // "Contacter le vendeur" avant de payer).
       if (buyerId && buyerId !== "guest") {
-        const { data: conv } = await supabase
+        const { data: existingConv } = await supabase
           .from("conversations")
           .select("id")
           .eq("listing_id", listingId)
           .eq("buyer_id", buyerId)
           .maybeSingle();
 
-        if (conv) {
+        let convId = existingConv?.id ?? null;
+
+        if (!convId) {
+          const { data: buyerProfile } = await supabase
+            .from("profiles")
+            .select("display_name")
+            .eq("id", buyerId)
+            .single();
+          const { data: buyerAuth } = await supabase.auth.admin.getUserById(buyerId);
+          const buyerName = buyerProfile?.display_name
+            || buyerAuth?.user?.email?.split("@")[0]
+            || "Acheteur";
+
+          const { data: createdConv, error: convError } = await supabase
+            .from("conversations")
+            .insert({
+              listing_id: listingId,
+              buyer_id: buyerId,
+              seller_id: listing.seller_id,
+              buyer_name: buyerName,
+              seller_name: listing.seller_name,
+            })
+            .select("id")
+            .single();
+          if (convError) console.error("webhook: échec création conversation", listingId, convError);
+          convId = createdConv?.id ?? null;
+        }
+
+        if (convId) {
           const amount = (pi.amount / 100).toFixed(2);
           let msgText = `✅ Paiement de ${amount} € confirmé !`;
 
@@ -135,11 +178,53 @@ export async function POST(req: NextRequest) {
           }
 
           // Message visible dans la conversation pour les deux parties
-          await supabase.from("messages").insert({
-            conversation_id: conv.id,
+          const { error: msgError } = await supabase.from("messages").insert({
+            conversation_id: convId,
             from_id: buyerId,
             text: msgText,
           });
+          if (msgError) console.error("webhook: échec message confirmation", listingId, msgError);
+        }
+      }
+
+      // 5. Email de vente au vendeur — seul canal garanti de le prévenir tout de
+      // suite (la cloche in-app ne se rafraîchit qu'à la prochaine navigation).
+      const { data: sellerAuth } = await supabase.auth.admin.getUserById(listing.seller_id);
+      const sellerEmail = sellerAuth?.user?.email;
+      if (sellerEmail) {
+        const listingTitle = escapeHtml(`${listing.brand} ${listing.name}`);
+        const amount = (pi.amount / 100).toFixed(2);
+        const listingUrl = `${SITE_URL}/annonces/${listingId}`;
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        try {
+          const { error: emailSendError } = await resend.emails.send({
+            from: FROM_EMAIL,
+            to: sellerEmail,
+            subject: `🎉 Vendu ! ${listingTitle} — ${amount} €`,
+            html: `
+              <div style="font-family:sans-serif;max-width:500px;margin:auto;padding:24px">
+                <h1 style="color:#f43f5e;font-size:22px;margin-bottom:4px">PingLoop</h1>
+                <p style="color:#6b7280;font-size:14px;margin-bottom:24px">Ton annonce vient d'être payée</p>
+                <div style="border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px">
+                  <p style="margin:0 0 8px;font-size:13px;color:#6b7280">Annonce vendue</p>
+                  <p style="margin:0 0 12px;font-size:18px;font-weight:900;color:#0f172a">${listingTitle}</p>
+                  <p style="margin:0;font-size:28px;font-weight:900;color:#f43f5e">${amount} €</p>
+                  <p style="margin:8px 0 0;font-size:13px;color:#6b7280">
+                    ${shippingMethod === "home" ? "Envoi par La Poste — prépare le colis." : "Remise en main propre — contacte l'acheteur pour convenir d'un rendez-vous."}
+                  </p>
+                </div>
+                <a href="${listingUrl}" style="display:block;text-align:center;background:#0f172a;color:white;font-weight:700;padding:14px 24px;border-radius:10px;text-decoration:none;font-size:15px">
+                  Voir l'annonce →
+                </a>
+                <p style="font-size:11px;color:#9ca3af;margin-top:24px;text-align:center">
+                  PingLoop — Le marché des pongistes
+                </p>
+              </div>
+            `,
+          });
+          if (emailSendError) console.error("webhook: échec email vente vendeur", listingId, emailSendError);
+        } catch (emailError) {
+          console.error("webhook: échec email vente vendeur", listingId, emailError);
         }
       }
     }
