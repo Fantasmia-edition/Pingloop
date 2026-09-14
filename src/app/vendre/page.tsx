@@ -208,7 +208,7 @@ export default function VendrePage() {
           <div className="flex-1">
             <p className="text-sm font-bold text-amber-800 dark:text-amber-300">Aucun moyen de paiement connecté</p>
             <p className="text-xs text-amber-700/80 dark:text-amber-300/70 mt-0.5">
-              Tu peux publier ton annonce dès maintenant, mais les acheteurs ne pourront pas encore te payer. Connecte Stripe ou PayPal depuis ton profil avant la première vente.
+              Tu peux publier ton annonce dès maintenant — les acheteurs peuvent déjà te payer par carte. Les fonds seront simplement bloqués jusqu&apos;à ce que tu connectes Stripe (ou PayPal) depuis ton profil, puis débloqués automatiquement.
             </p>
           </div>
           <button
