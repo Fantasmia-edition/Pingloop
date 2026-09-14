@@ -35,7 +35,6 @@ export default function Navbar() {
   }
 
   const navLinks = [
-    { href: "/annonces", label: "Annonces" },
     { href: "/messages", label: "Messages", badge: true },
     { href: "/alertes", label: "Alertes" },
     { href: "/comment-ca-marche", label: "Comment ça marche" },
@@ -78,7 +77,7 @@ export default function Navbar() {
         </nav>
 
         {/* Right side actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {user && <NotificationBell />}
           <ThemeToggle />
           {user ? (
@@ -94,8 +93,18 @@ export default function Navbar() {
             </Link>
           )}
           <Link
+            href="/annonces"
+            className={`text-xs sm:text-sm font-bold px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg border whitespace-nowrap transition-colors ${
+              pathname.startsWith("/annonces")
+                ? "border-lime text-lime"
+                : "border-white/30 text-white hover:border-white/60"
+            }`}
+          >
+            Acheter
+          </Link>
+          <Link
             href="/vendre"
-            className="bg-lime hover:bg-lime-dark text-navy text-sm font-bold px-4 py-2 rounded-lg transition-colors"
+            className="bg-lime hover:bg-lime-dark text-navy text-xs sm:text-sm font-bold px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg whitespace-nowrap transition-colors"
           >
             + Vendre
           </Link>

@@ -25,7 +25,7 @@ export default function FavoriteButton({ listingId, currentUserId }: Props) {
   }, [currentUserId, listingId]);
 
   async function toggle() {
-    if (!currentUserId) { router.push("/auth"); return; }
+    if (!currentUserId) { router.push(`/auth?redirect=/annonces/${listingId}`); return; }
     setLoading(true);
     const supabase = createClient();
     if (isFav) {
