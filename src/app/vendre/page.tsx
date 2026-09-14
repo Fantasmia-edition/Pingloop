@@ -105,7 +105,7 @@ export default function VendrePage() {
       <div className="max-w-lg mx-auto px-4 py-20 text-center">
         <Lock className="w-10 h-10 mx-auto mb-4 text-gray-300" strokeWidth={1.5} />
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Connexion requise</h1>
-        <p className="text-gray-500 mb-6">Pour mettre en vente, connecte-toi en 30 secondes — sans mot de passe.</p>
+        <p className="text-gray-500 mb-6">Pour mettre en vente, connecte-toi en 30 secondes.</p>
         <button
           onClick={() => router.push("/auth?redirect=/vendre")}
           className="bg-lime hover:bg-lime-dark text-navy font-bold px-8 py-3 rounded-xl transition-colors"
